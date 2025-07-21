@@ -134,17 +134,6 @@ model Message {
 - Max size: 4MB
 - Returns: `imageUrl` for chat messages
 
-Example usage:
-
-```tsx
-<UploadButton
-  endpoint='messageImage'
-  onClientUploadComplete={(res) => {
-    sendMessage({ imageUrl: res[0].url });
-  }}
-/>
-```
-
 ---
 
 ## ✅ Roadmap / TODOs
