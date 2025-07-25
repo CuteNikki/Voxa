@@ -1,12 +1,12 @@
 # 📡 Voxa — Realtime Chat App
 
-> A sleek, serverless, full-stack real-time chat app with public channels, DMs, and media support — powered by **Next.js**, **Convex**, and **UploadThing**.
+> A sleek, serverless, full-stack real-time chat app with public channels, DMs, and media support — powered by **Next.js**, **Convex**, **Clerk**, and **UploadThing**.
 
 ---
 
 ## ✨ Features
 
-- 🔐 Auth with NextAuth.js (OAuth, email, etc.)
+- 🔐 Authentication via Clerk (OAuth, email, magic links, etc.)
 - 💬 Real-time chat with reactive Convex queries
 - 📁 Image uploads via UploadThing
 - 🧵 Public channels, private DMs, and one-on-one threads
@@ -23,7 +23,7 @@
 | ----------- | --------------------------------------------- |
 | Frontend    | Next.js (App Router), Tailwind CSS, Shadcn/UI |
 | Backend     | Convex functions & database                   |
-| Auth        | NextAuth.js                                   |
+| Auth        | Clerk                                         |
 | File Upload | UploadThing                                   |
 | Realtime    | Convex Live Queries                           |
 | Deployment  | Vercel (Frontend + Convex CLI)                |
@@ -55,6 +55,7 @@
 
 - Frontend: [Vercel](https://vercel.com)
 - Backend: [Convex](https://dashboard.convex.dev)
+- Auth: [Clerk](https://clerk.dev)
 - Image hosting: [UploadThing](https://uploadthing.com)
 
 All serverless. No backend infra to maintain.
