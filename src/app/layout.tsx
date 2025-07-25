@@ -1,7 +1,11 @@
+import { ClerkProvider } from '@clerk/nextjs';
+
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { ThemeProvider } from '@/components/theme/provider';
 import { defaultMetadata } from '@/constants/metadata';
+
+import ConvexProviderWithClerk from '@/providers/convex';
+import { ThemeProvider } from '@/providers/theme';
 
 import './globals.css';
 
@@ -25,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+            <ConvexProviderWithClerk>{children}</ConvexProviderWithClerk>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
