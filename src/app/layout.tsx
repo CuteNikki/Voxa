@@ -7,6 +7,7 @@ import { defaultMetadata } from '@/constants/metadata';
 import ConvexProviderWithClerk from '@/providers/convex';
 import { ThemeProvider } from '@/providers/theme';
 
+import PresenceSyncClient from '@/components/presence';
 import './globals.css';
 
 const geistSans = Geist({
@@ -31,7 +32,10 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClerkProvider>
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
-            <ConvexProviderWithClerk>{children}</ConvexProviderWithClerk>
+            <ConvexProviderWithClerk>
+              <PresenceSyncClient />
+              {children}
+            </ConvexProviderWithClerk>
           </ThemeProvider>
         </ClerkProvider>
       </body>

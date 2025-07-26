@@ -3,9 +3,9 @@
 import Image from 'next/image';
 
 import { SignInButton, UserButton } from '@clerk/nextjs';
-import { Authenticated, Unauthenticated, useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { Authenticated, Unauthenticated } from 'convex/react';
 
+import OnlineUsersList from '@/components/online';
 import { ThemeToggle } from '@/components/theme/toggle';
 import { TypographyH1 } from '@/components/typography/h1';
 import { TypographyH2 } from '@/components/typography/h2';
@@ -28,7 +28,7 @@ export default function Home() {
         <>
           <Authenticated>
             <UserButton />
-            <Content />
+            <OnlineUsersList />
           </Authenticated>
           <Unauthenticated>
             <SignInButton />
@@ -117,9 +117,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}
-
-function Content() {
-  const messages = useQuery(api.messages.getForCurrentUser);
-  return <div>Authenticated content: {messages?.length}</div>;
 }
