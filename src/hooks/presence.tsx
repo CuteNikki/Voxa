@@ -6,7 +6,7 @@ import { api } from '../../convex/_generated/api';
 
 export function usePresenceSync() {
   const { user } = useUser();
-  const setOnlineStatus = useMutation(api.functions.presence.updatePresence.setOnlineStatus);
+  const setOnlineStatus = useMutation(api.presence.setOnlineStatus);
 
   React.useEffect(() => {
     if (!user) return;

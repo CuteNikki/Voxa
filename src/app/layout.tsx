@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/providers/theme';
 
 import PresenceSyncClient from '@/components/presence';
 import './globals.css';
+import { UserSyncer } from '@/hooks/user';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -34,6 +35,7 @@ export default function RootLayout({
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
             <ConvexProviderWithClerk>
               <PresenceSyncClient />
+              <UserSyncer />
               {children}
             </ConvexProviderWithClerk>
           </ThemeProvider>

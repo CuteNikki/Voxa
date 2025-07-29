@@ -1,6 +1,15 @@
 import { v } from 'convex/values';
 
-import { mutation } from '../../_generated/server';
+import { mutation, query } from './_generated/server';
+
+export const getOnlineUsers = query({
+  handler: async (ctx) => {
+    return await ctx.db
+      .query('presence')
+      .filter((q) => q.eq(q.field('isOnline'), true))
+      .collect();
+  },
+});
 
 export const setOnlineStatus = mutation({
   args: { userId: v.string(), isOnline: v.boolean() },
