@@ -1,0 +1,31 @@
+import { useQuery } from 'convex/react';
+
+import Image from 'next/image';
+import { api } from '../../convex/_generated/api';
+
+export function User({ userId, lastSeen, isOnline }: { userId: string; lastSeen: number; isOnline?: boolean }) {
+  const user = useQuery(api.users.getUser, { clerkId: userId });
+
+  return (
+    <li key={userId} className='flex items-center mb-2 min-h-[24px]'>
+      {!user ? (
+        <>
+          <div className='w-6 h-6 bg-gray-300 rounded-full mr-2' />
+          <div className='h-[21px] w-20 bg-gray-400 rounded-md' />
+        </>
+      ) : (
+        <div className='flex items-center gap-2'>
+          <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='rounded-full h-12 w-12' />
+          <div className='flex flex-col items-start'>
+            <span className='capitalize'>{user.username}</span>
+            {isOnline ? (
+              <span className='text-green-500'>Online</span>
+            ) : (
+              <span className='text-gray-400'>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
+            )}
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
