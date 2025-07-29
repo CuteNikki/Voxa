@@ -14,6 +14,7 @@ export default defineSchema({
 
   chats: defineTable({
     name: v.optional(v.string()),
+    createdBy: v.string(),
     isGroup: v.boolean(),
     members: v.array(v.string()),
   }),
