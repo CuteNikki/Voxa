@@ -17,9 +17,12 @@ export default function OnlineUsersList() {
       ) : (
         <ul>
           {Array.from({ length: 5 }).map((_, i) => (
-            <li key={i} className='flex items-center mb-2'>
-              <div className='w-6 h-6 bg-gray-300 rounded-full mr-2' />
-              <div className='h-[21px] w-20 bg-gray-400 rounded-md' />
+            <li key={i} className='flex items-center gap-2'>
+              <div className='w-12 h-12 bg-gray-400 rounded-full' />
+              <div className='flex flex-col items-start'>
+                <div className='h-[21px] w-40 bg-gray-400 rounded-md' />
+                <div className='h-[21px] w-20 bg-gray-400 rounded-md' />
+              </div>
             </li>
           ))}
         </ul>
