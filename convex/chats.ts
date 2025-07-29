@@ -4,12 +4,35 @@ import { mutation, query } from './_generated/server';
 
 export const createChat = mutation({
   args: {
-    isGroup: v.boolean(),
     name: v.optional(v.string()),
-    members: v.array(v.id('users')),
+    isGroup: v.boolean(),
+    members: v.array(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
+
+    if (args.members.length > 2 && !args.isGroup) {
+      throw new Error('Cannot create a group chat with isGroup set to false');
+    }
+
+    if (!args.isGroup && args.members.length !== 2) {
+      throw new Error('Private chats must have exactly two members');
+    }
+
+    if (!args.isGroup) {
+      const existingChat = await ctx.db
+        .query('chats')
+        .filter((q) => q.and(q.eq(q.field('isGroup'), false), q.eq(q.field('members'), args.members)))
+        .first();
+
+      if (existingChat) {
+        throw new Error('A private chat with these members already exists');
+      }
+    }
+
+    if (args.isGroup && !args.name) {
+      throw new Error('Group chats must have a name');
+    }
 
     return await ctx.db.insert('chats', { ...args, createdBy: user?.subject || '' });
   },
@@ -29,7 +52,7 @@ export const getChat = query({
 });
 
 export const addMemberToChat = mutation({
-  args: { chatId: v.id('chats'), userId: v.id('users') },
+  args: { chatId: v.id('chats'), userId: v.string() },
   handler: async (ctx, { chatId, userId }) => {
     const chat = await ctx.db.get(chatId);
 
@@ -48,17 +71,25 @@ export const addMemberToChat = mutation({
 });
 
 export const getUserChats = query({
-  args: { userId: v.id('users') },
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
     const allChats = await ctx.db.query('chats').collect();
 
-    return allChats.filter((chat) => chat.members.includes(args.userId) && !chat.isGroup);
+    return allChats.filter((chat) => chat.members.includes(user.subject) && !chat.isGroup);
   },
 });
 
 export const getChats = query({
   handler: async (ctx) => {
-    return await ctx.db.query('chats').collect();
+    return await ctx.db
+      .query('chats')
+      .filter((q) => q.eq(q.field('isGroup'), true))
+      .collect();
   },
 });
 

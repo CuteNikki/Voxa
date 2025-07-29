@@ -1,10 +1,17 @@
 import { useQuery } from 'convex/react';
 
+import { CreatePrivateChat } from '@/components/create-chat';
+import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { api } from '../../convex/_generated/api';
 
 export function User({ userId, lastSeen, isOnline }: { userId: string; lastSeen: number; isOnline?: boolean }) {
+  const currentUser = useUser();
   const user = useQuery(api.users.getUser, { clerkId: userId });
+
+  if (!currentUser || !currentUser.isLoaded || !currentUser.isSignedIn) {
+    return null;
+  }
 
   return (
     <li key={userId} className='flex items-center mb-2 min-h-[24px]'>
@@ -27,6 +34,7 @@ export function User({ userId, lastSeen, isOnline }: { userId: string; lastSeen:
               <span className='text-gray-400'>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
             )}
           </div>
+          {currentUser.user.id !== userId && <CreatePrivateChat targetUserId={userId} />}
         </div>
       )}
     </li>

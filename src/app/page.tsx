@@ -5,7 +5,10 @@ import Image from 'next/image';
 import { SignInButton, UserButton } from '@clerk/nextjs';
 import { Authenticated, Unauthenticated } from 'convex/react';
 
+import { CreateGroupChat } from '@/components/create-group';
+import { GroupChats } from '@/components/group-chats';
 import OnlineUsersList from '@/components/online';
+import { PrivateChats } from '@/components/private-chats';
 import { ThemeToggle } from '@/components/theme/toggle';
 import { TypographyH1 } from '@/components/typography/h1';
 import { TypographyH2 } from '@/components/typography/h2';
@@ -30,6 +33,9 @@ export default function Home() {
             <UserButton />
             <div>
               <OnlineUsersList />
+              <CreateGroupChat />
+              <GroupChats />
+              <PrivateChats />
             </div>
           </Authenticated>
           <Unauthenticated>
