@@ -7,7 +7,7 @@ export const getOnlineUsers = query({
     return await ctx.db
       .query('presence')
       .filter((q) => q.eq(q.field('isOnline'), true))
-      .collect();
+      .take(5);
   },
 });
 
