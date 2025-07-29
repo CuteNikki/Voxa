@@ -12,11 +12,17 @@ export const getOnlineUsers = query({
 });
 
 export const setOnlineStatus = mutation({
-  args: { userId: v.string(), isOnline: v.boolean() },
-  handler: async (ctx, { userId, isOnline }) => {
+  args: { isOnline: v.boolean() },
+  handler: async (ctx, { isOnline }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('Unauthorized');
+    }
+
     const existing = await ctx.db
       .query('presence')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .withIndex('by_userId', (q) => q.eq('userId', user.subject))
       .unique();
 
     if (existing) {
@@ -26,9 +32,9 @@ export const setOnlineStatus = mutation({
       });
     } else {
       await ctx.db.insert('presence', {
-        userId,
-        isOnline,
+        userId: user.subject,
         lastSeen: Date.now(),
+        isOnline,
       });
     }
   },

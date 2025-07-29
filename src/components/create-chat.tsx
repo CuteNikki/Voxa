@@ -16,7 +16,12 @@ export function CreatePrivateChat({ targetUserId }: { targetUserId: string }) {
   }
 
   return (
-    <Button className='mt-4' onClick={() => createChat({ members: [user.user.id, targetUserId], isGroup: false })}>
+    <Button
+      className='mt-4'
+      onClick={() => {
+        createChat({ members: [user.user.id, targetUserId], isGroup: false });
+      }}
+    >
       Create DM
     </Button>
   );

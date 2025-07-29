@@ -11,8 +11,8 @@ export function usePresenceSync() {
   React.useEffect(() => {
     if (!user) return;
 
-    const goOnline = () => setOnlineStatus({ userId: user.id, isOnline: true });
-    const goOffline = () => setOnlineStatus({ userId: user.id, isOnline: false });
+    const goOnline = () => setOnlineStatus({ isOnline: true });
+    const goOffline = () => setOnlineStatus({ isOnline: false });
 
     goOnline();
 
