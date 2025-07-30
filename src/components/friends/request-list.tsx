@@ -43,7 +43,7 @@ function ReceivedRequestUser({ targetId }: { targetId: string }) {
   const targetUser = useQuery(api.users.getUser, { clerkId: targetId });
 
   if (!targetUser) {
-    return <div className='w-12 h-12 bg-gray-400 rounded-full' />;
+    return <div className='h-12 w-12 rounded-full bg-gray-400' />;
   }
 
   return (
@@ -53,7 +53,7 @@ function ReceivedRequestUser({ targetId }: { targetId: string }) {
         alt={`${targetUser.username} avatar`}
         width={512}
         height={512}
-        className='rounded-full h-12 w-12'
+        className='h-12 w-12 rounded-full'
       />
       <div className='flex flex-col items-start'>
         <span className='capitalize'>{targetUser.username}</span>
@@ -68,7 +68,7 @@ function SentRequestUser({ targetId }: { targetId: string }) {
   const targetUser = useQuery(api.users.getUser, { clerkId: targetId });
 
   if (!targetUser) {
-    return <div className='w-12 h-12 bg-gray-400 rounded-full' />;
+    return <div className='h-12 w-12 rounded-full bg-gray-400' />;
   }
 
   return (
@@ -78,7 +78,7 @@ function SentRequestUser({ targetId }: { targetId: string }) {
         alt={`${targetUser.username} avatar`}
         width={512}
         height={512}
-        className='rounded-full h-12 w-12'
+        className='h-12 w-12 rounded-full'
       />
       <div className='flex flex-col items-start'>
         <span className='capitalize'>{targetUser.username}</span>

@@ -43,7 +43,7 @@ function UserElement({
 
   return (
     <li key={user.clerkId} className='flex items-center gap-2'>
-      <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='rounded-full h-12 w-12' />
+      <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='h-12 w-12 rounded-full' />
       <div className='flex flex-col items-start'>
         <span className='capitalize'>{user.username}</span>
         {isOnline ? <span className='text-green-500'>Online</span> : <span className='text-gray-400'>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>}

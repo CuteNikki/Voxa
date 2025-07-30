@@ -13,7 +13,7 @@ export function ChatInfo({
   };
 }) {
   return (
-    <div className='p-4 border-b shadow-md dark:shadow-white/5'>
+    <div className='border-b p-4 shadow-md dark:shadow-white/5'>
       <div className='flex flex-col'>
         <h2 className='text-xl font-semibold'>{chat.name}</h2>
         <div className='flex flex-col sm:flex-row sm:gap-2'>

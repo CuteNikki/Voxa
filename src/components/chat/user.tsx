@@ -19,7 +19,7 @@ export function UserDetails({ userId }: { userId: string }) {
 
   return (
     <div className='flex flex-row items-center gap-2'>
-      <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='rounded-full h-12 w-12' />
+      <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='h-12 w-12 rounded-full' />
       <div className='flex flex-col'>
         <TypographyLarge className='capitalize'>{user.username}</TypographyLarge>
         {isOnline ? <span className='text-green-600'>Online</span> : <TypographyMuted>Last seen {new Date(lastSeen).toLocaleString()}</TypographyMuted>}

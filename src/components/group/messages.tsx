@@ -42,11 +42,11 @@ export function Messages({ chatId }: { chatId: string }) {
   if (!messages || messages.length === 0) return <p>No messages found.</p>;
 
   return (
-    <div ref={scrollRef} className='p-4 flex-1 overflow-y-auto max-h-full flex flex-col gap-2'>
+    <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4'>
       {messages.map((message) => (
         <Message key={message._id} message={message} />
       ))}
-      <div ref={bottomRef} className='hidden'/>
+      <div ref={bottomRef} className='hidden' />
     </div>
   );
 }
@@ -100,9 +100,9 @@ export function Message({ message }: { message: { _id: string; senderId: string;
 
   return (
     <div className='flex flex-row gap-2'>
-      <Image src={sender.imageUrl || '/default-avatar.png'} alt={`${sender.username} avatar`} width={512} height={512} className='w-12 h-12 rounded-full' />
-      <div className='flex flex-col w-full'>
-        <div className='flex flex-row items-center gap-2 justify-between w-full'>
+      <Image src={sender.imageUrl || '/default-avatar.png'} alt={`${sender.username} avatar`} width={512} height={512} className='h-12 w-12 rounded-full' />
+      <div className='flex w-full flex-col'>
+        <div className='flex w-full flex-row items-center justify-between gap-2'>
           <TypographyLarge className='capitalize'>{sender.username}</TypographyLarge>
           <TypographyMuted>{new Date(message.createdAt).toLocaleString()}</TypographyMuted>
         </div>

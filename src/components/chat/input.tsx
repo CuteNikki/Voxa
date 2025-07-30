@@ -25,13 +25,13 @@ export function ChatInput({ chatId }: { chatId: string }) {
   };
 
   return (
-    <div className='p-4 flex fley-row gap-4 justify-between items-center border-t'>
+    <div className='fley-row flex items-center justify-between gap-4 border-t p-4'>
       <textarea
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         rows={2}
-        className='border rounded px-2 py-1 w-full resize-none'
+        className='w-full resize-none rounded border px-2 py-1'
         placeholder='Type your message...'
       />
       <Button
