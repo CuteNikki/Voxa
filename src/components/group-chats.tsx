@@ -1,4 +1,5 @@
 import { useQuery } from 'convex/react';
+import Link from 'next/link';
 import { api } from '../../convex/_generated/api';
 
 export function GroupChats() {
@@ -10,9 +11,9 @@ export function GroupChats() {
       {groupChats ? (
         <ul>
           {groupChats.map((chat) => (
-            <li key={chat._id} className='flex items-center mb-2 min-h-[24px]'>
+            <Link href={`/group/${chat._id}`} key={chat._id} className='flex items-center mb-2 min-h-[24px]'>
               <span className='capitalize'>{chat.name}</span>
-            </li>
+            </Link>
           ))}
         </ul>
       ) : (
