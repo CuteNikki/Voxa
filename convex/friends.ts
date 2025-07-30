@@ -207,7 +207,7 @@ export const getFriendIds = query({
 
     const friends = await ctx.db
       .query('friends')
-      .filter((q) => q.or(q.eq('userIdOne', user.subject), q.eq('userIdTwo', user.subject)))
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
       .collect();
 
     return friends.map((friend) => (friend.userIdOne === user.subject ? friend.userIdTwo : friend.userIdOne));
