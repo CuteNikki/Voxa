@@ -14,8 +14,6 @@ export function User({ targetId, lastSeen, isOnline }: { targetId: string; lastS
   const isFriend = useQuery(api.friends.isFriend, { targetId });
   const isPending = useQuery(api.friends.isPendingRequest, { targetId });
 
-  console.log(isFriend);
-
   if (!currentUser || !currentUser.isLoaded || !currentUser.isSignedIn) {
     return null;
   }
@@ -35,28 +33,23 @@ export function User({ targetId, lastSeen, isOnline }: { targetId: string; lastS
           <Image
             src={targetUser.imageUrl || '/default-avatar.png'}
             alt={`${targetUser.username} avatar`}
-            width={512}
-            height={512}
+            width={48}
+            height={48}
             className='rounded-full h-12 w-12'
           />
           <div className='flex flex-col items-start'>
             <span className='capitalize'>{targetUser.username}</span>
-            {isOnline ? (
-              <span className='text-green-500'>Online</span>
-            ) : (
-              <span className='text-gray-400'>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
-            )}
+            <span className={isOnline ? 'text-green-500' : 'text-gray-400'}>
+              {isOnline ? 'Online' : `Last seen ${new Date(lastSeen).toLocaleTimeString()}`}
+            </span>
           </div>
-          {currentUser.user.id !== targetId &&
-            (isPending || isFriend ? (
-              isPending ? (
-                <CancelRequestButton targetId={targetId} />
-              ) : (
-                <RemoveFriendButton friendId={targetId} />
-              )
-            ) : (
-              <AddFriendButton targetUserId={targetId} />
-            ))}
+          {currentUser.user.id !== targetId && ( // Only show actions if the user is not viewing themselves
+            <>
+              {isPending && <CancelRequestButton targetId={targetId} />}
+              {!isPending && isFriend && <RemoveFriendButton friendId={targetId} />}
+              {!isPending && !isFriend && <AddFriendButton targetUserId={targetId} />}
+            </>
+          )}
         </div>
       )}
     </li>
