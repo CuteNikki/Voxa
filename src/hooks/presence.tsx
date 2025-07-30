@@ -6,27 +6,15 @@ import { api } from '../../convex/_generated/api';
 
 export function usePresenceSync() {
   const { user } = useUser();
-  const setOnlineStatus = useMutation(api.presence.setOnlineStatus);
+  const updatePresence = useMutation(api.presence.setOnlineStatus);
 
   React.useEffect(() => {
     if (!user) return;
 
-    const goOnline = () => setOnlineStatus({ isOnline: true });
-    const goOffline = () => setOnlineStatus({ isOnline: false });
+    const interval = setInterval(() => {
+      updatePresence();
+    }, 20_000); // Update presence every 20 seconds
 
-    goOnline();
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') goOffline();
-      else goOnline();
-    };
-
-    window.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', goOffline);
-
-    return () => {
-      goOffline();
-      window.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [user, setOnlineStatus]);
+    return () => clearInterval(interval);
+  }, [user, updatePresence]);
 }

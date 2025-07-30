@@ -44,7 +44,6 @@ export default defineSchema({
 
   presence: defineTable({
     userId: v.string(),
-    isOnline: v.boolean(),
     lastSeen: v.number(),
   }).index('by_userId', ['userId']),
 });
