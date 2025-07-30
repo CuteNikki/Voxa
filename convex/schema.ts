@@ -8,7 +8,7 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     username: v.optional(v.string()),
     emailVerified: v.optional(v.boolean()),
-    updatedAt: v.optional(v.string()),
+    createdAt: v.number(),
     isAdmin: v.optional(v.boolean()),
   }).index('by_clerkId', ['clerkId']),
 

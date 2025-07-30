@@ -97,7 +97,22 @@ export const getChatByUserId = query({
 
     return await ctx.db
       .query('chats')
-      .filter((q) => q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.userId)))
+      .filter((q) =>
+        q.or(
+          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.userId)),
+          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), user.subject)),
+        ),
+      )
+      .first();
+  },
+});
+
+export const getGroupById = query({
+  args: { groupId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('groups')
+      .filter((q) => q.eq(q.field('_id'), args.groupId))
       .first();
   },
 });

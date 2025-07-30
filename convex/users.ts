@@ -30,7 +30,7 @@ export const getOrCreateUser = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error('Not authenticated');
 
-    const { subject, email, pictureUrl, nickname, emailVerified, updatedAt } = identity;
+    const { subject, email, pictureUrl, nickname, emailVerified } = identity;
 
     if (!email || !subject) {
       throw new Error('User must have an email and subject to create or update a user');
@@ -46,7 +46,6 @@ export const getOrCreateUser = mutation({
       imageUrl: pictureUrl,
       username: nickname,
       emailVerified: emailVerified,
-      updatedAt: updatedAt,
     };
 
     if (existing) {
@@ -63,6 +62,7 @@ export const getOrCreateUser = mutation({
 
     const newUser = await ctx.db.insert('users', {
       clerkId: subject,
+      createdAt: Date.now(),
       ...userData,
     });
 

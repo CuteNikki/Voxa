@@ -15,6 +15,8 @@ export function usePresenceSync() {
       updatePresence();
     }, 20_000); // Update presence every 20 seconds
 
+    updatePresence(); // Initial presence update
+
     return () => clearInterval(interval);
   }, [user, updatePresence]);
 }

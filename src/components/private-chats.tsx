@@ -1,6 +1,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 
+import Link from 'next/link';
 import { api } from '../../convex/_generated/api';
 
 export function PrivateChats() {
@@ -17,9 +18,13 @@ export function PrivateChats() {
       {privateChats ? (
         <ul>
           {privateChats.map((chat) => (
-            <li key={chat._id} className='flex items-center mb-2 min-h-[24px]'>
+            <Link
+              href={`/chat/${chat.userIdOne === user.user.id ? chat.userIdTwo : chat.userIdOne}`}
+              key={chat._id}
+              className='flex items-center mb-2 min-h-[24px]'
+            >
               <ChatName members={[chat.userIdOne, chat.userIdTwo]} currentUser={user.user.id} />
-            </li>
+            </Link>
           ))}
         </ul>
       ) : (
