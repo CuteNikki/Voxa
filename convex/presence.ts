@@ -1,3 +1,5 @@
+import { v } from 'convex/values';
+
 import { mutation, query } from './_generated/server';
 
 export const getOnlineUsers = query({
@@ -32,5 +34,30 @@ export const setOnlineStatus = mutation({
         lastSeen: Date.now(),
       });
     }
+  },
+});
+
+export const getUserPresence = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('Unauthorized');
+    }
+
+    const presence = await ctx.db
+      .query('presence')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .unique();
+
+    if (!presence) {
+      return null;
+    }
+
+    return {
+      userId: presence.userId,
+      lastSeen: presence.lastSeen,
+    };
   },
 });

@@ -12,16 +12,32 @@ export default defineSchema({
     isAdmin: v.optional(v.boolean()),
   }).index('by_clerkId', ['clerkId']),
 
-  friendRequests: defineTable({
+  friends: defineTable({
+    userIdOne: v.string(),
+    userIdTwo: v.string(),
+    createdAt: v.number(),
+  })
+    .index('by_userIdOne', ['userIdOne'])
+    .index('by_userIdTwo', ['userIdTwo']),
+
+  requests: defineTable({
     from: v.string(),
     to: v.string(),
-    status: v.union(v.literal('pending'), v.literal('accepted'), v.literal('declined')),
     createdAt: v.number(),
-  }).index('by_to', ['to']),
+  })
+    .index('by_to', ['to'])
+    .index('by_from', ['from']),
 
   chats: defineTable({
-    name: v.optional(v.string()),
-    isGroup: v.boolean(),
+    userIdOne: v.string(),
+    userIdTwo: v.string(),
+    createdAt: v.number(),
+  })
+    .index('by_userIdOne', ['userIdOne'])
+    .index('by_userIdTwo', ['userIdTwo']),
+
+  groups: defineTable({
+    name: v.string(),
     memberIds: v.array(v.string()),
     createdBy: v.string(),
     createdAt: v.number(),
@@ -35,7 +51,7 @@ export default defineSchema({
     createdAt: v.number(),
   }).index('by_chatId', ['chatId']),
 
-  typingIndicators: defineTable({
+  typing: defineTable({
     chatId: v.string(),
     userId: v.string(),
     typing: v.boolean(),

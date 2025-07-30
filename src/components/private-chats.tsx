@@ -5,7 +5,7 @@ import { api } from '../../convex/_generated/api';
 
 export function PrivateChats() {
   const user = useUser();
-  const privateChats = useQuery(api.chats.getUserChats);
+  const privateChats = useQuery(api.chats.getChats);
 
   if (!user || !user.isLoaded || !user.isSignedIn) {
     return null;
@@ -18,12 +18,12 @@ export function PrivateChats() {
         <ul>
           {privateChats.map((chat) => (
             <li key={chat._id} className='flex items-center mb-2 min-h-[24px]'>
-              <ChatName members={chat.memberIds} currentUser={user.user.id} />
+              <ChatName members={[chat.userIdOne, chat.userIdTwo]} currentUser={user.user.id} />
             </li>
           ))}
         </ul>
       ) : (
-        <p>No group chats available.</p>
+        <p>No chats available.</p>
       )}
     </div>
   );

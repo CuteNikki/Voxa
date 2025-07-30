@@ -1,22 +1,17 @@
-import { useMutation, useQuery } from 'convex/react';
+import { useMutation } from 'convex/react';
 
 import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 
 export function RemoveFriendButton({ friendId }: { friendId: string }) {
-  const respond = useMutation(api.friends.respondToRequest);
-  const deleteChat = useMutation(api.chats.deleteChat);
-  const chat = useQuery(api.chats.getPrivateChatWithUser, { userId: friendId });
+  const removeFriend = useMutation(api.friends.removeFriend);
 
   return (
     <Button
       variant='destructive'
       onClick={() => {
-        respond({ targetId: friendId, response: 'decline' });
-        if (chat) {
-          deleteChat({ chatId: chat._id });
-        }
+        removeFriend({ friendId });
       }}
     >
       Remove

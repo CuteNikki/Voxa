@@ -14,17 +14,7 @@ export function FriendList() {
       {friends ? (
         <ul>
           {friends.map((friend) => (
-            <li key={friend.clerkId} className='flex items-center gap-2'>
-              <Image
-                src={friend.imageUrl || '/default-avatar.png'}
-                alt={`${friend.username} avatar`}
-                width={512}
-                height={512}
-                className='rounded-full h-12 w-12'
-              />
-              <span className='capitalize'>{friend.username}</span>
-              <RemoveFriendButton friendId={friend.clerkId} />
-            </li>
+            <UserElement key={friend.clerkId} user={friend} />
           ))}
         </ul>
       ) : (
@@ -32,5 +22,33 @@ export function FriendList() {
       )}
       {friends && friends.length === 0 && <p>No friends found.</p>}
     </div>
+  );
+}
+
+function UserElement({
+  user,
+}: {
+  user: {
+    imageUrl?: string;
+    username?: string;
+    emailVerified?: boolean;
+    updatedAt?: string;
+    isAdmin?: boolean;
+    clerkId: string;
+  };
+}) {
+  const presence = useQuery(api.presence.getUserPresence, { userId: user.clerkId });
+  const lastSeen = presence?.lastSeen ?? 0;
+  const isOnline = Date.now() - lastSeen < 30_000; // 30 seconds threshold
+
+  return (
+    <li key={user.clerkId} className='flex items-center gap-2'>
+      <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='rounded-full h-12 w-12' />
+      <div className='flex flex-col items-start'>
+        <span className='capitalize'>{user.username}</span>
+        {isOnline ? <span className='text-green-500'>Online</span> : <span className='text-gray-400'>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>}
+      </div>
+      <RemoveFriendButton friendId={user.clerkId} />
+    </li>
   );
 }

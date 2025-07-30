@@ -2,7 +2,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
 export function GroupChats() {
-  const groupChats = useQuery(api.chats.getChats);
+  const groupChats = useQuery(api.chats.getGroups);
 
   return (
     <div className='h-60'>
@@ -11,7 +11,7 @@ export function GroupChats() {
         <ul>
           {groupChats.map((chat) => (
             <li key={chat._id} className='flex items-center mb-2 min-h-[24px]'>
-              <span className='capitalize'>{chat.name || 'Unnamed Group'}</span>
+              <span className='capitalize'>{chat.name}</span>
             </li>
           ))}
         </ul>

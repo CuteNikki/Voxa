@@ -6,7 +6,7 @@ export const getTypingUsers = query({
   args: { chatId: v.id('chats') },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query('typingIndicators')
+      .query('typing')
       .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
       .collect();
   },
@@ -20,7 +20,7 @@ export const setTyping = mutation({
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
-      .query('typingIndicators')
+      .query('typing')
       .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
       .collect();
 
@@ -31,7 +31,7 @@ export const setTyping = mutation({
         updatedAt: Date.now(),
       });
     } else {
-      await ctx.db.insert('typingIndicators', {
+      await ctx.db.insert('typing', {
         ...args,
         updatedAt: Date.now(),
       });

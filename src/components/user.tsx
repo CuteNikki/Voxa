@@ -11,8 +11,10 @@ import { RemoveFriendButton } from '@/components/friends/remove';
 export function User({ targetId, lastSeen, isOnline }: { targetId: string; lastSeen: number; isOnline?: boolean }) {
   const currentUser = useUser();
   const targetUser = useQuery(api.users.getUser, { clerkId: targetId });
-  const isFriendOrRequestSent = useQuery(api.friends.isFriendOrRequestSent, { targetId });
   const isFriend = useQuery(api.friends.isFriend, { targetId });
+  const isPending = useQuery(api.friends.isPendingRequest, { targetId });
+
+  console.log(isFriend);
 
   if (!currentUser || !currentUser.isLoaded || !currentUser.isSignedIn) {
     return null;
@@ -46,11 +48,11 @@ export function User({ targetId, lastSeen, isOnline }: { targetId: string; lastS
             )}
           </div>
           {currentUser.user.id !== targetId &&
-            (isFriendOrRequestSent ? (
-              isFriend ? (
-                <RemoveFriendButton friendId={targetId} />
-              ) : (
+            (isPending || isFriend ? (
+              isPending ? (
                 <CancelRequestButton targetId={targetId} />
+              ) : (
+                <RemoveFriendButton friendId={targetId} />
               )
             ) : (
               <AddFriendButton targetUserId={targetId} />

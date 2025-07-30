@@ -22,8 +22,12 @@ export const sendRequest = mutation({
       throw new Error(`User with clerkId ${args.to} not found`);
     }
 
+    if (toUser.clerkId === from.subject) {
+      throw new Error('You cannot send a friend request to yourself');
+    }
+
     const existingRequest = await ctx.db
-      .query('friendRequests')
+      .query('requests')
       .filter((q) => q.and(q.eq(q.field('to'), args.to), q.eq(q.field('from'), from.subject)))
       .first();
 
@@ -31,12 +35,56 @@ export const sendRequest = mutation({
       throw new Error('Friend request already sent');
     }
 
-    return await ctx.db.insert('friendRequests', {
+    return await ctx.db.insert('requests', {
       from: from.subject,
       to: args.to,
-      status: 'pending',
       createdAt: Date.now(),
     });
+  },
+});
+
+export const removeFriend = mutation({
+  args: {
+    friendId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const friend = await ctx.db
+      .query('friends')
+      .filter((q) =>
+        q.or(
+          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.friendId)),
+          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), user.subject)),
+        ),
+      )
+      .first();
+
+    if (!friend) {
+      throw new Error('Friend not found');
+    }
+
+    await ctx.db.delete(friend._id);
+
+    const chat = await ctx.db
+      .query('chats')
+      .filter((q) =>
+        q.or(
+          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.friendId)),
+          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), user.subject)),
+        ),
+      )
+      .first();
+
+    if (chat) {
+      await ctx.db.delete(chat._id);
+    }
+
+    return { success: true };
   },
 });
 
@@ -49,8 +97,8 @@ export const getFriendRequests = query({
     }
 
     return await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq(q.field('to'), user.subject), q.eq(q.field('status'), 'pending')))
+      .query('requests')
+      .filter((q) => q.eq(q.field('to'), user.subject))
       .collect();
   },
 });
@@ -64,8 +112,8 @@ export const getSentRequests = query({
     }
 
     return await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq(q.field('from'), user.subject), q.eq(q.field('status'), 'pending')))
+      .query('requests')
+      .filter((q) => q.eq(q.field('from'), user.subject))
       .collect();
   },
 });
@@ -83,7 +131,7 @@ export const respondToRequest = mutation({
     }
 
     const requests = await ctx.db
-      .query('friendRequests')
+      .query('requests')
       .filter((q) => q.or(q.eq(q.field('to'), args.targetId), q.eq(q.field('from'), args.targetId)))
       .collect();
 
@@ -94,8 +142,32 @@ export const respondToRequest = mutation({
     }
 
     if (args.response === 'accept') {
-      await ctx.db.patch(request._id, { status: 'accepted' });
+      if (request.from === user.subject) {
+        throw new Error('You cannot accept your own friend request');
+      }
+
+      await ctx.db.insert('friends', {
+        userIdOne: request.from,
+        userIdTwo: request.to,
+        createdAt: Date.now(),
+      });
+
+      await ctx.db.insert('chats', {
+        userIdOne: request.from,
+        userIdTwo: request.to,
+        createdAt: Date.now(),
+      });
+
+      await ctx.db.delete(request._id);
     } else {
+      const channel = await ctx.db
+        .query('chats')
+        .filter((q) => q.or(q.eq(q.field('userIdOne'), request.from), q.eq(q.field('userIdTwo'), request.from)))
+        .first();
+      if (channel) {
+        await ctx.db.delete(channel._id);
+      }
+
       await ctx.db.delete(request._id);
     }
 
@@ -112,15 +184,16 @@ export const getFriends = query({
     }
 
     const friendIds = await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq(q.field('status'), 'accepted'), q.or(q.eq(q.field('from'), user.subject), q.eq(q.field('to'), user.subject))))
-      .collect()
-      .then((requests) => requests.map((request) => (request.from === user.subject ? request.to : request.from)));
-
-    return await ctx.db
-      .query('users')
-      .filter((q) => q.or(...friendIds.map((id) => q.eq(q.field('clerkId'), id))))
+      .query('friends')
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
       .collect();
+
+    const friends = await ctx.db
+      .query('users')
+      .filter((q) => q.or(...friendIds.map((friend) => q.or(q.eq(q.field('clerkId'), friend.userIdOne), q.eq(q.field('clerkId'), friend.userIdTwo)))))
+      .collect();
+
+    return friends.filter((friend) => friend.clerkId !== user.subject);
   },
 });
 
@@ -133,11 +206,11 @@ export const getFriendIds = query({
     }
 
     const friends = await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq('status', 'accepted'), q.or(q.eq('from', user.subject), q.eq('to', user.subject))))
+      .query('friends')
+      .filter((q) => q.or(q.eq('userIdOne', user.subject), q.eq('userIdTwo', user.subject)))
       .collect();
 
-    return friends.map((friend) => (friend.from === user.subject ? friend.to : friend.from));
+    return friends.map((friend) => (friend.userIdOne === user.subject ? friend.userIdTwo : friend.userIdOne));
   },
 });
 
@@ -150,40 +223,17 @@ export const isFriend = query({
       throw new Error('User not authenticated');
     }
 
-    const friendIds = await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq(q.field('status'), 'accepted'), q.or(q.eq(q.field('from'), user.subject), q.eq(q.field('to'), user.subject))))
-      .collect()
-      .then((requests) => requests.map((request) => (request.from === user.subject ? request.to : request.from)));
+    const friends = await ctx.db
+      .query('friends')
+      .filter((q) =>
+        q.or(
+          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), targetId)),
+          q.and(q.eq(q.field('userIdOne'), targetId), q.eq(q.field('userIdTwo'), user.subject)),
+        ),
+      )
+      .collect();
 
-    return friendIds.includes(targetId);
-  },
-});
-
-export const isFriendOrRequestSent = query({
-  args: { targetId: v.string() },
-  handler: async (ctx, { targetId }) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const isFriend = await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq(q.field('status'), 'accepted'), q.or(q.eq(q.field('from'), user.subject), q.eq(q.field('to'), user.subject))))
-      .collect()
-      .then((requests) => requests.some((request) => (request.from === user.subject ? request.to : request.from) === targetId));
-
-    if (isFriend) {
-      return true;
-    }
-
-    const requestSent = await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq(q.field('to'), targetId), q.eq(q.field('from'), user.subject), q.eq(q.field('status'), 'pending')))
-      .first();
-    return !!requestSent;
+    return friends.length > 0;
   },
 });
 
@@ -197,8 +247,13 @@ export const isPendingRequest = query({
     }
 
     const request = await ctx.db
-      .query('friendRequests')
-      .filter((q) => q.and(q.eq('to', targetId), q.eq('from', user.subject), q.eq('status', 'pending')))
+      .query('requests')
+      .filter((q) =>
+        q.or(
+          q.and(q.eq(q.field('to'), targetId), q.eq(q.field('from'), user.subject)),
+          q.and(q.eq(q.field('to'), user.subject), q.eq(q.field('from'), targetId)),
+        ),
+      )
       .first();
 
     return !!request;
