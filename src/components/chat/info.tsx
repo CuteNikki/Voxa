@@ -15,7 +15,7 @@ export function ChatInfo({
   };
 }) {
   return (
-    <div className='p-4 border-b'>
+    <div className='p-4 border-b shadow-md dark:shadow-white/5'>
       <div className='flex flex-col md:flex-row justify-between md:items-center gap-4'>
         <UserDetails userId={userId} />
 

@@ -1,25 +1,95 @@
+import { useQuery } from 'convex/react';
+import Image from 'next/image';
+import { useEffect, useMemo, useRef } from 'react';
+
+import { api } from '../../../convex/_generated/api';
+
 import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { TypographyP } from '@/components/typography/p';
-import { useQuery } from 'convex/react';
-import Image from 'next/image';
-import { api } from '../../../convex/_generated/api';
 
 export function Messages({ chatId }: { chatId: string }) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const messages = useQuery(api.messages.getMessages, { chatId });
 
-  if (!messages || messages.length === 0) {
-    return <p>No messages found for this chat.</p>;
-  }
+  // Get unique sender IDs from messages
+  const senderIds = useMemo(() => {
+    if (!messages) return [];
+    return Array.from(new Set(messages.map((m) => m.senderId)));
+  }, [messages]);
+
+  // Batch fetch senders info once
+  const rawSenders = useQuery(api.users.getUsersByIds, { ids: senderIds });
+  const senders = useMemo(() => rawSenders || {}, [rawSenders]);
+
+  // Scroll after messages or senders load
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const timer = setTimeout(() => {
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'auto',
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [messages, senders]);
+
+  if (!messages || messages.length === 0) return <p>No messages found.</p>;
 
   return (
-    <div className='flex flex-col gap-4  p-4'>
+    <div ref={scrollRef} className='p-4 flex-1 overflow-y-auto max-h-full flex flex-col gap-2'>
       {messages.map((message) => (
         <Message key={message._id} message={message} />
       ))}
+      <div ref={bottomRef} className='hidden'/>
     </div>
   );
 }
+
+// export function Messages({ chatId }: { chatId: string }) {
+//   const bottomRef = useRef<HTMLDivElement>(null);
+//   const scrollRef = useRef<HTMLDivElement>(null);
+
+//   useEffect(() => {
+//     if (messages && messages.length > 0) {
+//       const scrollContainer = scrollRef.current;
+//       if (!scrollContainer) return;
+
+//       const timer = setTimeout(() => {
+//         scrollContainer.scrollTo({
+//           top: scrollContainer.scrollHeight,
+//           behavior: 'auto',
+//         });
+//       }, 100);
+
+//       return () => clearTimeout(timer);
+//     }
+//   }, [messages]);
+
+//   if (!messages || messages.length === 0) return <p>No messages found.</p>;
+
+//   return (
+//     <main className='flex-1 min-h-0 overflow-y-auto p-4 '>
+//       {/* This container scrolls */}
+//       {[...Array(100)].map((_, i) => (
+//         <p key={i}>Message {i + 1}</p>
+//       ))}
+//     </main>
+//     // <div ref={scrollRef} className='h-full overflow-y-auto px-4 py-2'>
+//     //   <div className='flex flex-col gap-4'>
+//     //     {messages.map((message) => (
+//     //       <Message key={message._id} message={message} />
+//     //     ))}
+//     //     <div className='scroll-to-bottom' ref={bottomRef} />
+//     //   </div>
+//     // </div>
+//   );
+// }
 
 export function Message({ message }: { message: { _id: string; senderId: string; content?: string; createdAt: number } }) {
   const sender = useQuery(api.users.getUser, { clerkId: message.senderId });

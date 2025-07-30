@@ -9,7 +9,6 @@ import { CreateGroupChat } from '@/components/create-group';
 import { FriendList } from '@/components/friends/friend-list';
 import { RequestList } from '@/components/friends/request-list';
 import { GroupChats } from '@/components/group-chats';
-import OnlineUsersList from '@/components/online';
 import { PrivateChats } from '@/components/private-chats';
 import { ThemeToggle } from '@/components/theme/toggle';
 import { TypographyH1 } from '@/components/typography/h1';
@@ -34,7 +33,6 @@ export default function Home() {
           <Authenticated>
             <UserButton />
             <div>
-              <OnlineUsersList />
               <CreateGroupChat />
               <GroupChats />
               <PrivateChats />

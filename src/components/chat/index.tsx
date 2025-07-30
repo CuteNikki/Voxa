@@ -16,10 +16,18 @@ export function Chat({ userId }: { userId: string }) {
   }
 
   return (
-    <div className='w-full'>
-      <ChatInfo chat={chat} userId={userId} />
-      <Messages chatId={chat._id} />
-      <ChatInput chatId={chat._id} />
+    <div className='flex flex-col h-screen w-full'>
+      <div className='shrink-0'>
+        <ChatInfo chat={chat} userId={userId} />
+      </div>
+
+      <div className='flex-1 min-h-0'>
+        <Messages chatId={chat._id} />
+      </div>
+
+      <div className='shrink-0'>
+        <ChatInput chatId={chat._id} />
+      </div>
     </div>
   );
 }
