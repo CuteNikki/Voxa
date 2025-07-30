@@ -11,7 +11,7 @@ export default function OnlineUsersList() {
       {onlineUsers ? (
         <ul>
           {onlineUsers.map((user) => (
-            <User key={user.userId} userId={user.userId} lastSeen={user.lastSeen} isOnline={user.isOnline} />
+            <User key={user.userId} targetId={user.userId} lastSeen={user.lastSeen} isOnline={user.isOnline} />
           ))}
         </ul>
       ) : (

@@ -1,21 +1,26 @@
-import { useQuery } from 'convex/react';
-
-import { CreatePrivateChat } from '@/components/create-chat';
 import { useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
 import Image from 'next/image';
+
 import { api } from '../../convex/_generated/api';
 
-export function User({ userId, lastSeen, isOnline }: { userId: string; lastSeen: number; isOnline?: boolean }) {
+import { AddFriendButton } from '@/components/friends/add';
+import { CancelRequestButton } from '@/components/friends/cancel';
+import { RemoveFriendButton } from '@/components/friends/remove';
+
+export function User({ targetId, lastSeen, isOnline }: { targetId: string; lastSeen: number; isOnline?: boolean }) {
   const currentUser = useUser();
-  const user = useQuery(api.users.getUser, { clerkId: userId });
+  const targetUser = useQuery(api.users.getUser, { clerkId: targetId });
+  const isFriendOrRequestSent = useQuery(api.friends.isFriendOrRequestSent, { targetId });
+  const isFriend = useQuery(api.friends.isFriend, { targetId });
 
   if (!currentUser || !currentUser.isLoaded || !currentUser.isSignedIn) {
     return null;
   }
 
   return (
-    <li key={userId} className='flex items-center mb-2 min-h-[24px]'>
-      {!user ? (
+    <li key={targetId} className='flex items-center mb-2 min-h-[24px]'>
+      {!targetUser ? (
         <div className='flex items-center gap-2'>
           <div className='w-12 h-12 bg-gray-400 rounded-full' />
           <div className='flex flex-col items-start'>
@@ -25,16 +30,31 @@ export function User({ userId, lastSeen, isOnline }: { userId: string; lastSeen:
         </div>
       ) : (
         <div className='flex items-center gap-2'>
-          <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='rounded-full h-12 w-12' />
+          <Image
+            src={targetUser.imageUrl || '/default-avatar.png'}
+            alt={`${targetUser.username} avatar`}
+            width={512}
+            height={512}
+            className='rounded-full h-12 w-12'
+          />
           <div className='flex flex-col items-start'>
-            <span className='capitalize'>{user.username}</span>
+            <span className='capitalize'>{targetUser.username}</span>
             {isOnline ? (
               <span className='text-green-500'>Online</span>
             ) : (
               <span className='text-gray-400'>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
             )}
           </div>
-          {currentUser.user.id !== userId && <CreatePrivateChat targetUserId={userId} />}
+          {currentUser.user.id !== targetId &&
+            (isFriendOrRequestSent ? (
+              isFriend ? (
+                <RemoveFriendButton friendId={targetId} />
+              ) : (
+                <CancelRequestButton targetId={targetId} />
+              )
+            ) : (
+              <AddFriendButton targetUserId={targetId} />
+            ))}
         </div>
       )}
     </li>

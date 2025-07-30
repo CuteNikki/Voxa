@@ -12,12 +12,20 @@ export default defineSchema({
     isAdmin: v.optional(v.boolean()),
   }).index('by_clerkId', ['clerkId']),
 
+  friendRequests: defineTable({
+    from: v.string(),
+    to: v.string(),
+    status: v.union(v.literal('pending'), v.literal('accepted'), v.literal('declined')),
+    createdAt: v.number(),
+  }).index('by_to', ['to']),
+
   chats: defineTable({
     name: v.optional(v.string()),
-    createdBy: v.string(),
     isGroup: v.boolean(),
-    members: v.array(v.string()),
-  }),
+    memberIds: v.array(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+  }).index('by_memberIds', ['memberIds']),
 
   messages: defineTable({
     chatId: v.string(),

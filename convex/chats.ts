@@ -11,18 +11,22 @@ export const createChat = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
 
-    if (args.members.length > 2 && !args.isGroup) {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    if (args.members.length + 1 > 2 && !args.isGroup) {
       throw new Error('Cannot create a group chat with isGroup set to false');
     }
 
-    if (!args.isGroup && args.members.length !== 2) {
+    if (!args.isGroup && args.members.length + 1 !== 2) {
       throw new Error('Private chats must have exactly two members');
     }
 
     if (!args.isGroup) {
       const existingChat = await ctx.db
         .query('chats')
-        .filter((q) => q.and(q.eq(q.field('isGroup'), false), q.eq(q.field('members'), args.members)))
+        .filter((q) => q.and(q.eq(q.field('isGroup'), false), q.eq(q.field('memberIds'), args.members)))
         .first();
 
       if (existingChat) {
@@ -34,7 +38,13 @@ export const createChat = mutation({
       throw new Error('Group chats must have a name');
     }
 
-    return await ctx.db.insert('chats', { ...args, createdBy: user?.subject || '' });
+    return await ctx.db.insert('chats', {
+      createdBy: user?.subject || '',
+      createdAt: Date.now(),
+      memberIds: [...args.members, user.subject],
+      isGroup: args.isGroup,
+      name: args.name,
+    });
   },
 });
 
@@ -60,9 +70,9 @@ export const addMemberToChat = mutation({
       throw new Error(`Chat with ID ${chatId} not found`);
     }
 
-    if (!chat.members.includes(userId)) {
+    if (!chat.memberIds.includes(userId)) {
       await ctx.db.patch(chatId, {
-        members: [...chat.members, userId],
+        memberIds: [...chat.memberIds, userId],
       });
     }
 
@@ -80,7 +90,7 @@ export const getUserChats = query({
 
     const allChats = await ctx.db.query('chats').collect();
 
-    return allChats.filter((chat) => chat.members.includes(user.subject) && !chat.isGroup);
+    return allChats.filter((chat) => chat.memberIds.includes(user.subject) && !chat.isGroup);
   },
 });
 
@@ -109,5 +119,30 @@ export const deleteChat = mutation({
 
     await ctx.db.delete(chatId);
     return { success: true, message: `Chat with ID ${chatId} deleted successfully` };
+  },
+});
+
+export const getPrivateChatWithUser = query({
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const chat = await ctx.db
+      .query('chats')
+      .filter((q) =>
+        q.and(q.eq(q.field('isGroup'), false), q.or(q.eq(q.field('memberIds'), [user.subject, userId]), q.eq(q.field('memberIds'), [userId, user.subject]))),
+      )
+      .first();
+
+    if (!chat) {
+      console.error(`No private chat found with user ${userId}`);
+      return null;
+    }
+
+    return chat;
   },
 });

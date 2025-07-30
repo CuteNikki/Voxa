@@ -6,6 +6,8 @@ import { SignInButton, UserButton } from '@clerk/nextjs';
 import { Authenticated, Unauthenticated } from 'convex/react';
 
 import { CreateGroupChat } from '@/components/create-group';
+import { FriendList } from '@/components/friends/friend-list';
+import { RequestList } from '@/components/friends/request-list';
 import { GroupChats } from '@/components/group-chats';
 import OnlineUsersList from '@/components/online';
 import { PrivateChats } from '@/components/private-chats';
@@ -36,6 +38,8 @@ export default function Home() {
               <CreateGroupChat />
               <GroupChats />
               <PrivateChats />
+              <FriendList />
+              <RequestList />
             </div>
           </Authenticated>
           <Unauthenticated>
