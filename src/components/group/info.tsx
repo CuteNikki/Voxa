@@ -1,25 +1,27 @@
-'use client';
+import { TypographyMuted } from '@/components/typography/muted';
 
-import { useQuery } from 'convex/react';
-
-import { api } from '../../../convex/_generated/api';
-
-import { ChatInput } from '@/components/group/input';
-import { Messages } from '@/components/group/messages';
-
-export function ChatInfo({ chatId }: { chatId: string }) {
-  const chat = useQuery(api.chats.getGroupById, { groupId: chatId });
-
-  if (!chat) {
-    return <p>No chat found.</p>;
-  }
-
+export function ChatInfo({
+  chat,
+}: {
+  chat: {
+    _id: string;
+    _creationTime: number;
+    createdAt: number;
+    name: string;
+    memberIds: string[];
+    createdBy: string;
+  };
+}) {
   return (
-    <div className='chat-info'>
-      <h2 className='text-xl font-semibold'>Chat ID {chat._id}</h2>
-      <p>Created at: {new Date(chat.createdAt).toLocaleString()}</p>
-      <Messages chatId={chat._id} />
-      <ChatInput chatId={chat._id} />
+    <div className='p-4 border-b'>
+      <div className='flex flex-col'>
+        <h2 className='text-xl font-semibold'>{chat.name}</h2>
+        <div className='flex flex-col sm:flex-row sm:gap-2'>
+          <TypographyMuted>Created at: {new Date(chat.createdAt).toLocaleString()}</TypographyMuted>
+          <TypographyMuted className='hidden sm:block'>—</TypographyMuted>
+          <TypographyMuted>ID: {chat._id}</TypographyMuted>
+        </div>
+      </div>
     </div>
   );
 }

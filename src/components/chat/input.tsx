@@ -20,8 +20,8 @@ export function ChatInput({ chatId }: { chatId: string }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='chat-input'>
-      <input type='text' value={message} onChange={(e) => setMessage(e.target.value)} placeholder='Type your message...' className='input-field' />
+    <form onSubmit={handleSubmit} className='p-4 flex fley-row justify-between'>
+      <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder='Type your message...' className='w-full' />
       <button type='submit'>Send</button>
     </form>
   );

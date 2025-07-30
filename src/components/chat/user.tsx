@@ -3,6 +3,9 @@ import Image from 'next/image';
 
 import { api } from '../../../convex/_generated/api';
 
+import { TypographyLarge } from '@/components/typography/large';
+import { TypographyMuted } from '@/components/typography/muted';
+
 export function UserDetails({ userId }: { userId: string }) {
   const user = useQuery(api.users.getUser, { clerkId: userId });
   const presence = useQuery(api.presence.getUserPresence, { userId });
@@ -15,10 +18,12 @@ export function UserDetails({ userId }: { userId: string }) {
   }
 
   return (
-    <div className='user-details'>
-      <h2 className='text-xl font-semibold capitalize'>{user.username}</h2>
+    <div className='flex flex-row items-center gap-2'>
       <Image src={user.imageUrl || '/default-avatar.png'} alt={`${user.username} avatar`} width={512} height={512} className='rounded-full h-12 w-12' />
-      {isOnline ? <span className='text-green-600'>Online</span> : <span className='text-gray-500'>Last seen {new Date(lastSeen).toLocaleString()}</span>}
+      <div className='flex flex-col'>
+        <TypographyLarge className='capitalize'>{user.username}</TypographyLarge>
+        {isOnline ? <span className='text-green-600'>Online</span> : <TypographyMuted>Last seen {new Date(lastSeen).toLocaleString()}</TypographyMuted>}
+      </div>
     </div>
   );
 }
