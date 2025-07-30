@@ -3,19 +3,25 @@ import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 
 export const getTypingUsers = query({
-  args: { chatId: v.id('chats') },
+  args: { chatId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const now = Date.now();
+    const activeThreshold = now - 5000; // 5 seconds ago
+
+    const all = await ctx.db
       .query('typing')
       .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
       .collect();
+
+    return all.filter((entry) => entry.typing && entry.updatedAt > activeThreshold);
   },
 });
 
+
 export const setTyping = mutation({
   args: {
-    chatId: v.id('chats'),
-    userId: v.id('users'),
+    chatId: v.string(),
+    userId: v.string(),
     typing: v.boolean(),
   },
   handler: async (ctx, args) => {

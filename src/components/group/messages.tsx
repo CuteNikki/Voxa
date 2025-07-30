@@ -42,7 +42,7 @@ export function Messages({ chatId }: { chatId: string }) {
   if (!messages || messages.length === 0) return <p>No messages found.</p>;
 
   return (
-    <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4'>
+    <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
       {messages.map((message) => (
         <Message key={message._id} message={message} />
       ))}
@@ -50,46 +50,6 @@ export function Messages({ chatId }: { chatId: string }) {
     </div>
   );
 }
-
-// export function Messages({ chatId }: { chatId: string }) {
-//   const bottomRef = useRef<HTMLDivElement>(null);
-//   const scrollRef = useRef<HTMLDivElement>(null);
-
-//   useEffect(() => {
-//     if (messages && messages.length > 0) {
-//       const scrollContainer = scrollRef.current;
-//       if (!scrollContainer) return;
-
-//       const timer = setTimeout(() => {
-//         scrollContainer.scrollTo({
-//           top: scrollContainer.scrollHeight,
-//           behavior: 'auto',
-//         });
-//       }, 100);
-
-//       return () => clearTimeout(timer);
-//     }
-//   }, [messages]);
-
-//   if (!messages || messages.length === 0) return <p>No messages found.</p>;
-
-//   return (
-//     <main className='flex-1 min-h-0 overflow-y-auto p-4 '>
-//       {/* This container scrolls */}
-//       {[...Array(100)].map((_, i) => (
-//         <p key={i}>Message {i + 1}</p>
-//       ))}
-//     </main>
-//     // <div ref={scrollRef} className='h-full overflow-y-auto px-4 py-2'>
-//     //   <div className='flex flex-col gap-4'>
-//     //     {messages.map((message) => (
-//     //       <Message key={message._id} message={message} />
-//     //     ))}
-//     //     <div className='scroll-to-bottom' ref={bottomRef} />
-//     //   </div>
-//     // </div>
-//   );
-// }
 
 export function Message({ message }: { message: { _id: string; senderId: string; content?: string; createdAt: number } }) {
   const sender = useQuery(api.users.getUser, { clerkId: message.senderId });

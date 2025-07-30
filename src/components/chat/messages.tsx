@@ -42,7 +42,7 @@ export function Messages({ chatId }: { chatId: string }) {
   if (!messages || messages.length === 0) return <p>No messages found.</p>;
 
   return (
-    <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4'>
+    <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
       {messages.map((message) => (
         <Message key={message._id} message={message} />
       ))}

@@ -79,3 +79,12 @@ export const getOrCreateUser = mutation({
     return await ctx.db.get(newUser);
   },
 });
+
+export const getUserNames = query({
+  args: { ids: v.array(v.string()) },
+  handler: async (ctx, { ids }) => {
+    const allUsers = await ctx.db.query('users').collect();
+    const users = allUsers.filter((user) => ids.includes(user.clerkId)).map((user) => user.username ?? user.clerkId);
+    return users;
+  },
+});
