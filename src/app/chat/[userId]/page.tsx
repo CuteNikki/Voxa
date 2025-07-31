@@ -3,5 +3,5 @@ import { Chat } from '@/components/chat';
 export default async function ChatPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
 
-  return <Chat userId={userId} />;
+  return <Chat userId={userId} chatId='' isGroup={false} />;
 }

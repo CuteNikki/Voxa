@@ -7,11 +7,11 @@ import { api } from '../../../convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-export function ChatInput({ chatId }: { chatId: string }) {
+export function ChatInput({ chatId, isGroup }: { chatId: string; isGroup: boolean }) {
   const { user } = useUser();
 
   const [value, setValue] = useState('');
-  const sendMessage = useMutation(api.messages.sendChatMessage);
+  const sendMessage = useMutation(isGroup ? api.messages.sendGroupMessage : api.messages.sendChatMessage);
   const setTyping = useMutation(api.typing.setTyping);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
   const [isTyping, setIsTyping] = useState(false);
