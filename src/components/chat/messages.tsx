@@ -1,6 +1,6 @@
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery, useQuery } from 'convex/react';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -11,8 +11,28 @@ import { TypographyP } from '@/components/typography/p';
 export function Messages({ chatId }: { chatId: string }) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const prevScrollHeightRef = useRef<number>(0);
+  const prevScrollTopRef = useRef<number>(0);
+  const [hasInitialScrolled, setInitialScrolled] = useState(false);
 
-  const messages = useQuery(api.messages.getMessages, { chatId });
+  const { results, status, loadMore } = usePaginatedQuery(api.messages.getPaginatedMessages, { chatId }, { initialNumItems: 50 });
+  const messages = results.reverse();
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || status !== 'CanLoadMore') return;
+
+    const onScroll = () => {
+      if (container.scrollTop < 300) {
+        prevScrollHeightRef.current = container.scrollHeight;
+        prevScrollTopRef.current = container.scrollTop;
+        loadMore(25);
+      }
+    };
+
+    container.addEventListener('scroll', onScroll);
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [loadMore, status]);
 
   // Get unique sender IDs from messages
   const senderIds = useMemo(() => {
@@ -27,46 +47,71 @@ export function Messages({ chatId }: { chatId: string }) {
   // Scroll after messages or senders load
   useEffect(() => {
     const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
+    // Only scroll when messages and senders are loaded and not yet scrolled
+    if (!scrollContainer || hasInitialScrolled || !messages.length || !rawSenders) return;
 
-    const timer = setTimeout(() => {
-      scrollContainer.scrollTo({
-        top: scrollContainer.scrollHeight,
-        behavior: 'auto',
-      });
-    }, 100);
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: 'auto',
+    });
+    setInitialScrolled(true);
+  }, [messages, senders, hasInitialScrolled, status, rawSenders]);
 
-    return () => clearTimeout(timer);
-  }, [messages, senders]);
+  // Group consecutive messages by the same sender
+  const groupedMessages = useMemo(() => {
+    if (!messages) return [];
+    const groups: Array<{ senderId: string; messages: typeof messages }> = [];
+    let currentGroup: { senderId: string; messages: typeof messages } | null = null;
+
+    for (const msg of messages) {
+      if (!currentGroup || currentGroup.senderId !== msg.senderId) {
+        currentGroup = { senderId: msg.senderId, messages: [msg] };
+        groups.push(currentGroup);
+      } else {
+        currentGroup.messages.push(msg);
+      }
+    }
+    return groups;
+  }, [messages]);
 
   if (!messages || messages.length === 0) return <p>No messages found.</p>;
 
   return (
     <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
-      {messages.map((message) => (
-        <Message key={message._id} message={message} />
+      {groupedMessages.map((group) => (
+        <MessageGroup key={group.messages[0]._id} senderId={group.senderId} messages={group.messages} />
       ))}
       <div ref={bottomRef} className='hidden' />
     </div>
   );
 }
 
-export function Message({ message }: { message: { _id: string; senderId: string; content?: string; createdAt: number } }) {
-  const sender = useQuery(api.users.getUser, { clerkId: message.senderId });
+function MessageGroup({ senderId, messages }: { senderId: string; messages: Array<{ _id: string; senderId: string; content?: string; createdAt: number }> }) {
+  const sender = useQuery(api.users.getUser, { clerkId: senderId });
 
   if (!sender) {
     return <p>Sender not found.</p>;
   }
 
   return (
-    <div className='flex w-full flex-row gap-2'>
-      <Image src={sender.imageUrl || '/default-avatar.png'} alt={`${sender.username} avatar`} width={512} height={512} className='h-12 w-12 rounded-full' />
+    <div className='flex flex-row gap-2'>
+      <Image
+        src={sender.imageUrl || '/default-avatar.png'}
+        alt={`${sender.username} avatar`}
+        width={512}
+        height={512}
+        className='h-12 w-12 self-start rounded-full'
+      />
       <div className='flex w-full flex-col'>
         <div className='flex w-full flex-row items-center justify-between gap-2'>
           <TypographyLarge className='capitalize'>{sender.username}</TypographyLarge>
-          <TypographyMuted>{new Date(message.createdAt).toLocaleString()}</TypographyMuted>
+          <TypographyMuted>{new Date(messages[0].createdAt).toLocaleString()}</TypographyMuted>
         </div>
-        <TypographyP className='break-all whitespace-pre-line'>{message.content}</TypographyP>
+        {messages.map((message, idx) => (
+          <TypographyP key={message._id} className={`break-all whitespace-pre-line ${idx > 0 ? 'mt-2' : ''}`}>
+            {message.content}
+          </TypographyP>
+        ))}
       </div>
     </div>
   );

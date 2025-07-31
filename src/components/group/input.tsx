@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 export function ChatInput({ chatId }: { chatId: string }) {
   const { user } = useUser();
@@ -61,14 +62,7 @@ export function ChatInput({ chatId }: { chatId: string }) {
     <div className='relative flex flex-col'>
       <TypingIndicator chatId={chatId} currentUserId={user.id} />
       <div className='flex flex-row items-center justify-between gap-4 border-t p-4'>
-        <textarea
-          value={value}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          rows={2}
-          className='w-full resize-none rounded border px-2 py-1'
-          placeholder='Type your message...'
-        />
+        <Textarea value={value} onChange={handleChange} onKeyDown={handleKeyDown} rows={2} placeholder='Type your message...' className='resize-none' />
         <Button onClick={handleSend}>Send</Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { v } from 'convex/values';
 
+import { paginationOptsValidator } from 'convex/server';
 import { mutation, query } from './_generated/server';
 
 export const sendGroupMessage = mutation({
@@ -76,7 +77,22 @@ export const getMessages = query({
     return await ctx.db
       .query('messages')
       .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
-      .order('asc')
+      .order('desc')
       .take(50);
+  },
+});
+
+export const getPaginatedMessages = query({
+  args: {
+    chatId: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, { chatId, paginationOpts }) => {
+    const options = paginationOpts ?? { numItems: 50, cursor: null };
+    return await ctx.db
+      .query('messages')
+      .withIndex('by_chatId', (q) => q.eq('chatId', chatId))
+      .order('desc')
+      .paginate(options);
   },
 });
