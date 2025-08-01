@@ -86,7 +86,7 @@ export function Messages({ chatId }: { chatId: string }) {
     return groups;
   }, [messages]);
 
-  if (!messages || messages.length === 0)
+  if (!messages || status === 'LoadingFirstPage') {
     return (
       <div className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
@@ -108,6 +108,15 @@ export function Messages({ chatId }: { chatId: string }) {
         ))}
       </div>
     );
+  }
+
+  if (!messages.length) {
+    return (
+      <div className='flex max-h-full flex-1 flex-col items-center justify-center p-4'>
+        <TypographyMuted>No messages found.</TypographyMuted>
+      </div>
+    );
+  }
 
   return (
     <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
