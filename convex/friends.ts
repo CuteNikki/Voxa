@@ -4,15 +4,10 @@ import { mutation, query } from './_generated/server';
 
 export const sendRequest = mutation({
   args: {
+    from: v.string(),
     to: v.string(),
   },
   handler: async (ctx, args) => {
-    const from = await ctx.auth.getUserIdentity();
-
-    if (!from) {
-      throw new Error('User not authenticated');
-    }
-
     const toUser = await ctx.db
       .query('users')
       .withIndex('by_clerkId', (q) => q.eq('clerkId', args.to))
@@ -22,13 +17,13 @@ export const sendRequest = mutation({
       throw new Error(`User with clerkId ${args.to} not found`);
     }
 
-    if (toUser.clerkId === from.subject) {
+    if (toUser.clerkId === args.from) {
       throw new Error('You cannot send a friend request to yourself');
     }
 
     const existingRequest = await ctx.db
       .query('requests')
-      .filter((q) => q.and(q.eq(q.field('to'), args.to), q.eq(q.field('from'), from.subject)))
+      .filter((q) => q.and(q.eq(q.field('to'), args.to), q.eq(q.field('from'), args.from)))
       .first();
 
     if (existingRequest) {
@@ -36,7 +31,7 @@ export const sendRequest = mutation({
     }
 
     return await ctx.db.insert('requests', {
-      from: from.subject,
+      from: args.from,
       to: args.to,
       createdAt: Date.now(),
     });
@@ -45,21 +40,16 @@ export const sendRequest = mutation({
 
 export const removeFriend = mutation({
   args: {
+    userId: v.string(),
     friendId: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
     const friend = await ctx.db
       .query('friends')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.friendId)),
-          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), user.subject)),
+          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), args.friendId)),
+          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), args.userId)),
         ),
       )
       .first();
@@ -74,8 +64,8 @@ export const removeFriend = mutation({
       .query('chats')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.friendId)),
-          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), user.subject)),
+          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), args.friendId)),
+          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), args.userId)),
         ),
       )
       .first();
@@ -163,16 +153,11 @@ export const respondToRequest = mutation({
 });
 
 export const getFriends = query({
-  handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
     const friendIds = await ctx.db
       .query('friends')
-      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), userId), q.eq(q.field('userIdTwo'), userId)))
       .collect();
 
     const friends = await ctx.db
@@ -180,7 +165,7 @@ export const getFriends = query({
       .filter((q) => q.or(...friendIds.map((friend) => q.or(q.eq(q.field('clerkId'), friend.userIdOne), q.eq(q.field('clerkId'), friend.userIdTwo)))))
       .collect();
 
-    return friends.filter((friend) => friend.clerkId !== user.subject);
+    return friends.filter((friend) => friend.clerkId !== userId);
   },
 });
 
@@ -197,20 +182,14 @@ export const getFriendIds = query({
 });
 
 export const isFriend = query({
-  args: { targetId: v.string() },
-  handler: async (ctx, { targetId }) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { userId: v.string(), targetId: v.string() },
+  handler: async (ctx, { targetId, userId }) => {
     const friends = await ctx.db
       .query('friends')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), targetId)),
-          q.and(q.eq(q.field('userIdOne'), targetId), q.eq(q.field('userIdTwo'), user.subject)),
+          q.and(q.eq(q.field('userIdOne'), userId), q.eq(q.field('userIdTwo'), targetId)),
+          q.and(q.eq(q.field('userIdOne'), targetId), q.eq(q.field('userIdTwo'), userId)),
         ),
       )
       .collect();
@@ -220,21 +199,12 @@ export const isFriend = query({
 });
 
 export const isPendingRequest = query({
-  args: { targetId: v.string() },
-  handler: async (ctx, { targetId }) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { targetId: v.string(), userId: v.string() },
+  handler: async (ctx, { targetId, userId }) => {
     const request = await ctx.db
       .query('requests')
       .filter((q) =>
-        q.or(
-          q.and(q.eq(q.field('to'), targetId), q.eq(q.field('from'), user.subject)),
-          q.and(q.eq(q.field('to'), user.subject), q.eq(q.field('from'), targetId)),
-        ),
+        q.or(q.and(q.eq(q.field('to'), targetId), q.eq(q.field('from'), userId)), q.and(q.eq(q.field('to'), userId), q.eq(q.field('from'), targetId))),
       )
       .first();
 
