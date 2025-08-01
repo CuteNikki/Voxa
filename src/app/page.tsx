@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { CreateGroupChat } from '@/components/create-group';
 import { GroupChats } from '@/components/group-chats';
 import { PrivateChats } from '@/components/private-chats';
+import { UserList } from '@/components/friends/user-list';
 
 export default async function Home() {
   const { userId } = await auth();
@@ -37,6 +38,7 @@ export default async function Home() {
             <PrivateChats />
             <FriendList />
             <RequestList />
+            <UserList />
           </>
         ) : (
           <SignInButton />

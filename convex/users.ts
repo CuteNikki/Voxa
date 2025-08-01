@@ -2,6 +2,13 @@ import { v } from 'convex/values';
 
 import { mutation, query } from './_generated/server';
 
+export const getUsers = query({
+  handler: async (ctx) => {
+    const users = await ctx.db.query('users').collect();
+    return users;
+  },
+});
+
 // Only called from the server side
 export const getUser = query({
   args: { clerkId: v.string() },
