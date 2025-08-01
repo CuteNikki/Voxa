@@ -17,7 +17,7 @@ export function Chat({ userId, chatId, isGroup }: { userId: string; chatId: stri
   }
 
   return (
-    <div className='flex h-screen w-full flex-col'>
+    <div className='flex h-full w-full flex-col'>
       <div className='shrink-0'>{isGroup ? <GroupChatInfo chat={groupChat!} /> : <PrivateChatInfo chat={userChat!} userId={userId} />}</div>
 
       <div className='min-h-0 flex-1'>

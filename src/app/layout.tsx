@@ -7,9 +7,11 @@ import { defaultMetadata } from '@/constants/metadata';
 import ConvexProviderWithClerk from '@/providers/convex';
 import { ThemeProvider } from '@/providers/theme';
 
+import { Navbar } from '@/components/navigation/navbar';
 import PresenceSyncClient from '@/components/presence';
-import './globals.css';
 import { UserSyncer } from '@/hooks/user';
+
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,7 +38,13 @@ export default function RootLayout({
             <ConvexProviderWithClerk>
               <PresenceSyncClient />
               <UserSyncer />
-              {children}
+
+              <div className='flex h-screen w-full flex-col'>
+                <div className='shrink-0'>
+                  <Navbar />
+                </div>
+                <div className='min-h-0 flex-1'>{children}</div>
+              </div>
             </ConvexProviderWithClerk>
           </ThemeProvider>
         </ClerkProvider>
