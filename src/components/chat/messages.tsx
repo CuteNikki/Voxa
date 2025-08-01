@@ -3,7 +3,7 @@ import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TrashIcon } from 'lucide-react';
+import { PencilIcon, SendHorizontalIcon, TrashIcon, XIcon } from 'lucide-react';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -11,6 +11,7 @@ import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { TypographyP } from '@/components/typography/p';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 export function Messages({ chatId }: { chatId: string }) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -93,17 +94,63 @@ export function Messages({ chatId }: { chatId: string }) {
     </div>
   );
 }
+
+function MessageEditInput({ initialValue, onSave, onCancel }: { initialValue: string; onSave: (value: string) => void; onCancel: () => void }) {
+  const [value, setValue] = useState(initialValue);
+
+  return (
+    <form
+      className='flex gap-2'
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave(value.trim());
+      }}
+    >
+      <Textarea
+        className='resize-none'
+        rows={3}
+        value={value}
+        autoFocus
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onCancel();
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            onSave(value.trim());
+          }
+        }}
+      />
+      <Button type='submit' size='icon' variant='default'>
+        <SendHorizontalIcon />
+      </Button>
+      <Button type='button' size='icon' variant='secondary' onClick={onCancel}>
+        <XIcon />
+      </Button>
+    </form>
+  );
+}
+
 function MessageGroup({ senderId, messages }: { senderId: string; messages: Array<{ _id: string; senderId: string; content?: string; createdAt: number }> }) {
   const sender = useQuery(api.users.getUser, { clerkId: senderId });
   const { user } = useUser(); // Get current user
   const deleteMessage = useMutation(api.messages.deleteMessage);
+  const editMessage = useMutation(api.messages.editMessage);
 
   // Track which message is hovered (by index)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  // Handler for delete (implement actual delete logic as needed)
+  // Track which message is being edited (by _id)
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Handler for delete
   const handleDelete = (messageId: string) => {
     deleteMessage({ messageId });
+  };
+
+  // Handler for save edit
+  const handleSaveEdit = async (messageId: string, newContent: string) => {
+    await editMessage({ messageId, content: newContent });
+    setEditingId(null);
   };
 
   if (!sender) {
@@ -168,17 +215,26 @@ function MessageGroup({ senderId, messages }: { senderId: string; messages: Arra
           onMouseEnter={() => setHoveredIdx(0)}
           onMouseLeave={() => setHoveredIdx(null)}
         >
-          <TypographyP className='break-all whitespace-pre-line'>{messages[0].content}</TypographyP>
-          {isAuthor && hoveredIdx === 0 && (
-            <Button
-              variant='destructive'
-              size='icon'
-              className='absolute top-0 right-0'
-              onClick={() => handleDelete(messages[0]._id)}
-              aria-label='Delete message'
-            >
-              <TrashIcon />
-            </Button>
+          {editingId === messages[0]._id ? (
+            <MessageEditInput
+              initialValue={messages[0].content || ''}
+              onSave={(value) => handleSaveEdit(messages[0]._id, value)}
+              onCancel={() => setEditingId(null)}
+            />
+          ) : (
+            <>
+              <TypographyP className='break-all whitespace-pre-line'>{messages[0].content}</TypographyP>
+              {isAuthor && hoveredIdx === 0 && (
+                <div className='absolute top-0 right-0 flex gap-1'>
+                  <Button variant='secondary' size='icon' onClick={() => setEditingId(messages[0]._id)} aria-label='Edit message'>
+                    <PencilIcon />
+                  </Button>
+                  <Button variant='destructive' size='icon' onClick={() => handleDelete(messages[0]._id)} aria-label='Delete message'>
+                    <TrashIcon />
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
         {/* Subsequent messages */}
@@ -189,17 +245,26 @@ function MessageGroup({ senderId, messages }: { senderId: string; messages: Arra
             onMouseEnter={() => setHoveredIdx(idx + 1)}
             onMouseLeave={() => setHoveredIdx(null)}
           >
-            <TypographyP className='break-all whitespace-pre-line'>{message.content}</TypographyP>
-            {isAuthor && hoveredIdx === idx + 1 && (
-              <Button
-                variant='destructive'
-                size='icon'
-                className='absolute top-0 right-0'
-                onClick={() => handleDelete(message._id)}
-                aria-label='Delete message'
-              >
-                <TrashIcon />
-              </Button>
+            {editingId === message._id ? (
+              <MessageEditInput
+                initialValue={message.content || ''}
+                onSave={(value) => handleSaveEdit(message._id, value)}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <>
+                <TypographyP className='break-all whitespace-pre-line'>{message.content}</TypographyP>
+                {isAuthor && hoveredIdx === idx + 1 && (
+                  <div className='absolute top-0 right-0 flex gap-1'>
+                    <Button variant='secondary' size='icon' onClick={() => setEditingId(message._id)} aria-label='Edit message'>
+                      <PencilIcon />
+                    </Button>
+                    <Button variant='destructive' size='icon' onClick={() => handleDelete(message._id)} aria-label='Delete message'>
+                      <TrashIcon />
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}

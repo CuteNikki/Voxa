@@ -121,3 +121,40 @@ export const deleteMessage = mutation({
     await ctx.db.delete(message._id);
   },
 });
+
+export const editMessage = mutation({
+  args: {
+    messageId: v.string(),
+    content: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, { messageId, content, imageUrl }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    if (!content && !imageUrl) {
+      throw new Error('Message must have either content or an image URL');
+    }
+
+    const message = await ctx.db
+      .query('messages')
+      .filter((q) => q.eq(q.field('_id'), messageId))
+      .first();
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    if (message.senderId !== user.subject) {
+      throw new Error('You can only edit your own messages');
+    }
+
+    const updatedFields: { content?: string; imageUrl?: string } = {};
+    if (content !== undefined) updatedFields.content = content;
+    if (imageUrl !== undefined) updatedFields.imageUrl = imageUrl;
+
+    return await ctx.db.patch(message._id, updatedFields);
+  },
+});
