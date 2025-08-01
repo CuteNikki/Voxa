@@ -5,6 +5,7 @@
       "name": "voxa",
       "dependencies": {
         "@clerk/nextjs": "^6.27.0",
+        "@clerk/themes": "^2.4.4",
         "@radix-ui/react-dropdown-menu": "^2.1.15",
         "@radix-ui/react-slot": "^1.2.3",
         "class-variance-authority": "^0.7.1",
@@ -46,6 +47,8 @@
     "@clerk/nextjs": ["@clerk/nextjs@6.27.0", "", { "dependencies": { "@clerk/backend": "^2.6.0", "@clerk/clerk-react": "^5.37.0", "@clerk/shared": "^3.15.1", "@clerk/types": "^4.70.1", "server-only": "0.0.1", "tslib": "2.8.1" }, "peerDependencies": { "next": "^13.5.7 || ^14.2.25 || ^15.2.3", "react": "^18.0.0 || ^19.0.0 || ^19.0.0-0", "react-dom": "^18.0.0 || ^19.0.0 || ^19.0.0-0" } }, "sha512-1QProUoXvaXrtiz5X/+oNhKLD6hF4rw53Kt39AUxyKOQcQMej/bWbg/Oe6sngJ7V+kwjN5d62CaUvcL7scolIw=="],
 
     "@clerk/shared": ["@clerk/shared@3.15.1", "", { "dependencies": { "@clerk/types": "^4.70.1", "dequal": "2.0.3", "glob-to-regexp": "0.4.1", "js-cookie": "3.0.5", "std-env": "^3.9.0", "swr": "2.3.4" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0 || ^19.0.0-0", "react-dom": "^18.0.0 || ^19.0.0 || ^19.0.0-0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-5k4ooQ5EsiboShv9W9LV1bK4PWiqqgqyBNxz5/GRnsdE+Ng2i+nbd0jP9eqCJSGIaar3Q9a1iE/zttIB8Uxi3Q=="],
+
+    "@clerk/themes": ["@clerk/themes@2.4.4", "", { "dependencies": { "@clerk/types": "^4.72.0", "tslib": "2.8.1" } }, "sha512-rsuy5R06B8CAcubPi5jXAdkU8fLPH71Ehb3/Th/foZG9aax49hbOYCHKVmxLCrEml1U5cWkA2JWfPPbkOEdiqA=="],
 
     "@clerk/types": ["@clerk/types@4.70.1", "", { "dependencies": { "csstype": "3.1.3" } }, "sha512-AfaNAxVQlH+ekHUa2TLRsTkqkE01bxwK1xw07/uE4qzx2rs5oaH76AnZVBoiBIUQK7cCnZ2Tk2s563RJIK6kSA=="],
 
@@ -1026,6 +1029,8 @@
     "yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
 
     "yocto-queue": ["yocto-queue@0.1.0", "", {}, "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="],
+
+    "@clerk/themes/@clerk/types": ["@clerk/types@4.72.0", "", { "dependencies": { "csstype": "3.1.3" } }, "sha512-SEkgiQNeTstC0/mQjHCGBEyX0/ALyWAa5QZBBvVOok204r48MLipfIKsXQhyWE2Hk6FIo5WT6YyqD36jaxUEIw=="],
 
     "@eslint-community/eslint-utils/eslint-visitor-keys": ["eslint-visitor-keys@3.4.3", "", {}, "sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag=="],
 
