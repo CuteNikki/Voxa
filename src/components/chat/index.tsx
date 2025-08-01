@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { fetchQuery } from 'convex/nextjs';
+import { redirect } from 'next/navigation';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -11,14 +12,14 @@ export async function Chat({ targetUserId, chatId, isGroup }: { targetUserId: st
   const { userId } = await auth();
 
   if (!userId) {
-    return <p>Please log in to view the chat.</p>;
+    return redirect('/');
   }
 
   const userChat = await fetchQuery(api.chats.getChatByUserId, { targetUserId, currentUserId: userId });
   const groupChat = await fetchQuery(api.chats.getGroupById, { groupId: chatId });
 
   if (!userChat && !groupChat) {
-    return <p>No chat found.</p>;
+    redirect('/');
   }
 
   return (
