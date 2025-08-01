@@ -25,12 +25,7 @@ export function FriendList() {
   );
 }
 
-function UserElement({
-  userId,
-}: {
-    userId: string;
-}) {
-
+function UserElement({ userId }: { userId: string }) {
   return (
     <li className='flex items-center gap-4'>
       <UserDetails userId={userId} />
