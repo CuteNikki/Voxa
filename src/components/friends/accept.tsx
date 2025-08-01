@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { fetchMutation } from 'convex/nextjs';
+import { revalidatePath } from 'next/cache';
 
 import { CheckIcon } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export async function AcceptRequestButton({ targetId }: { targetId: string }) {
         'use server';
 
         await fetchMutation(api.friends.respondToRequest, { targetId, userId, response: 'accept' });
+        revalidatePath('/');
       }}
     >
       <Button type='submit' size='icon' aria-label='Accept request'>

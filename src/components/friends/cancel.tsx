@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { fetchMutation } from 'convex/nextjs';
+import { revalidatePath } from 'next/cache';
 
 import { XIcon } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export async function CancelRequestButton({ targetId }: { targetId: string }) {
         'use server';
 
         await fetchMutation(api.friends.respondToRequest, { targetId, userId, response: 'decline' });
+        revalidatePath('/');
       }}
     >
       <Button type='submit' variant='destructive' size='icon' aria-label='Cancel request'>
