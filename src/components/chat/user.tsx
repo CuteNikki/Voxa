@@ -1,4 +1,4 @@
-import { useQuery } from 'convex/react';
+import { fetchQuery } from 'convex/nextjs';
 import Image from 'next/image';
 
 import { api } from '../../../convex/_generated/api';
@@ -6,9 +6,9 @@ import { api } from '../../../convex/_generated/api';
 import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 
-export function UserDetails({ userId }: { userId: string }) {
-  const user = useQuery(api.users.getUser, { clerkId: userId });
-  const presence = useQuery(api.presence.getUserPresence, { userId });
+export async function UserDetails({ userId }: { userId: string }) {
+  const user = await fetchQuery(api.users.getUser, { clerkId: userId });
+  const presence = await fetchQuery(api.presence.getUserPresence, { userId });
 
   const lastSeen = presence?.lastSeen ?? 0;
   const isOnline = Date.now() - lastSeen < 30_000; // 30 seconds

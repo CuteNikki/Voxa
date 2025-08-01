@@ -2,14 +2,7 @@ import { v } from 'convex/values';
 
 import { mutation, query } from './_generated/server';
 
-// This function was for debugging purposes and is not used in the current codebase.
-// export const getAllUsers = query({
-//   args: {},
-//   handler: async (ctx) => {
-//     return await ctx.db.query('users').collect();
-//   },
-// });
-
+// Only called from the server side
 export const getUser = query({
   args: { clerkId: v.string() },
   handler: async (ctx, { clerkId }) => {
@@ -17,9 +10,11 @@ export const getUser = query({
       .query('users')
       .withIndex('by_clerkId', (q) => q.eq('clerkId', clerkId))
       .unique();
+
     if (!user) {
       throw new Error(`User with clerkId ${clerkId} not found`);
     }
+
     return user;
   },
 });
@@ -27,10 +22,10 @@ export const getUser = query({
 export const getUsersByIds = query({
   args: { ids: v.array(v.string()) },
   handler: async (ctx, { ids }) => {
-    if (ids.length === 0) return {};
+    if (ids.length === 0) return [];
     const allUsers = await ctx.db.query('users').collect();
     const users = allUsers.filter((user) => ids.includes(user.clerkId));
-    return Object.fromEntries(users.map((user) => [user.clerkId, user]));
+    return users;
   },
 });
 

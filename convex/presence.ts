@@ -37,15 +37,10 @@ export const setOnlineStatus = mutation({
   },
 });
 
+// Only called from the server side
 export const getUserPresence = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('Unauthorized');
-    }
-
     const presence = await ctx.db
       .query('presence')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))

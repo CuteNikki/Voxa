@@ -1,26 +1,31 @@
-'use client';
-
-import { useUser } from '@clerk/nextjs';
-import { useMutation } from 'convex/react';
+import { auth } from '@clerk/nextjs/server';
+import { fetchMutation } from 'convex/nextjs';
 
 import { api } from '../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 
-export function CreateGroupChat() {
-  const user = useUser();
-  const createGroupChat = useMutation(api.chats.createGroupChat);
+export async function CreateGroupChat() {
+  const { userId } = await auth();
 
-  if (!user || !user.isLoaded || !user.isSignedIn) {
+  if (!userId) {
     return null;
   }
 
   return (
     <div className='flex flex-col items-center justify-center p-4'>
       <h3>Create a New Group Chat</h3>
-      <Button className='mt-4' onClick={() => createGroupChat({ name: 'New Group Chat' })}>
-        Create Group
-      </Button>
+      <form
+        action={async () => {
+          'use server';
+
+          await fetchMutation(api.chats.createGroupChat, { name: 'New Group Chat', userId });
+        }}
+      >
+        <Button className='mt-4' type='submit'>
+          Create Group
+        </Button>
+      </form>
     </div>
   );
 }

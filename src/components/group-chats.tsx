@@ -1,9 +1,10 @@
-import { useQuery } from 'convex/react';
+import { fetchQuery } from 'convex/nextjs';
 import Link from 'next/link';
+
 import { api } from '../../convex/_generated/api';
 
-export function GroupChats() {
-  const groupChats = useQuery(api.chats.getGroups);
+export async function GroupChats() {
+  const groupChats = await fetchQuery(api.chats.getGroups);
 
   return (
     <div className='h-60'>

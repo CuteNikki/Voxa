@@ -1,15 +1,10 @@
-'use client';
-
 import Image from 'next/image';
 
 import { SignInButton, UserButton } from '@clerk/nextjs';
-import { Authenticated, Unauthenticated } from 'convex/react';
+import { auth } from '@clerk/nextjs/server';
 
-import { CreateGroupChat } from '@/components/create-group';
 import { FriendList } from '@/components/friends/friend-list';
 import { RequestList } from '@/components/friends/request-list';
-import { GroupChats } from '@/components/group-chats';
-import { PrivateChats } from '@/components/private-chats';
 import { ThemeToggle } from '@/components/theme/toggle';
 import { TypographyH1 } from '@/components/typography/h1';
 import { TypographyH2 } from '@/components/typography/h2';
@@ -24,26 +19,28 @@ import { TypographyP } from '@/components/typography/p';
 import { TypographyBlockquote } from '@/components/typography/quote';
 import { TypographySmall } from '@/components/typography/small';
 import { Button } from '@/components/ui/button';
+import { CreateGroupChat } from '@/components/create-group';
+import { GroupChats } from '@/components/group-chats';
+import { PrivateChats } from '@/components/private-chats';
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
+
   return (
-    <div className='grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-sans sm:p-20'>
+    <div className='flex flex-col items-center justify-items-center gap-16 p-8 pb-20 font-sans sm:p-20'>
       <main className='row-start-2 flex flex-col items-center gap-[32px] sm:items-start'>
-        <div className='flex flex-col gap-4'>
-          <Authenticated>
+        {userId ? (
+          <>
             <UserButton />
-            <div>
-              <CreateGroupChat />
-              <GroupChats />
-              <PrivateChats />
-              <FriendList />
-              <RequestList />
-            </div>
-          </Authenticated>
-          <Unauthenticated>
-            <SignInButton />
-          </Unauthenticated>
-        </div>
+            <CreateGroupChat />
+            <GroupChats />
+            <PrivateChats />
+            <FriendList />
+            <RequestList />
+          </>
+        ) : (
+          <SignInButton />
+        )}
         <div className='flex flex-col gap-2'>
           <TypographyH1>Taxing Laughter: The Joke Tax Chronicles</TypographyH1>
           <TypographyH2>The People of the Kingdom</TypographyH2>

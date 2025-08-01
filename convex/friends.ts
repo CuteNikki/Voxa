@@ -88,48 +88,35 @@ export const removeFriend = mutation({
   },
 });
 
+// Only called from the server side
 export const getFriendRequests = query({
-  handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
     return await ctx.db
       .query('requests')
-      .filter((q) => q.eq(q.field('to'), user.subject))
+      .filter((q) => q.eq(q.field('to'), userId))
       .collect();
   },
 });
 
+// Only called from the server side
 export const getSentRequests = query({
-  handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
     return await ctx.db
       .query('requests')
-      .filter((q) => q.eq(q.field('from'), user.subject))
+      .filter((q) => q.eq(q.field('from'), userId))
       .collect();
   },
 });
 
 export const respondToRequest = mutation({
   args: {
+    userId: v.string(),
     targetId: v.string(),
     response: v.union(v.literal('accept'), v.literal('decline')),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
     const requests = await ctx.db
       .query('requests')
       .filter((q) => q.or(q.eq(q.field('to'), args.targetId), q.eq(q.field('from'), args.targetId)))
@@ -142,7 +129,7 @@ export const respondToRequest = mutation({
     }
 
     if (args.response === 'accept') {
-      if (request.from === user.subject) {
+      if (request.from === args.userId) {
         throw new Error('You cannot accept your own friend request');
       }
 
@@ -198,19 +185,14 @@ export const getFriends = query({
 });
 
 export const getFriendIds = query({
-  handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
     const friends = await ctx.db
       .query('friends')
-      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), userId), q.eq(q.field('userIdTwo'), userId)))
       .collect();
 
-    return friends.map((friend) => (friend.userIdOne === user.subject ? friend.userIdTwo : friend.userIdOne));
+    return friends.map((friend) => (friend.userIdOne === userId ? friend.userIdTwo : friend.userIdOne));
   },
 });
 

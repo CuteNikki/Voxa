@@ -20,6 +20,10 @@ export const sendGroupMessage = mutation({
       throw new Error('Message must have either content or an image URL');
     }
 
+    if (args.content && args.content.length > 1000) {
+      throw new Error('Message content exceeds maximum length of 1000 characters');
+    }
+
     const existingChat = await ctx.db
       .query('groups')
       .filter((q) => q.eq(q.field('_id'), args.chatId))
@@ -52,6 +56,10 @@ export const sendChatMessage = mutation({
 
     if (!args.content && !args.imageUrl) {
       throw new Error('Message must have either content or an image URL');
+    }
+
+    if (args.content && args.content.length > 1000) {
+      throw new Error('Message content exceeds maximum length of 1000 characters');
     }
 
     const existingChat = await ctx.db
@@ -137,6 +145,10 @@ export const editMessage = mutation({
 
     if (!content && !imageUrl) {
       throw new Error('Message must have either content or an image URL');
+    }
+
+    if (content && content.length > 1000) {
+      throw new Error('Message content exceeds maximum length of 1000 characters');
     }
 
     const message = await ctx.db

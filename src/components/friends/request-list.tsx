@@ -1,4 +1,5 @@
-import { useQuery } from 'convex/react';
+import { auth } from '@clerk/nextjs/server';
+import { fetchQuery } from 'convex/nextjs';
 import Image from 'next/image';
 
 import { api } from '../../../convex/_generated/api';
@@ -7,9 +8,15 @@ import { AcceptRequestButton } from '@/components/friends/accept';
 import { CancelRequestButton } from '@/components/friends/cancel';
 import { DeclineRequestButton } from '@/components/friends/decline';
 
-export function RequestList() {
-  const receivedRequests = useQuery(api.friends.getFriendRequests);
-  const sentRequests = useQuery(api.friends.getSentRequests);
+export async function RequestList() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return null;
+  }
+
+  const receivedRequests = await fetchQuery(api.friends.getFriendRequests, { userId });
+  const sentRequests = await fetchQuery(api.friends.getSentRequests, { userId });
 
   return (
     <div>
@@ -39,8 +46,8 @@ export function RequestList() {
   );
 }
 
-function ReceivedRequestUser({ targetId }: { targetId: string }) {
-  const targetUser = useQuery(api.users.getUser, { clerkId: targetId });
+async function ReceivedRequestUser({ targetId }: { targetId: string }) {
+  const targetUser = await fetchQuery(api.users.getUser, { clerkId: targetId });
 
   if (!targetUser) {
     return <div className='h-12 w-12 rounded-full bg-gray-400' />;
@@ -64,8 +71,8 @@ function ReceivedRequestUser({ targetId }: { targetId: string }) {
   );
 }
 
-function SentRequestUser({ targetId }: { targetId: string }) {
-  const targetUser = useQuery(api.users.getUser, { clerkId: targetId });
+async function SentRequestUser({ targetId }: { targetId: string }) {
+  const targetUser = await fetchQuery(api.users.getUser, { clerkId: targetId });
 
   if (!targetUser) {
     return <div className='h-12 w-12 rounded-full bg-gray-400' />;

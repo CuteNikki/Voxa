@@ -1,12 +1,19 @@
-import { useQuery } from 'convex/react';
+import { auth } from '@clerk/nextjs/server';
+import { fetchQuery } from 'convex/nextjs';
 
 import { api } from '../../../convex/_generated/api';
 
 import { UserDetails } from '@/components/chat/user';
 import { RemoveFriendButton } from '@/components/friends/remove';
 
-export function FriendList() {
-  const friendIds = useQuery(api.friends.getFriendIds);
+export async function FriendList() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return null;
+  }
+
+  const friendIds = await fetchQuery(api.friends.getFriendIds, { userId });
 
   return (
     <div>

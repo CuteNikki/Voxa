@@ -1,41 +1,35 @@
-import { useUser } from '@clerk/nextjs';
-import { useQuery } from 'convex/react';
+import { auth } from '@clerk/nextjs/server';
+import { fetchQuery } from 'convex/nextjs';
 
-import Link from 'next/link';
 import { api } from '../../convex/_generated/api';
 
-export function PrivateChats() {
-  const user = useUser();
-  const privateChats = useQuery(api.chats.getChats);
+import Link from 'next/link';
 
-  if (!user || !user.isLoaded || !user.isSignedIn) {
+export async function PrivateChats() {
+  const { userId } = await auth();
+
+  if (!userId) {
     return null;
   }
+
+  const privateChats = await fetchQuery(api.chats.getChats, { userId });
 
   return (
     <div className='h-60'>
       <h3 className='mb-2 text-lg font-semibold'>Private Chats:</h3>
-      {privateChats ? (
-        <ul>
-          {privateChats.map((chat) => (
-            <Link
-              href={`/chat/${chat.userIdOne === user.user.id ? chat.userIdTwo : chat.userIdOne}`}
-              key={chat._id}
-              className='mb-2 flex min-h-[24px] items-center'
-            >
-              <ChatName members={[chat.userIdOne, chat.userIdTwo]} currentUser={user.user.id} />
-            </Link>
-          ))}
-        </ul>
-      ) : (
-        <p>No chats available.</p>
-      )}
+      <ul>
+        {privateChats.map((chat) => (
+          <Link href={`/chat/${chat.userIdOne === userId ? chat.userIdTwo : chat.userIdOne}`} key={chat._id} className='mb-2 flex min-h-[24px] items-center'>
+            <ChatName members={[chat.userIdOne, chat.userIdTwo]} currentUser={userId} />
+          </Link>
+        ))}
+      </ul>
     </div>
   );
 }
 
-function ChatName({ members, currentUser }: { members: string[]; currentUser: string }) {
-  const otherUser = useQuery(api.users.getUser, { clerkId: members.filter((m) => m !== currentUser)[0] });
+export async function ChatName({ members, currentUser }: { members: string[]; currentUser: string }) {
+  const otherUser = await fetchQuery(api.users.getUser, { clerkId: members.filter((m) => m !== currentUser)[0] });
 
   return <span className='capitalize'>{otherUser ? otherUser.username : 'Unnamed Chat'}</span>;
 }

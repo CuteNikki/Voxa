@@ -1,17 +1,20 @@
+'use client';
+
 import { useUser } from '@clerk/nextjs';
 import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { PencilIcon, SendHorizontalIcon, TrashIcon, XIcon } from 'lucide-react';
+import { PencilIcon, TrashIcon } from 'lucide-react';
 
 import { api } from '../../../convex/_generated/api';
 
+import { MessageEditInput } from '@/components/chat/input';
 import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { TypographyP } from '@/components/typography/p';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function Messages({ chatId }: { chatId: string }) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -83,7 +86,28 @@ export function Messages({ chatId }: { chatId: string }) {
     return groups;
   }, [messages]);
 
-  if (!messages || messages.length === 0) return <p>No messages found.</p>;
+  if (!messages || messages.length === 0)
+    return (
+      <div className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+          <div key={i} className='flex flex-row gap-3 px-2 py-0'>
+            {/* Avatar */}
+            <Skeleton className='h-10 w-10 rounded-full' />
+            {/* Messages */}
+            <div className='flex w-full flex-col'>
+              {/* First message: name, timestamp, message */}
+              <div className='flex flex-row items-center gap-2'>
+                <Skeleton className='h-7 w-24' />
+                <Skeleton className='h-4 w-16' />
+              </div>
+              <div className='relative rounded-md px-2 py-1'>
+                <Skeleton className='h-7 w-1/2' />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
 
   return (
     <div ref={scrollRef} className='flex max-h-full flex-1 flex-col gap-2 overflow-y-auto p-4 pb-8'>
@@ -92,41 +116,6 @@ export function Messages({ chatId }: { chatId: string }) {
       ))}
       <div ref={bottomRef} className='hidden' />
     </div>
-  );
-}
-
-function MessageEditInput({ initialValue, onSave, onCancel }: { initialValue: string; onSave: (value: string) => void; onCancel: () => void }) {
-  const [value, setValue] = useState(initialValue);
-
-  return (
-    <form
-      className='flex gap-2'
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSave(value.trim());
-      }}
-    >
-      <Textarea
-        className='resize-none'
-        rows={3}
-        value={value}
-        autoFocus
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') onCancel();
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            onSave(value.trim());
-          }
-        }}
-      />
-      <Button type='submit' size='icon' variant='default'>
-        <SendHorizontalIcon />
-      </Button>
-      <Button type='button' size='icon' variant='secondary' onClick={onCancel}>
-        <XIcon />
-      </Button>
-    </form>
   );
 }
 
@@ -154,7 +143,7 @@ function MessageGroup({ senderId, messages }: { senderId: string; messages: Arra
   };
 
   if (!sender) {
-    return <p>Sender not found.</p>;
+    return null;
   }
 
   // Check if current user is the author
@@ -177,38 +166,7 @@ function MessageGroup({ senderId, messages }: { senderId: string; messages: Arra
         {/* First message: name, timestamp, message */}
         <div className='flex flex-row items-center gap-2' onMouseEnter={() => setHoveredIdx(0)} onMouseLeave={() => setHoveredIdx(null)}>
           <TypographyLarge className='capitalize'>{sender.username}</TypographyLarge>
-          <TypographyMuted className='text-xs'>
-            {(() => {
-              const createdAt = messages[0]?.createdAt;
-              if (typeof createdAt !== 'number' || isNaN(createdAt)) {
-                return 'Invalid date';
-              }
-              const createdDate = new Date(createdAt);
-              const now = new Date();
-              const isToday =
-                createdDate.getFullYear() === now.getFullYear() && createdDate.getMonth() === now.getMonth() && createdDate.getDate() === now.getDate();
-              const isYesterday = (() => {
-                const yesterday = new Date(now);
-                yesterday.setDate(now.getDate() - 1);
-                return (
-                  createdDate.getFullYear() === yesterday.getFullYear() &&
-                  createdDate.getMonth() === yesterday.getMonth() &&
-                  createdDate.getDate() === yesterday.getDate()
-                );
-              })();
-
-              if (isYesterday) {
-                // Show "Yesterday" and time
-                return `Yesterday, ${createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-              } else if (!isToday) {
-                // Show date and time
-                return createdDate.toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-              } else {
-                // Show only time
-                return createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-              }
-            })()}
-          </TypographyMuted>
+          <TypographyMuted className='text-xs'>{formatTimestamp(messages[0].createdAt)}</TypographyMuted>
         </div>
         <div
           className={`relative rounded-md px-2 py-1 transition-colors ${hoveredIdx === 0 ? 'bg-zinc-800/60' : ''}`}
@@ -271,4 +229,27 @@ function MessageGroup({ senderId, messages }: { senderId: string; messages: Arra
       </div>
     </div>
   );
+}
+
+function formatTimestamp(createdAt: number | undefined): string {
+  if (typeof createdAt !== 'number' || isNaN(createdAt)) return 'Invalid date';
+  const date = new Date(createdAt);
+  const now = new Date();
+
+  const isToday = date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = date.getFullYear() === yesterday.getFullYear() && date.getMonth() === yesterday.getMonth() && date.getDate() === yesterday.getDate();
+
+  if (isYesterday) return `Yesterday, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (!isToday)
+    return date.toLocaleString([], {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }

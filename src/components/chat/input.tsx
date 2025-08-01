@@ -1,13 +1,18 @@
+'use client';
+
 import { useUser } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
 import { useRef, useState } from 'react';
 
-import { SendHorizontalIcon } from 'lucide-react';
+import { SendHorizontalIcon, XIcon } from 'lucide-react';
 
 import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+
+const MAX_LENGTH = 1000;
+const WARNING_THRESHOLD = 800;
 
 export function ChatInput({ chatId, isGroup }: { chatId: string; isGroup: boolean }) {
   const { user } = useUser();
@@ -19,7 +24,16 @@ export function ChatInput({ chatId, isGroup }: { chatId: string; isGroup: boolea
   const [isTyping, setIsTyping] = useState(false);
 
   if (!user) {
-    return <div>Please log in to send messages.</div>;
+    return (
+      <div className='relative flex flex-col'>
+        <div className='flex flex-row items-center justify-between gap-2 border-t p-4'>
+          <Textarea value={value} disabled rows={2} placeholder='Type your message...' className='resize-none' />
+          <Button size='icon' aria-label='Send message' disabled>
+            <SendHorizontalIcon />
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const stopTyping = () => {
@@ -56,20 +70,71 @@ export function ChatInput({ chatId, isGroup }: { chatId: string; isGroup: boolea
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+
+      if (!value.trim() || value.length > MAX_LENGTH) return;
+
       handleSend();
     }
   };
 
   return (
-    <div className='relative flex flex-col'>
+    <div className='flex flex-col'>
       <TypingIndicator chatId={chatId} currentUserId={user.id} />
-      <div className='flex flex-row items-center justify-between gap-2 border-t p-4'>
+      <div className='relative flex flex-row items-center justify-between gap-2 border-t p-4'>
         <Textarea value={value} onChange={handleChange} onKeyDown={handleKeyDown} rows={2} placeholder='Type your message...' className='resize-none' />
-        <Button size='icon' onClick={handleSend} aria-label='Send message' disabled={!value.trim()}>
+        {value.length >= WARNING_THRESHOLD && (
+          <span className={`absolute right-1 bottom-4 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+            {value.length}/{MAX_LENGTH}
+          </span>
+        )}
+        <Button size='icon' onClick={handleSend} aria-label='Send message' disabled={!value.trim() || value.length > MAX_LENGTH}>
           <SendHorizontalIcon />
         </Button>
       </div>
     </div>
+  );
+}
+
+export function MessageEditInput({ initialValue, onSave, onCancel }: { initialValue: string; onSave: (value: string) => void; onCancel: () => void }) {
+  const [value, setValue] = useState(initialValue);
+
+  return (
+    <form
+      className='relative flex gap-2'
+      onSubmit={(e) => {
+        e.preventDefault();
+
+        if (!value.trim() || value.length > MAX_LENGTH) return;
+
+        onSave(value.trim());
+      }}
+    >
+      <Textarea
+        className='resize-none'
+        rows={3}
+        value={value}
+        autoFocus
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onCancel();
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            onSave(value.trim());
+          }
+        }}
+      />
+      {value.length >= WARNING_THRESHOLD && (
+        <span className={`absolute right-1 bottom-4 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+          {value.length}/{MAX_LENGTH}
+        </span>
+      )}
+      <Button type='submit' size='icon' variant='default' disabled={!value.trim() || value.length > MAX_LENGTH}>
+        <SendHorizontalIcon />
+      </Button>
+      <Button type='button' size='icon' variant='secondary' onClick={onCancel}>
+        <XIcon />
+      </Button>
+    </form>
   );
 }
 

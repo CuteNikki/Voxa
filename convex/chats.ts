@@ -30,17 +30,13 @@ export const createChat = mutation({
   },
 });
 
+// Only called from the server side
 export const createGroupChat = mutation({
   args: {
     name: v.string(),
+    userId: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
     const existingChat = await ctx.db
       .query('groups')
       .filter((q) => q.eq(q.field('name'), args.name))
@@ -53,54 +49,40 @@ export const createGroupChat = mutation({
     return await ctx.db.insert('groups', {
       name: args.name,
       memberIds: [],
-      createdBy: user.subject,
+      createdBy: args.userId,
       createdAt: Date.now(),
     });
   },
 });
 
+// Only called from the server side
 export const getChats = query({
-  handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
     return await ctx.db
       .query('chats')
-      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), userId), q.eq(q.field('userIdTwo'), userId)))
       .collect();
   },
 });
 
+// Only called from the server side
 export const getGroups = query({
   handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
     return await ctx.db.query('groups').collect();
   },
 });
 
+// Only called from the server side
 export const getChatByUserId = query({
-  args: { userId: v.string() },
+  args: { targetUserId: v.string(), currentUserId: v.string() },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
     return await ctx.db
       .query('chats')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.userId)),
-          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), user.subject)),
+          q.and(q.eq(q.field('userIdOne'), args.currentUserId), q.eq(q.field('userIdTwo'), args.targetUserId)),
+          q.and(q.eq(q.field('userIdOne'), args.targetUserId), q.eq(q.field('userIdTwo'), args.currentUserId)),
         ),
       )
       .first();
