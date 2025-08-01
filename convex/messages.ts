@@ -96,3 +96,28 @@ export const getPaginatedMessages = query({
       .paginate(options);
   },
 });
+
+export const deleteMessage = mutation({
+  args: { messageId: v.string() },
+  handler: async (ctx, { messageId }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const message = await ctx.db
+      .query('messages')
+      .filter((q) => q.eq(q.field('_id'), messageId))
+      .first();
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    if (message.senderId !== user.subject) {
+      throw new Error('You can only delete your own messages');
+    }
+
+    await ctx.db.delete(message._id);
+  },
+});

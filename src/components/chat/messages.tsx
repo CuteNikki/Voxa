@@ -1,12 +1,16 @@
-import { usePaginatedQuery, useQuery } from 'convex/react';
+import { useUser } from '@clerk/nextjs';
+import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { TrashIcon } from 'lucide-react';
 
 import { api } from '../../../convex/_generated/api';
 
 import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { TypographyP } from '@/components/typography/p';
+import { Button } from '@/components/ui/button';
 
 export function Messages({ chatId }: { chatId: string }) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -56,15 +60,19 @@ export function Messages({ chatId }: { chatId: string }) {
     });
     setInitialScrolled(true);
   }, [messages, senders, hasInitialScrolled, status, rawSenders]);
-
-  // Group consecutive messages by the same sender
+  // Group up to 5 consecutive messages by the same sender, stop if 5 minutes apart
   const groupedMessages = useMemo(() => {
     if (!messages) return [];
     const groups: Array<{ senderId: string; messages: typeof messages }> = [];
     let currentGroup: { senderId: string; messages: typeof messages } | null = null;
 
     for (const msg of messages) {
-      if (!currentGroup || currentGroup.senderId !== msg.senderId) {
+      const lastMsg = currentGroup?.messages[currentGroup.messages.length - 1];
+      const isSameSender = currentGroup && currentGroup.senderId === msg.senderId;
+      const isWithinLimit = currentGroup && currentGroup.messages.length < 5;
+      const isWithinTime = lastMsg && Math.abs(msg.createdAt - lastMsg.createdAt) <= 5 * 60 * 1000;
+
+      if (!currentGroup || !isSameSender || !isWithinLimit || !isWithinTime) {
         currentGroup = { senderId: msg.senderId, messages: [msg] };
         groups.push(currentGroup);
       } else {
@@ -85,32 +93,115 @@ export function Messages({ chatId }: { chatId: string }) {
     </div>
   );
 }
-
 function MessageGroup({ senderId, messages }: { senderId: string; messages: Array<{ _id: string; senderId: string; content?: string; createdAt: number }> }) {
   const sender = useQuery(api.users.getUser, { clerkId: senderId });
+  const { user } = useUser(); // Get current user
+  const deleteMessage = useMutation(api.messages.deleteMessage);
+
+  // Track which message is hovered (by index)
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  // Handler for delete (implement actual delete logic as needed)
+  const handleDelete = (messageId: string) => {
+    deleteMessage({ messageId });
+  };
 
   if (!sender) {
     return <p>Sender not found.</p>;
   }
 
+  // Check if current user is the author
+  const isAuthor = user?.id === senderId;
+
   return (
-    <div className='flex flex-row gap-2'>
-      <Image
-        src={sender.imageUrl || '/default-avatar.png'}
-        alt={`${sender.username} avatar`}
-        width={512}
-        height={512}
-        className='h-12 w-12 self-start rounded-full'
-      />
+    <div className='flex flex-row gap-3 px-2 py-0'>
+      {/* Avatar */}
+      <div className='flex flex-col' tabIndex={0} role='button' aria-label={`${sender.username} avatar`}>
+        <Image
+          src={sender.imageUrl || '/default-avatar.png'}
+          alt={`${sender.username} avatar`}
+          width={40}
+          height={40}
+          className={`h-10 w-10 rounded-full transition-colors ${hoveredIdx === 0 ? 'bg-zinc-800/60' : ''}`}
+        />
+      </div>
+      {/* Messages */}
       <div className='flex w-full flex-col'>
-        <div className='flex w-full flex-row items-center justify-between gap-2'>
+        {/* First message: name, timestamp, message */}
+        <div className='flex flex-row items-center gap-2' onMouseEnter={() => setHoveredIdx(0)} onMouseLeave={() => setHoveredIdx(null)}>
           <TypographyLarge className='capitalize'>{sender.username}</TypographyLarge>
-          <TypographyMuted>{new Date(messages[0].createdAt).toLocaleString()}</TypographyMuted>
+          <TypographyMuted className='text-xs'>
+            {(() => {
+              const createdAt = messages[0]?.createdAt;
+              if (typeof createdAt !== 'number' || isNaN(createdAt)) {
+                return 'Invalid date';
+              }
+              const createdDate = new Date(createdAt);
+              const now = new Date();
+              const isToday =
+                createdDate.getFullYear() === now.getFullYear() && createdDate.getMonth() === now.getMonth() && createdDate.getDate() === now.getDate();
+              const isYesterday = (() => {
+                const yesterday = new Date(now);
+                yesterday.setDate(now.getDate() - 1);
+                return (
+                  createdDate.getFullYear() === yesterday.getFullYear() &&
+                  createdDate.getMonth() === yesterday.getMonth() &&
+                  createdDate.getDate() === yesterday.getDate()
+                );
+              })();
+
+              if (isYesterday) {
+                // Show "Yesterday" and time
+                return `Yesterday, ${createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+              } else if (!isToday) {
+                // Show date and time
+                return createdDate.toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+              } else {
+                // Show only time
+                return createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+            })()}
+          </TypographyMuted>
         </div>
-        {messages.map((message, idx) => (
-          <TypographyP key={message._id} className={`break-all whitespace-pre-line ${idx > 0 ? 'mt-2' : ''}`}>
-            {message.content}
-          </TypographyP>
+        <div
+          className={`relative rounded-md px-2 py-1 transition-colors ${hoveredIdx === 0 ? 'bg-zinc-800/60' : ''}`}
+          onMouseEnter={() => setHoveredIdx(0)}
+          onMouseLeave={() => setHoveredIdx(null)}
+        >
+          <TypographyP className='break-all whitespace-pre-line'>{messages[0].content}</TypographyP>
+          {isAuthor && hoveredIdx === 0 && (
+            <Button
+              variant='destructive'
+              size='icon'
+              className='absolute top-0 right-0'
+              onClick={() => handleDelete(messages[0]._id)}
+              aria-label='Delete message'
+            >
+              <TrashIcon />
+            </Button>
+          )}
+        </div>
+        {/* Subsequent messages */}
+        {messages.slice(1).map((message, idx) => (
+          <div
+            key={message._id}
+            className={`relative rounded-md px-2 py-1 transition-colors ${hoveredIdx === idx + 1 ? 'bg-zinc-800/60' : ''}`}
+            onMouseEnter={() => setHoveredIdx(idx + 1)}
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
+            <TypographyP className='break-all whitespace-pre-line'>{message.content}</TypographyP>
+            {isAuthor && hoveredIdx === idx + 1 && (
+              <Button
+                variant='destructive'
+                size='icon'
+                className='absolute top-0 right-0'
+                onClick={() => handleDelete(message._id)}
+                aria-label='Delete message'
+              >
+                <TrashIcon />
+              </Button>
+            )}
+          </div>
         ))}
       </div>
     </div>
