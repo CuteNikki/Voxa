@@ -2,6 +2,8 @@ import { useUser } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
 import { useRef, useState } from 'react';
 
+import { SendHorizontalIcon } from 'lucide-react';
+
 import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
@@ -61,9 +63,11 @@ export function ChatInput({ chatId, isGroup }: { chatId: string; isGroup: boolea
   return (
     <div className='relative flex flex-col'>
       <TypingIndicator chatId={chatId} currentUserId={user.id} />
-      <div className='flex flex-row items-center justify-between gap-4 border-t p-4'>
+      <div className='flex flex-row items-center justify-between gap-2 border-t p-4'>
         <Textarea value={value} onChange={handleChange} onKeyDown={handleKeyDown} rows={2} placeholder='Type your message...' className='resize-none' />
-        <Button onClick={handleSend}>Send</Button>
+        <Button size='icon' onClick={handleSend} aria-label='Send message' disabled={!value.trim()}>
+          <SendHorizontalIcon />
+        </Button>
       </div>
     </div>
   );
