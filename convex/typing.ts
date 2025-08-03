@@ -17,7 +17,6 @@ export const getTypingUsers = query({
   },
 });
 
-
 export const setTyping = mutation({
   args: {
     chatId: v.string(),

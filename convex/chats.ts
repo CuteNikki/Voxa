@@ -1,5 +1,6 @@
 import { v } from 'convex/values';
 
+import { paginationOptsValidator } from 'convex/server';
 import { mutation, query } from './_generated/server';
 
 export const createChat = mutation({
@@ -66,6 +67,40 @@ export const getChats = query({
   },
 });
 
+export const getOwnChats = query({
+  handler: async (ctx) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    return await ctx.db
+      .query('chats')
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
+      .collect();
+  },
+});
+
+export const getOwnChatsPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, { paginationOpts }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    return await ctx.db
+      .query('chats')
+      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
+      .order('desc')
+      .paginate(paginationOpts);
+  },
+});
+
 // Only called from the server side
 export const getGroups = query({
   handler: async (ctx) => {
@@ -95,6 +130,17 @@ export const getGroupById = query({
     return await ctx.db
       .query('groups')
       .filter((q) => q.eq(q.field('_id'), args.groupId))
+      .first();
+  },
+});
+
+export const getLastMessage = query({
+  args: { chatId: v.string() },
+  handler: async (ctx, { chatId }) => {
+    return await ctx.db
+      .query('messages')
+      .withIndex('by_chatId', (q) => q.eq('chatId', chatId))
+      .order('desc')
       .first();
   },
 });

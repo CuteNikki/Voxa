@@ -7,7 +7,7 @@ import { defaultMetadata } from '@/constants/metadata';
 import ConvexProviderWithClerk from '@/providers/convex';
 import { ThemeProvider } from '@/providers/theme';
 
-import { Navbar } from '@/components/navigation/navbar';
+// import { Navbar } from '@/components/navigation/navbar';
 import PresenceSyncClient from '@/components/presence';
 
 import { UserSyncer } from '@/hooks/user';
@@ -36,7 +36,6 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* @ts-expect-error ClerkProvider appearance baseTheme type mismatch */}
         <ClerkProvider appearance={{ baseTheme: shadcn }}>
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
             <ConvexProviderWithClerk>
@@ -44,7 +43,7 @@ export default function RootLayout({
               <UserSyncer />
 
               <div className='flex h-screen w-full flex-col'>
-                <Navbar />
+                {/* <Navbar /> */}
                 <div className='min-h-0 flex-1'>{children}</div>
               </div>
             </ConvexProviderWithClerk>
