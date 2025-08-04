@@ -8,33 +8,78 @@ import { api } from '../../../convex/_generated/api';
 
 import { EllipsisIcon } from 'lucide-react';
 
+import { formatSidebarTimestamp } from '@/lib/utils';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function NavChats() {
   const { results, loadMore, status } = usePaginatedQuery(api.chats.getOwnChatsPaginated, {}, { initialNumItems: 6 });
-
   const { user } = useUser();
 
-  if (!user || !results) return null;
+  if (status === 'LoadingFirstPage' || !user) {
+    return (
+      <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
+        <SidebarGroupLabel>Chats</SidebarGroupLabel>
+        <SidebarMenu>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <UserItemSkeleton key={index} />
+          ))}
+          <SidebarMenuItem>
+            <SidebarMenuButton disabled className='text-muted-foreground'>
+              <EllipsisIcon className='text-muted-foreground' />
+              <span>Load More</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+    );
+  }
 
   return (
     <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
       <SidebarGroupLabel>Chats</SidebarGroupLabel>
       <SidebarMenu>
-        {results.map((item) => (
-          <UserItem key={item._id} item={item} currentUserId={user.id} />
-        ))}
-        {status === 'CanLoadMore' && (
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => loadMore(6)} className='text-sidebar-foreground/70'>
-              <EllipsisIcon className='text-sidebar-foreground/70' />
-              <span>Load More</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        )}
+        <ScrollArea className='max-h-200'>
+          {results.map((item) => (
+            <UserItem key={item._id} item={item} currentUserId={user.id} />
+          ))}
+        </ScrollArea>
+        {/* {status === 'CanLoadMore' && ( */}
+        <SidebarMenuItem>
+          <SidebarMenuButton disabled={status === 'LoadingMore' || status === 'Exhausted'} onClick={() => loadMore(6)} className='text-muted-foreground'>
+            <EllipsisIcon className='text-muted-foreground' />
+            <span>Load More</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        {/* )} */}
       </SidebarMenu>
     </SidebarGroup>
+  );
+}
+
+function UserItemSkeleton() {
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton className='items-center py-6'>
+        <Avatar>
+          <AvatarFallback>
+            <Skeleton>U</Skeleton>
+          </AvatarFallback>
+        </Avatar>
+        <div className='flex w-full flex-row items-center justify-between gap-2'>
+          <div className='flex flex-col'>
+            <Skeleton className='w-fit'>Unknown User</Skeleton>
+            <Skeleton className='text-muted-foreground w-fit max-w-30 truncate text-sm leading-tight'>No Messages</Skeleton>
+          </div>
+          <div>
+            <Skeleton className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(0)}</Skeleton>
+          </div>
+        </div>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }
 
@@ -55,7 +100,7 @@ function UserItem({
   const user = useQuery(api.users.getUser, { clerkId: otherUserId });
   const lastMessage = useQuery(api.chats.getLastMessage, { chatId: item._id });
 
-  if (!user) return null;
+  if (!user || !lastMessage) return <UserItemSkeleton />;
 
   return (
     <SidebarMenuItem>
@@ -63,36 +108,28 @@ function UserItem({
         <Link href={`/chats/${item._id}`}>
           <Avatar>
             <AvatarImage src={user?.imageUrl} />
-            <AvatarFallback>{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{user?.username?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
           </Avatar>
           <div className='flex w-full flex-row items-center justify-between gap-2'>
             <div className='flex flex-col'>
-              <span className='leading-tight font-semibold capitalize'>{user?.username}</span>
-              {lastMessage?.content && (
-                <span className='text-muted-foreground max-w-28 truncate text-sm leading-tight'>
+              <span className='max-w-30 truncate leading-tight font-semibold capitalize'>{user.username ?? 'Unknown User'}</span>
+              {lastMessage?.content ? (
+                <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
                   {lastMessage.senderId === currentUserId ? 'You: ' : ''}
                   {lastMessage.content.slice(0, 20)}
                 </span>
+              ) : (
+                <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>No Messages</span>
               )}
             </div>
-            {lastMessage?.createdAt && (
-              <div>
-                <span className='text-muted-foreground text-sm leading-tight'>{formatTimestamp(lastMessage.createdAt)}</span>
-              </div>
+            {lastMessage?.createdAt ? (
+              <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage.createdAt)}</span>
+            ) : (
+              <span>{formatSidebarTimestamp(0)}</span>
             )}
           </div>
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
-}
-
-function formatTimestamp(timestamp: number) {
-  const date = new Date(timestamp);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }

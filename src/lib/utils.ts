@@ -4,26 +4,65 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+function isToday(date: Date, now: Date = new Date()) {
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
+}
 
-export function formatTimestamp(createdAt: number | undefined): string {
+function isYesterday(date: Date, now: Date = new Date()) {
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  return date.getFullYear() === yesterday.getFullYear() && date.getMonth() === yesterday.getMonth() && date.getDate() === yesterday.getDate();
+}
+
+function getTimeString(date: Date) {
+  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatSidebarTimestamp(timestamp: number) {
+  const date = new Date(timestamp);
+
+  if (isToday(date)) {
+    return getTimeString(date);
+  }
+
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export function formatPresenceTimestamp(timestamp?: number): string {
+  if (typeof timestamp !== 'number' || isNaN(timestamp)) return 'Invalid date';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+
+  if (diffMinutes < 1) return 'Online';
+
+  if (isToday(date, now)) return `Last Seen ${getTimeString(date)}`;
+  return `Last Seen ${date.toLocaleString('en-GB', {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`;
+}
+
+export function formatMessageTimestamp(createdAt?: number): string {
   if (typeof createdAt !== 'number' || isNaN(createdAt)) return 'Invalid date';
   const date = new Date(createdAt);
   const now = new Date();
 
-  const isToday = date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
-
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday = date.getFullYear() === yesterday.getFullYear() && date.getMonth() === yesterday.getMonth() && date.getDate() === yesterday.getDate();
-
-  if (isYesterday) return `Yesterday, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  if (!isToday)
-    return date.toLocaleString([], {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
+  if (isToday(date, now)) return getTimeString(date);
+  return date.toLocaleString('en-GB', {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }

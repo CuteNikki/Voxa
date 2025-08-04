@@ -144,3 +144,13 @@ export const getLastMessage = query({
       .first();
   },
 });
+
+export const getChatById = query({
+  args: { chatId: v.string() },
+  handler: async (ctx, { chatId }) => {
+    return await ctx.db
+      .query('chats')
+      .filter((q) => q.eq(q.field('_id'), chatId))
+      .first();
+  },
+});

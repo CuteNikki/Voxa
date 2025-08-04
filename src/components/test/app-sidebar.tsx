@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 
-import { IconHelp, IconSearch, IconSettings } from '@tabler/icons-react';
-import { AudioLinesIcon, BotMessageSquareIcon, ClipboardListIcon, DatabaseIcon, HomeIcon, MessageSquareMoreIcon, UsersRoundIcon } from 'lucide-react';
+import { AudioLinesIcon, HomeIcon, MessageSquareMoreIcon, UsersRoundIcon } from 'lucide-react';
 
 import { NavChats } from '@/components/test/nav-chats';
 import { NavMain } from '@/components/test/nav-main';
@@ -11,64 +10,25 @@ import { NavMain } from '@/components/test/nav-main';
 import { NavUser } from '@/components/test/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
+const navMain = [
+  {
+    title: 'Home',
+    url: '/',
+    icon: HomeIcon,
   },
-  navMain: [
-    {
-      title: 'Home',
-      url: '/',
-      icon: HomeIcon,
-    },
-    {
-      title: 'Groups',
-      url: '/groups',
-      icon: UsersRoundIcon,
-    },
-    {
-      title: 'Chats',
-      url: '/chats',
-      icon: MessageSquareMoreIcon,
-    },
-  ],
-  navSecondary: [
-    {
-      title: 'Settings',
-      url: '#',
-      icon: IconSettings,
-    },
-    {
-      title: 'Get Help',
-      url: '#',
-      icon: IconHelp,
-    },
-    {
-      title: 'Search',
-      url: '#',
-      icon: IconSearch,
-    },
-  ],
-  chats: [
-    {
-      name: 'Data Library',
-      url: '#',
-      icon: DatabaseIcon,
-    },
-    {
-      name: 'Reports',
-      url: '#',
-      icon: ClipboardListIcon,
-    },
-    {
-      name: 'Word Assistant',
-      url: '#',
-      icon: BotMessageSquareIcon,
-    },
-  ],
-};
+  {
+    title: 'Groups',
+    url: '/groups',
+    icon: UsersRoundIcon,
+    requiresAuthenticated: true,
+  },
+  {
+    title: 'Chats',
+    url: '/chats',
+    icon: MessageSquareMoreIcon,
+    requiresAuthenticated: true,
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -78,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:!p-1.5'>
               <Link href='/'>
-                <AudioLinesIcon className='!size-5' />
+                <AudioLinesIcon className='!size-5 drop-shadow-glow drop-shadow-primary' />
                 <span className='text-base font-semibold'>Voxa</span>
               </Link>
             </SidebarMenuButton>
@@ -86,7 +46,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
         <NavChats />
         {/* <NavSecondary items={data.navSecondary} className='mt-auto' /> */}
       </SidebarContent>

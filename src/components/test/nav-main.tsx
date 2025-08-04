@@ -1,11 +1,14 @@
 'use client';
 
+import { useUser } from '@clerk/nextjs';
+import Link from 'next/link';
+
+import { LucideIcon } from 'lucide-react';
 // import { IconCirclePlusFilled, IconMail, type Icon } from '@tabler/icons-react';
 
 // import { Button } from '@/components/ui/button';
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { LucideIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function NavMain({
   items,
@@ -14,8 +17,11 @@ export function NavMain({
     title: string;
     url: string;
     icon?: LucideIcon;
+    requiresAuthenticated?: boolean;
   }[];
 }) {
+  const { user } = useUser();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className='flex flex-col gap-2'>
@@ -36,14 +42,20 @@ export function NavMain({
         </SidebarMenu> */}
         <SidebarMenu>
           {items.map((item, index) => (
-            <Link href={item.url} key={`nav-main-${index}-${item.title}`}>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+            <SidebarMenuItem key={`nav-main-${index}-${item.title}`}>
+              {item.requiresAuthenticated && !user ? (
+                <SidebarMenuButton className='text-sidebar-foreground/70'>
+                  <Skeleton className='h-4 w-24' />
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            </Link>
+              ) : (
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
+            </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarGroupContent>

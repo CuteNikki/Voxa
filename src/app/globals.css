@@ -121,3 +121,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+@theme {
+  --drop-shadow-glow: 0 0 10px rgba(0, 0, 0);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

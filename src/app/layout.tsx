@@ -42,10 +42,11 @@ export default function RootLayout({
               <PresenceSyncClient />
               <UserSyncer />
 
-              <div className='flex h-screen w-full flex-col'>
+              {/* <div className='flex h-screen w-full flex-col'> */}
                 {/* <Navbar /> */}
-                <div className='min-h-0 flex-1'>{children}</div>
-              </div>
+                {/* <div className='min-h-0 flex-1'>{children}</div> */}
+              {/* </div> */}
+              {children}
             </ConvexProviderWithClerk>
           </ThemeProvider>
         </ClerkProvider>
