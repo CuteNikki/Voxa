@@ -15,7 +15,7 @@ function isYesterday(date: Date, now: Date = new Date()) {
 }
 
 function getTimeString(date: Date) {
-  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 export function formatSidebarTimestamp(timestamp: number) {
@@ -25,7 +25,7 @@ export function formatSidebarTimestamp(timestamp: number) {
     return getTimeString(date);
   }
 
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString([], {
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
@@ -42,7 +42,12 @@ export function formatPresenceTimestamp(timestamp?: number): string {
   if (diffMinutes < 1) return 'Online';
 
   if (isToday(date, now)) return `Last Seen ${getTimeString(date)}`;
-  return `Last Seen ${date.toLocaleString('en-GB', {
+
+  if (isYesterday(date, now)) {
+    return `Last Seen Yesterday, ${getTimeString(date)}`;
+  }
+
+  return `Last Seen ${date.toLocaleString([], {
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
@@ -58,7 +63,7 @@ export function formatMessageTimestamp(createdAt?: number): string {
 
   if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
   if (isToday(date, now)) return getTimeString(date);
-  return date.toLocaleString('en-GB', {
+  return date.toLocaleString([], {
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
