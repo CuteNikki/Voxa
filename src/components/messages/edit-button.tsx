@@ -5,6 +5,7 @@ import { PencilIcon } from 'lucide-react';
 import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function EditMessageButton({
   message,
@@ -22,8 +23,13 @@ export function EditMessageButton({
   };
 
   return (
-    <Button variant='outline' size='sm' aria-label='Edit message' className='h-7' onClick={handleEdit}>
-      <PencilIcon />
-    </Button>
+    <Tooltip delayDuration={400}>
+      <TooltipTrigger asChild>
+        <Button variant='outline' size='sm' aria-label='Edit message' className='h-7' onClick={handleEdit}>
+          <PencilIcon />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Edit message</TooltipContent>
+    </Tooltip>
   );
 }

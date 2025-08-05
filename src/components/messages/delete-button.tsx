@@ -5,6 +5,7 @@ import { Trash2Icon } from 'lucide-react';
 import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function DeleteMessageButton({ messageId }: { messageId: string }) {
   const deleteMessage = useMutation(api.messages.deleteMessage);
@@ -16,8 +17,13 @@ export function DeleteMessageButton({ messageId }: { messageId: string }) {
   };
 
   return (
-    <Button variant='outline' size='sm' aria-label='Delete message' className='text-destructive h-7' onClick={handleDelete}>
-      <Trash2Icon />
-    </Button>
+    <Tooltip delayDuration={400}>
+      <TooltipTrigger asChild>
+        <Button variant='destructive' size='sm' aria-label='Delete message' className='h-7' onClick={handleDelete}>
+          <Trash2Icon />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Delete message</TooltipContent>
+    </Tooltip>
   );
 }

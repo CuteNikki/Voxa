@@ -46,6 +46,7 @@ export const sendChatMessage = mutation({
     chatId: v.string(),
     content: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
+    reference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
@@ -62,6 +63,17 @@ export const sendChatMessage = mutation({
       throw new Error('Message content exceeds maximum length of 1000 characters');
     }
 
+    if (args.reference) {
+      const referencedMessage = await ctx.db
+        .query('messages')
+        .filter((q) => q.eq(q.field('_id'), args.reference))
+        .first();
+
+      if (!referencedMessage) {
+        throw new Error('Referenced message does not exist');
+      }
+    }
+
     const existingChat = await ctx.db
       .query('chats')
       .filter((q) => q.eq(q.field('_id'), args.chatId))
@@ -75,6 +87,7 @@ export const sendChatMessage = mutation({
       ...args,
       createdAt: Date.now(),
       senderId: user.subject,
+      reference: args.reference,
     });
   },
 });
@@ -219,15 +232,9 @@ export const sendMessage = mutation({
 export const getMessageById = query({
   args: { messageId: v.string() },
   handler: async (ctx, { messageId }) => {
-    const message = await ctx.db
+    return await ctx.db
       .query('messages')
       .filter((q) => q.eq(q.field('_id'), messageId))
       .first();
-
-    if (!message) {
-      throw new Error('Message not found');
-    }
-
-    return message;
   },
 });

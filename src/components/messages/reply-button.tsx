@@ -1,25 +1,25 @@
-import { SmilePlusIcon } from 'lucide-react';
+import { ReplyIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-export function ReactionButton({}: { messageId: string }) {
+export function ReplyButton({ setReplyingTo, messageId }: { messageId: string; setReplyingTo: (messageId?: string) => void }) {
   return (
     <Tooltip delayDuration={400}>
       <TooltipTrigger asChild>
         <Button
           variant='outline'
           size='sm'
-          aria-label='Add reaction'
+          aria-label='Reply to message'
           className='h-7'
           onClick={() => {
-            alert('Reaction functionality not implemented yet');
+            setReplyingTo(messageId);
           }}
         >
-          <SmilePlusIcon />
+          <ReplyIcon />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Add reaction</TooltipContent>
+      <TooltipContent>Reply</TooltipContent>
     </Tooltip>
   );
 }

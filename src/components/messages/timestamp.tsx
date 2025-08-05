@@ -6,7 +6,7 @@ export function MessageTimestamp({ message }: { message: { createdAt: number; ed
   return (
     <>
       {message.editedAt && (
-        <Tooltip>
+        <Tooltip delayDuration={400}>
           <TooltipTrigger className='text-muted-foreground text-xs'>(edited)</TooltipTrigger>
           <TooltipContent>Edited at {formatMessageTimestamp(message.editedAt)}</TooltipContent>
         </Tooltip>

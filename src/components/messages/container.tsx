@@ -1,17 +1,17 @@
 'use client';
 
 import { usePaginatedQuery } from 'convex/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
-import { Message, MessageSkeleton } from '@/components/messages/message';
 import { ChatInput } from '@/components/messages/chat-input';
+import { Message, MessageSkeleton } from '@/components/messages/message';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const { results, status, loadMore } = usePaginatedQuery(api.messages.getPaginatedMessages, { chatId }, { initialNumItems: 50 });
+  const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
 
   const messages = [...results].reverse(); // Reverse to show the latest messages at the bottom
 
@@ -27,14 +27,15 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   if (status === 'LoadingFirstPage') {
     return (
       <div className='flex min-h-0 flex-1 flex-col'>
-        <ScrollArea className='flex-1 overflow-y-auto'>
-          <div className='flex flex-col gap-3 px-4 py-2'>
-            {Array.from({ length: 10 }).map((_, index) => (
-              <MessageSkeleton key={index} />
+        <div className='flex-1 overflow-y-auto'>
+          <div className='flex w-full flex-col pt-6'>
+            {Array.from({ length: 50 }).map((_, index) => (
+              <MessageSkeleton key={index} showAvatar={index % 3 === 0} />
             ))}
           </div>
-        </ScrollArea>
-        <ChatInput chatId={chatId} />
+        </div>
+
+        <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
       </div>
     );
   }
@@ -42,7 +43,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   return (
     <div className='flex min-h-0 flex-1 flex-col'>
       <div ref={scrollRef} className='flex-1 overflow-y-auto'>
-        <div className='flex w-full flex-col py-4'>
+        <div className='flex w-full flex-col pt-6'>
           {status === 'CanLoadMore' && (
             <Button variant='default' className='self-center' onClick={() => loadMore(25)}>
               Load More Messages
@@ -54,12 +55,14 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
               message={message}
               showAvatar={message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > 60_000 * 5} // Show avatar if sender changed or if more than 5 minutes passed
               userId={userId}
+              replyingTo={replyingTo}
+              setReplyingTo={setReplyingTo}
             />
           ))}
         </div>
       </div>
 
-      <ChatInput chatId={chatId} />
+      <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
     </div>
   );
 }

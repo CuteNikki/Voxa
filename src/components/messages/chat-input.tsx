@@ -7,13 +7,14 @@ import { api } from '../../../convex/_generated/api';
 
 import { SendHorizontalIcon, SmileIcon } from 'lucide-react';
 
+import { ReplyHeader } from '@/components/messages/reply-header';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
 const MAX_LENGTH = 1000;
 const WARNING_THRESHOLD = 800;
 
-export function ChatInput({ chatId }: { chatId: string }) {
+export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: string; replyingTo?: string; setReplyingTo: (messageId?: string) => void }) {
   const sendMessage = useMutation(api.messages.sendChatMessage);
 
   const [value, setValue] = useState('');
@@ -25,40 +26,51 @@ export function ChatInput({ chatId }: { chatId: string }) {
   const handleSend = async () => {
     const trimmed = value.trim();
     if (!trimmed) return;
-    await sendMessage({ chatId, content: trimmed });
-    setValue('');
+    await sendMessage({ chatId, content: trimmed, reference: replyingTo });
+    setValue(''); // Clear the input after sending
+    setReplyingTo(undefined); // Clear the replying state after sending
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Escape') {
+      setReplyingTo(undefined);
+      return;
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+
       if (!value.trim() || value.length > MAX_LENGTH) return;
+
       handleSend();
     }
   };
 
   return (
-    <div className='bg-background relative flex w-full flex-row items-center gap-2 p-2 pt-0'>
-      <Textarea
-        autoFocus
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder='Your Message'
-        className='no-scrollbar max-h-18 resize-none py-3 pr-20'
-      />
-      {value.length >= WARNING_THRESHOLD && (
-        <span className={`absolute top-2 right-5 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
-          {value.length}/{MAX_LENGTH}
-        </span>
-      )}
-      <div className='absolute right-3 bottom-3 flex flex-row items-center'>
-        <Button variant='ghost' size='icon' aria-label='Emoji Picker'>
-          <SmileIcon />
-        </Button>
-        <Button onClick={handleSend} variant='ghost' size='icon' aria-label='Send message' disabled={!value.trim() || value.length > MAX_LENGTH}>
-          <SendHorizontalIcon />
-        </Button>
+    <div className='relative'>
+      {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} />}
+      <div className={`${replyingTo ? 'bg-muted' : 'bg-background'} flex w-full flex-row items-center gap-2 p-2 pt-0`}>
+        <Textarea
+          autoFocus
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder='Your Message'
+          className='no-scrollbar z-40 max-h-18 resize-none py-3 pr-20'
+        />
+        {value.length >= WARNING_THRESHOLD && (
+          <span className={`absolute top-2 right-5 z-50 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+            {value.length}/{MAX_LENGTH}
+          </span>
+        )}
+        <div className='absolute right-3 bottom-3 z-50 flex flex-row items-center gap-1'>
+          <Button variant='outline' size='icon' aria-label='Emoji Picker'>
+            <SmileIcon />
+          </Button>
+          <Button onClick={handleSend} variant='default' size='icon' aria-label='Send message' disabled={!value.trim() || value.length > MAX_LENGTH}>
+            <SendHorizontalIcon />
+          </Button>
+        </div>
       </div>
     </div>
   );
