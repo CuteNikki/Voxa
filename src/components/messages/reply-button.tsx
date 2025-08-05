@@ -3,7 +3,7 @@ import { ReplyIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-export function ReplyButton({ setReplyingTo, messageId }: { messageId: string; setReplyingTo: (messageId?: string) => void }) {
+export function ReplyButton({ replyingTo, setReplyingTo, messageId }: { messageId: string; replyingTo?: string; setReplyingTo: (messageId?: string) => void }) {
   return (
     <Tooltip delayDuration={400}>
       <TooltipTrigger asChild>
@@ -13,6 +13,10 @@ export function ReplyButton({ setReplyingTo, messageId }: { messageId: string; s
           aria-label='Reply to message'
           className='h-7'
           onClick={() => {
+            if (messageId === replyingTo) {
+              setReplyingTo(undefined);
+              return;
+            }
             setReplyingTo(messageId);
           }}
         >

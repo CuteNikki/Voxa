@@ -48,7 +48,7 @@ export function Message({
 
   return (
     <div
-      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/40 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pb-2'}`}
+      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pb-2'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
         {message.reference && <MessageReference messageId={message.reference} />}
@@ -68,7 +68,7 @@ export function Message({
                 <div className='flex items-center gap-2'>
                   <div className='bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-md p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
                     <ReactionButton messageId={message._id} />
-                    <ReplyButton messageId={message._id} setReplyingTo={setReplyingTo} />
+                    <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
                       <>
                         <EditMessageButton message={message} />
@@ -86,7 +86,7 @@ export function Message({
                 <div className='bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-md p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
                   <div className='flex flex-row gap-1'>
                     <ReactionButton messageId={message._id} />
-                    <ReplyButton messageId={message._id} setReplyingTo={setReplyingTo} />
+                    <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
                       <>
                         <EditMessageButton message={message} />
