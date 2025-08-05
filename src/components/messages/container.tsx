@@ -28,13 +28,13 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
     if (el) {
       el.scrollTop = el.scrollHeight;
     }
-  }, [results]);
+  }, [messages]);
 
   if (status === 'LoadingFirstPage') {
     return (
       <div className='flex min-h-0 flex-1 flex-col'>
         <div className='flex-1 overflow-y-auto'>
-          <div className='flex w-full flex-col pt-6'>
+          <div className='flex w-full flex-col pt-6 pb-2'>
             {Array.from({ length: 50 }).map((_, index) => (
               <MessageSkeleton key={index} showAvatar={index % 3 === 0} />
             ))}
@@ -49,7 +49,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   return (
     <div className='flex min-h-0 flex-1 flex-col'>
       <div ref={scrollRef} className='flex-1 overflow-y-auto'>
-        <div className='flex w-full flex-col pt-6'>
+        <div className='flex w-full flex-col pt-6 pb-2'>
           {status === 'CanLoadMore' && (
             <Button variant='default' className='self-center' onClick={() => loadMore(25)}>
               Load More Messages
