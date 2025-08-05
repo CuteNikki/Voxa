@@ -31,6 +31,8 @@ export default defineSchema({
   chats: defineTable({
     userIdOne: v.string(),
     userIdTwo: v.string(),
+    userLastReadOne: v.optional(v.number()),
+    userLastReadTwo: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index('by_userIdOne', ['userIdOne'])

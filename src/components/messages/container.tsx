@@ -1,6 +1,6 @@
 'use client';
 
-import { usePaginatedQuery } from 'convex/react';
+import { useMutation, usePaginatedQuery } from 'convex/react';
 import { useEffect, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
@@ -12,10 +12,16 @@ import { Button } from '@/components/ui/button';
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const { results, status, loadMore } = usePaginatedQuery(api.messages.getPaginatedMessages, { chatId }, { initialNumItems: 50 });
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
+  const setLastRead = useMutation(api.chats.setLastRead);
 
   const messages = [...results].reverse(); // Reverse to show the latest messages at the bottom
 
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const userLastRead = messages[messages.length - 1]?.createdAt ?? Date.now();
+    setLastRead({ chatId, lastReadAt: userLastRead });
+  }, [chatId, messages, setLastRead]);
 
   useEffect(() => {
     const el = scrollRef.current;

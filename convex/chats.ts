@@ -187,3 +187,62 @@ export const clearMessages = mutation({
     await Promise.all(messages.map((message) => ctx.db.delete(message._id)));
   },
 });
+
+export const setLastRead = mutation({
+  args: {
+    chatId: v.string(),
+    lastReadAt: v.number(),
+  },
+  handler: async (ctx, { chatId, lastReadAt }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const chat = await ctx.db.get(chatId as Id<'chats'>);
+
+    if (!chat) {
+      throw new Error('Chat does not exist');
+    }
+
+    if (![chat.userIdOne, chat.userIdTwo].includes(user.subject)) {
+      throw new Error('You are not a participant in this chat');
+    }
+
+    const field = chat.userIdOne === user.subject ? 'userLastReadOne' : 'userLastReadTwo';
+
+    await ctx.db.patch(chat._id, {
+      [field]: lastReadAt,
+    });
+  },
+});
+
+export const getUnreadMessages = query({
+  args: { chatId: v.string() },
+  handler: async (ctx, { chatId }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const chat = await ctx.db.get(chatId as Id<'chats'>);
+
+    if (!chat) {
+      throw new Error('Chat does not exist');
+    }
+
+    if (![chat.userIdOne, chat.userIdTwo].includes(user.subject)) {
+      throw new Error('You are not a participant in this chat');
+    }
+
+    const lastReadAt = chat.userIdOne === user.subject ? chat.userLastReadOne : chat.userLastReadTwo;
+
+    return await ctx.db
+      .query('messages')
+      .withIndex('by_chatId', (q) => q.eq('chatId', chatId))
+      .filter((q) => q.gt(q.field('createdAt'), lastReadAt ?? 0))
+      .collect();
+  },
+});
