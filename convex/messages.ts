@@ -155,6 +155,7 @@ export const editMessage = mutation({
       .query('messages')
       .filter((q) => q.eq(q.field('_id'), messageId))
       .first();
+
     if (!message) {
       throw new Error('Message not found');
     }
@@ -163,7 +164,7 @@ export const editMessage = mutation({
       throw new Error('You can only edit your own messages');
     }
 
-    const updatedFields: { content?: string; imageUrl?: string } = {};
+    const updatedFields: { content?: string; imageUrl?: string; editedAt: number } = { editedAt: Date.now() };
     if (content !== undefined) updatedFields.content = content;
     if (imageUrl !== undefined) updatedFields.imageUrl = imageUrl;
 
