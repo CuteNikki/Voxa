@@ -48,7 +48,7 @@ export function Message({
 
   return (
     <div
-      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pb-2'}`}
+      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pb-1 pt-2' : 'pb-1 pt-1'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
         {message.reference && <MessageReference messageId={message.reference} />}
@@ -94,7 +94,7 @@ export function Message({
                       </>
                     )}
                   </div>
-                  <MessageTimestamp message={message} />
+                  <MessageTimestamp className='text-foreground pr-2' message={message} />
                 </div>
               )}
             </div>
@@ -107,7 +107,7 @@ export function Message({
 
 export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean }) {
   return (
-    <div className={`hover:bg-muted/30 group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pb-2'}`}>
+    <div className={`hover:bg-muted/30 group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pb-2 pt-1'}`}>
       {showAvatar ? (
         <Avatar>
           <AvatarFallback>
@@ -134,17 +134,22 @@ export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean })
   );
 }
 
+function MessageReferenceSkeleton() {
+  return (
+    <div className='flex flex-row items-center gap-2'>
+      <CornerUpRightIcon className='text-muted-foreground ml-2.5 size-5' />
+      <div className='flex flex-row items-center gap-1'>
+        <ReferenceUserSkeleton />
+        <span className='text-muted-foreground max-w-30 truncate text-sm italic sm:max-w-60 lg:max-w-90'>Some Message</span>
+      </div>
+    </div>
+  );
+}
+
 function MessageReference({ messageId }: { messageId: string }) {
   const message = useQuery(api.messages.getMessageById, { messageId });
 
-  if (message === undefined) {
-    return (
-      <div className='flex flex-row items-center gap-2'>
-        <CornerUpRightIcon className='text-muted-foreground ml-2.5 size-5' />
-        <span className='text-sm italic'>Fetching replied message</span>
-      </div>
-    );
-  }
+  if (message === undefined) return <MessageReferenceSkeleton />;
 
   if (message === null)
     return (
@@ -169,20 +174,23 @@ function MessageReference({ messageId }: { messageId: string }) {
   );
 }
 
+function ReferenceUserSkeleton() {
+  return (
+    <div className='flex flex-row items-center gap-1 text-sm'>
+      <Avatar className='size-4'>
+        <AvatarFallback>
+          <Skeleton>U</Skeleton>
+        </AvatarFallback>
+      </Avatar>
+      <span>Unknown:</span>
+    </div>
+  );
+}
+
 function ReferenceUser({ targetId }: { targetId: string }) {
   const user = useQuery(api.users.getUser, { clerkId: targetId });
 
-  if (!user)
-    return (
-      <div className='flex flex-row items-center gap-1 text-sm'>
-        <Avatar className='size-4'>
-          <AvatarFallback>
-            <Skeleton>U</Skeleton>
-          </AvatarFallback>
-        </Avatar>
-        <span>Unknown User:</span>
-      </div>
-    );
+  if (!user) return <ReferenceUserSkeleton />;
 
   return (
     <div className='flex flex-row items-center gap-1 text-sm'>
