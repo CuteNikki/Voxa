@@ -1,6 +1,7 @@
 import { v } from 'convex/values';
 
 import { paginationOptsValidator } from 'convex/server';
+import { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 
 export const createChat = mutation({
@@ -152,5 +153,37 @@ export const getChatById = query({
       .query('chats')
       .filter((q) => q.eq(q.field('_id'), chatId))
       .first();
+  },
+});
+
+export const clearMessages = mutation({
+  args: { chatId: v.string() },
+  handler: async (ctx, { chatId }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const chat = await ctx.db.get(chatId as Id<'chats'>);
+
+    if (!chat) {
+      throw new Error('Chat does not exist');
+    }
+
+    if (![chat.userIdOne, chat.userIdTwo].includes(user.subject)) {
+      throw new Error('You are not a participant in this chat');
+    }
+
+    const messages = await ctx.db
+      .query('messages')
+      .filter((q) => q.eq(q.field('chatId'), chatId))
+      .collect();
+
+    if (messages.length === 0) {
+      return 'No messages to delete';
+    }
+
+    await Promise.all(messages.map((message) => ctx.db.delete(message._id)));
   },
 });
