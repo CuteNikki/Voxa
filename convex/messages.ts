@@ -164,6 +164,10 @@ export const editMessage = mutation({
       throw new Error('You can only edit your own messages');
     }
 
+    if (message.content === content && message.imageUrl === imageUrl) {
+      throw new Error('No changes detected in the message');
+    }
+
     const updatedFields: { content?: string; imageUrl?: string; editedAt: number } = { editedAt: Date.now() };
     if (content !== undefined) updatedFields.content = content;
     if (imageUrl !== undefined) updatedFields.imageUrl = imageUrl;
@@ -209,5 +213,21 @@ export const sendMessage = mutation({
       createdAt: Date.now(),
       senderId: user.subject,
     });
+  },
+});
+
+export const getMessageById = query({
+  args: { messageId: v.string() },
+  handler: async (ctx, { messageId }) => {
+    const message = await ctx.db
+      .query('messages')
+      .filter((q) => q.eq(q.field('_id'), messageId))
+      .first();
+
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    return message;
   },
 });
