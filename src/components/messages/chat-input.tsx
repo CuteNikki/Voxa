@@ -39,9 +39,16 @@ export function ChatInput({ chatId }: { chatId: string }) {
 
   return (
     <div className='bg-background relative flex w-full flex-row items-center gap-2 p-2 pt-0'>
-      <Textarea autoFocus value={value} onChange={handleChange} onKeyDown={handleKeyDown} placeholder='Your Message' className='max-h-18 resize-none py-3 pr-20 no-scrollbar' />
+      <Textarea
+        autoFocus
+        value={value}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder='Your Message'
+        className='no-scrollbar max-h-18 resize-none py-3 pr-20'
+      />
       {value.length >= WARNING_THRESHOLD && (
-        <span className={`absolute right-5 top-2 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+        <span className={`absolute top-2 right-5 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
           {value.length}/{MAX_LENGTH}
         </span>
       )}

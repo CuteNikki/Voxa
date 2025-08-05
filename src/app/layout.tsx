@@ -43,8 +43,8 @@ export default function RootLayout({
               <UserSyncer />
 
               {/* <div className='flex h-screen w-full flex-col'> */}
-                {/* <Navbar /> */}
-                {/* <div className='min-h-0 flex-1'>{children}</div> */}
+              {/* <Navbar /> */}
+              {/* <div className='min-h-0 flex-1'>{children}</div> */}
               {/* </div> */}
               {children}
             </ConvexProviderWithClerk>

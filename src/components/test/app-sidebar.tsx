@@ -38,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:!p-1.5'>
               <Link href='/'>
-                <AudioLinesIcon className='!size-5 drop-shadow-glow drop-shadow-primary' />
+                <AudioLinesIcon className='drop-shadow-glow drop-shadow-primary !size-5' />
                 <span className='text-base font-semibold'>Voxa</span>
               </Link>
             </SidebarMenuButton>
