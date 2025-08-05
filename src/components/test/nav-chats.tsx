@@ -16,13 +16,13 @@ import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, Sideba
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function NavChats() {
-  const { results, loadMore, status } = usePaginatedQuery(api.chats.getOwnChatsPaginated, {}, { initialNumItems: 6 });
   const { user } = useUser();
+  const { results, loadMore, status } = usePaginatedQuery(api.chats.getOwnChatsPaginated, {}, { initialNumItems: 6 });
 
   if (status === 'LoadingFirstPage' || !user) {
     return (
       <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
-        <SidebarGroupLabel>Chats</SidebarGroupLabel>
+        <SidebarGroupLabel>Direct Messages</SidebarGroupLabel>
         <SidebarMenu>
           {Array.from({ length: 6 }).map((_, index) => (
             <UserItemSkeleton key={index} />
@@ -40,7 +40,7 @@ export function NavChats() {
 
   return (
     <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
-      <SidebarGroupLabel>Chats</SidebarGroupLabel>
+      <SidebarGroupLabel>Direct Messages</SidebarGroupLabel>
       <SidebarMenu>
         <ScrollArea className='max-h-200'>
           {results.map((item) => (
