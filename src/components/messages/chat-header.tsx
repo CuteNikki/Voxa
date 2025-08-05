@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function SiteHeader({ chatId }: { chatId: string }) {
+export function ChatHeader({ chatId }: { chatId: string }) {
   const chatInfo = useQuery(api.chats.getChatById, { chatId });
 
   const { user } = useUser();

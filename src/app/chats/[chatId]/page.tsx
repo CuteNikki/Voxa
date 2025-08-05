@@ -1,6 +1,7 @@
-import { MessageContainer } from '@/components/messages/container';
-import { SiteHeader } from '@/components/test/chat-site-header';
 import { auth } from '@clerk/nextjs/server';
+
+import { ChatHeader } from '@/components/messages/chat-header';
+import { MessageContainer } from '@/components/messages/container';
 
 export default async function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
   const { chatId } = await params;
@@ -13,7 +14,7 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
 
   return (
     <>
-      <SiteHeader chatId={chatId} />
+      <ChatHeader chatId={chatId} />
       <MessageContainer chatId={chatId} userId={userId} />
     </>
   );
