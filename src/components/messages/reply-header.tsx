@@ -9,13 +9,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 export function ReplyHeader({ messageId, setReplyingTo }: { messageId: string; setReplyingTo: (messageId?: string) => void }) {
   const message = useQuery(api.messages.getMessageById, { messageId });
-  const author = useQuery(api.users.getUser, { clerkId: message?.senderId ?? '' });
 
-  if (!message || !author) {
+  if (!message) {
     return (
       <div className='bg-muted w-full rounded-tl-md rounded-tr-md'>
         <div className='flex items-center gap-2 p-2 px-4'>
-          <span className='shrink-0 text-sm font-semibold'>Loading...</span>
+          <span className='shrink-0 text-sm font-semibold'>
+            Replying to <span className='capitalize'>unknown user</span>:
+          </span>
         </div>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -32,11 +33,9 @@ export function ReplyHeader({ messageId, setReplyingTo }: { messageId: string; s
   return (
     <div className='bg-muted w-full rounded-tl-md rounded-tr-md'>
       <div className='flex items-center gap-2 p-2 px-4'>
-        <span className='shrink-0 text-sm font-semibold'>
-          Replying to <span className='capitalize'>{author?.username}</span>:
-        </span>
+        <ReplyHeaderUser targetId={message.senderId} />
 
-        <span className='text-muted-foreground truncate pr-10 text-sm'>{message?.content}</span>
+        <span className='text-muted-foreground truncate pr-10 text-sm'>{message.content}</span>
       </div>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -47,5 +46,23 @@ export function ReplyHeader({ messageId, setReplyingTo }: { messageId: string; s
         <TooltipContent>Cancel reply</TooltipContent>
       </Tooltip>
     </div>
+  );
+}
+
+function ReplyHeaderUser({ targetId }: { targetId: string }) {
+  const author = useQuery(api.users.getUser, { clerkId: targetId });
+
+  if (!author) {
+    return (
+      <span className='shrink-0 text-sm font-semibold'>
+        Replying to <span className='capitalize'>unknown user</span>:
+      </span>
+    );
+  }
+
+  return (
+    <span className='shrink-0 text-sm font-semibold'>
+      Replying to <span className='capitalize'>{author?.username}</span>:
+    </span>
   );
 }
