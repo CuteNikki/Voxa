@@ -100,7 +100,7 @@ function UserItem({
   const user = useQuery(api.users.getUser, { clerkId: otherUserId });
   const lastMessage = useQuery(api.chats.getLastMessage, { chatId: item._id });
 
-  if (!user || !lastMessage) return <UserItemSkeleton />;
+  if (!user) return <UserItemSkeleton />;
 
   return (
     <SidebarMenuItem>
@@ -122,11 +122,7 @@ function UserItem({
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>No Messages</span>
               )}
             </div>
-            {lastMessage?.createdAt ? (
-              <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage.createdAt)}</span>
-            ) : (
-              <span>{formatSidebarTimestamp(0)}</span>
-            )}
+            {lastMessage?.createdAt && <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage.createdAt)}</span>}
           </div>
         </Link>
       </SidebarMenuButton>
