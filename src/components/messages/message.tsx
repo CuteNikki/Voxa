@@ -48,7 +48,7 @@ export function Message({
 
   return (
     <div
-      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pb-1 pt-2' : 'pb-1 pt-1'}`}
+      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
         {message.reference && <MessageReference messageId={message.reference} />}
@@ -107,7 +107,7 @@ export function Message({
 
 export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean }) {
   return (
-    <div className={`hover:bg-muted/30 group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pb-2 pt-1'}`}>
+    <div className={`hover:bg-muted/30 group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pt-1 pb-2'}`}>
       {showAvatar ? (
         <Avatar>
           <AvatarFallback>
@@ -182,7 +182,7 @@ function ReferenceUserSkeleton() {
           <Skeleton>U</Skeleton>
         </AvatarFallback>
       </Avatar>
-      <span>Unknown:</span>
+      <span className='capitalize'>Unknown:</span>
     </div>
   );
 }
