@@ -70,7 +70,7 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
         <div className='absolute right-3 bottom-3 z-50 flex flex-row items-center gap-1'>
           <Popover onOpenChange={setEmojiPickerOpen} open={emojiPickerOpen}>
             <PopoverTrigger asChild>
-              <Button variant='outline' size='icon' aria-label='Emoji Picker'>
+              <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker'>
                 <SmileIcon />
               </Button>
             </PopoverTrigger>
@@ -89,7 +89,14 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
               </EmojiPicker>
             </PopoverContent>
           </Popover>
-          <Button onClick={handleSend} variant='default' size='icon' aria-label='Send message' disabled={!value.trim() || value.length > MAX_LENGTH}>
+          <Button
+            onClick={handleSend}
+            variant='default'
+            size='icon'
+            aria-label='Send message'
+            disabled={!value.trim() || value.length > MAX_LENGTH}
+            title='Send message'
+          >
             <SendHorizontalIcon />
           </Button>
         </div>
