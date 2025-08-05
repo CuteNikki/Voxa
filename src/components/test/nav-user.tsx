@@ -1,8 +1,9 @@
 'use client';
 
 import { useClerk, useUser } from '@clerk/nextjs';
+import { useTheme } from 'next-themes';
 
-import { EllipsisVertical, LogOutIcon, User2Icon } from 'lucide-react';
+import { EllipsisVertical, LogOutIcon, MoonIcon, OrbitIcon, PaintbrushIcon, SunIcon, User2Icon } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -11,7 +12,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
@@ -21,6 +26,11 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = useUser();
   const { signOut, openUserProfile } = useClerk();
+  const { setTheme } = useTheme();
+
+  const handleThemeChange = (theme: 'system' | 'light' | 'dark') => {
+    setTheme(theme);
+  };
 
   if (!user)
     return (
@@ -83,13 +93,36 @@ export function NavUser() {
                 <User2Icon />
                 Account
               </DropdownMenuItem>
+
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <PaintbrushIcon />
+                  Appearance
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => handleThemeChange('system')}>
+                      <OrbitIcon />
+                      System
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleThemeChange('light')}>
+                      <SunIcon />
+                      Light
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
+                      <MoonIcon />
+                      Dark
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
               {/* <DropdownMenuItem>
                 <MailIcon />
                 Notifications
               </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
+            <DropdownMenuItem variant='destructive' onClick={() => signOut()}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>
