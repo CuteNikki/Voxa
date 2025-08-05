@@ -41,13 +41,17 @@
 
 ## ✅ Roadmap
 
-- [x] Public & private chat logic
 - [x] Real-time messaging with Convex
-- [x] Typing indicator
-- [ ] Read receipts
-- [ ] Markdown & emoji support
-- [ ] Drag-and-drop upload UX
+  - [x] Emoji support
+    - [ ] Reactions
+  - [ ] Editing messages
+  - [x] Deleting messages
+  - [x] Replying to messages
+    - [ ] Scroll to messages
 - [x] User presence view (online/offline)
+- [x] Unread messages indicator
+- [ ] Typing indicator
+- [ ] Drag-and-drop upload UX
 
 ---
 
