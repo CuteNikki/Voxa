@@ -66,7 +66,7 @@ export function Message({
               <div className='flex justify-between'>
                 <div className='leading-tight font-semibold capitalize'>{author.username}</div>
                 <div className='flex items-center gap-2'>
-                  <div className='bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-md p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
+                  <div className='bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-lg p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
                     <ReactionButton messageId={message._id} />
                     <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
@@ -83,7 +83,7 @@ export function Message({
             <div className='flex items-start justify-between'>
               <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
               {!showAvatar && (
-                <div className='bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-md p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
+                <div className='bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
                   <div className='flex flex-row gap-1'>
                     <ReactionButton messageId={message._id} />
                     <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
