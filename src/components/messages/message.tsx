@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -13,6 +13,7 @@ import { ReplyButton } from '@/components/messages/reply-button';
 import { MessageTimestamp } from '@/components/messages/timestamp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 
 export function Message({
   message,
@@ -20,6 +21,8 @@ export function Message({
   showAvatar,
   replyingTo,
   setReplyingTo,
+  editing,
+  setEditing,
 }: {
   message: {
     imageUrl?: string;
@@ -36,8 +39,11 @@ export function Message({
   userId: string;
   replyingTo?: string;
   setReplyingTo: (messageId?: string) => void;
+  editing?: string;
+  setEditing: (messageId?: string) => void;
 }) {
   const author = useQuery(api.users.getUser, { clerkId: message.senderId });
+  const editMessage = useMutation(api.messages.editMessage);
 
   if (!author) {
     return <MessageSkeleton />;
@@ -48,7 +54,7 @@ export function Message({
 
   return (
     <div
-      className={`hover:bg-muted/60 ${message._id === replyingTo ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
+      className={`hover:bg-muted/60 ${message._id === replyingTo || message._id === editing ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
         {message.reference && <MessageReference messageId={message.reference} />}
@@ -71,7 +77,7 @@ export function Message({
                     <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
                       <>
-                        <EditMessageButton message={message} />
+                        <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
                         <DeleteMessageButton messageId={message._id} />
                       </>
                     )}
@@ -81,7 +87,48 @@ export function Message({
               </div>
             )}
             <div className='flex items-start justify-between'>
-              <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
+              {editing === message._id ? (
+                <div className='w-full py-1'>
+                  <Textarea
+                    autoFocus
+                    defaultValue={message.content}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setEditing(undefined);
+                        return;
+                      }
+
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+
+                        const trimmedContent = e.currentTarget.value.trim();
+
+                        if (!trimmedContent || trimmedContent === message.content) {
+                          setEditing(undefined);
+                          return;
+                        }
+
+                        setEditing(undefined);
+                        editMessage({ messageId: message._id, content: trimmedContent });
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const trimmedContent = e.target.value.trim();
+
+                      if (!trimmedContent || trimmedContent === message.content) {
+                        setEditing(undefined);
+                        return;
+                      }
+
+                      setEditing(undefined);
+                      editMessage({ messageId: message._id, content: trimmedContent });
+                    }}
+                    className='no-scrollbar max-h-18 resize-none pr-22'
+                  />
+                </div>
+              ) : (
+                <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
+              )}
               {!showAvatar && (
                 <div className='bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
                   <div className='flex flex-row gap-1'>
@@ -89,7 +136,7 @@ export function Message({
                     <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
                       <>
-                        <EditMessageButton message={message} />
+                        <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
                         <DeleteMessageButton messageId={message._id} />
                       </>
                     )}
