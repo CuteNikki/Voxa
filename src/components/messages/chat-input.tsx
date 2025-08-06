@@ -7,14 +7,13 @@ import { api } from '../../../convex/_generated/api';
 
 import { SendHorizontalIcon, SmileIcon } from 'lucide-react';
 
+import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
+
 import { ReplyHeader } from '@/components/messages/reply-header';
 import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
-
-const MAX_LENGTH = 1000;
-const WARNING_THRESHOLD = 800;
 
 export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: string; replyingTo?: string; setReplyingTo: (messageId?: string) => void }) {
   const sendMessage = useMutation(api.messages.sendChatMessage);
@@ -44,7 +43,7 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
 
-      if (!value.trim() || value.length > MAX_LENGTH) return;
+      if (!value.trim() || value.length > MAX_MESSAGE_LENGTH) return;
 
       handleSend();
     }
@@ -62,9 +61,9 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
           placeholder='Your Message'
           className='no-scrollbar z-40 max-h-18 resize-none py-3 pr-22'
         />
-        {value.length >= WARNING_THRESHOLD && (
-          <span className={`absolute top-1 right-4 z-50 text-xs ${value.length > MAX_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
-            {value.length}/{MAX_LENGTH}
+        {value.length >= MAX_MESSAGE_LENGTH_WARNING && (
+          <span className={`absolute top-1 right-4 z-50 text-xs ${value.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+            {value.length}/{MAX_MESSAGE_LENGTH}
           </span>
         )}
         <div className='absolute right-3.5 bottom-3.25 z-50 flex flex-row items-center gap-1'>
@@ -94,7 +93,7 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
             variant='default'
             size='icon'
             aria-label='Send message'
-            disabled={!value.trim() || value.length > MAX_LENGTH}
+            disabled={!value.trim() || value.length > MAX_MESSAGE_LENGTH}
             title='Send message'
           >
             <SendHorizontalIcon />

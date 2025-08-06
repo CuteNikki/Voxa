@@ -1,10 +1,13 @@
 'use client';
 
 import { useMutation, useQuery } from 'convex/react';
+import { useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
 import { CornerUpRightIcon } from 'lucide-react';
+
+import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
 
 import { DeleteMessageButton } from '@/components/messages/delete-button';
 import { EditMessageButton } from '@/components/messages/edit-button';
@@ -42,6 +45,8 @@ export function Message({
   editing?: string;
   setEditing: (messageId?: string) => void;
 }) {
+  const [editingValue, setEditingValue] = useState(message.content ?? '');
+
   const author = useQuery(api.users.getUser, { clerkId: message.senderId });
   const editMessage = useMutation(api.messages.editMessage);
 
@@ -88,10 +93,11 @@ export function Message({
             )}
             <div className='flex items-start justify-between'>
               {editing === message._id ? (
-                <div className='w-full py-1'>
+                <div className='relative w-full py-1'>
                   <Textarea
                     autoFocus
-                    defaultValue={message.content}
+                    defaultValue={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') {
                         setEditing(undefined);
@@ -123,8 +129,15 @@ export function Message({
                       setEditing(undefined);
                       editMessage({ messageId: message._id, content: trimmedContent });
                     }}
-                    className='no-scrollbar max-h-18 resize-none pr-22'
+                    className='no-scrollbar max-h-18 w-full resize-none pr-18 break-all whitespace-pre-line'
                   />
+                  {editingValue.length >= MAX_MESSAGE_LENGTH_WARNING && (
+                    <span
+                      className={`absolute right-2 bottom-2 text-xs ${editingValue.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}
+                    >
+                      {editingValue.length}/{MAX_MESSAGE_LENGTH}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>

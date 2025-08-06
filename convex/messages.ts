@@ -3,6 +3,8 @@ import { v } from 'convex/values';
 import { paginationOptsValidator } from 'convex/server';
 import { mutation, query } from './_generated/server';
 
+import { MAX_MESSAGE_LENGTH } from '../src/constants/limits';
+
 export const sendGroupMessage = mutation({
   args: {
     chatId: v.string(),
@@ -20,8 +22,8 @@ export const sendGroupMessage = mutation({
       throw new Error('Message must have either content or an image URL');
     }
 
-    if (args.content && args.content.length > 1000) {
-      throw new Error('Message content exceeds maximum length of 1000 characters');
+    if (args.content && args.content.length > MAX_MESSAGE_LENGTH) {
+      throw new Error(`Message content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`);
     }
 
     const existingChat = await ctx.db
@@ -59,8 +61,8 @@ export const sendChatMessage = mutation({
       throw new Error('Message must have either content or an image URL');
     }
 
-    if (args.content && args.content.length > 1000) {
-      throw new Error('Message content exceeds maximum length of 1000 characters');
+    if (args.content && args.content.length > MAX_MESSAGE_LENGTH) {
+      throw new Error(`Message content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`);
     }
 
     if (args.reference) {
@@ -160,8 +162,8 @@ export const editMessage = mutation({
       throw new Error('Message must have either content or an image URL');
     }
 
-    if (content && content.length > 1000) {
-      throw new Error('Message content exceeds maximum length of 1000 characters');
+    if (content && content.length > MAX_MESSAGE_LENGTH) {
+      throw new Error(`Message content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`);
     }
 
     const message = await ctx.db
@@ -206,8 +208,8 @@ export const sendMessage = mutation({
       throw new Error('Message must have either content or an image URL');
     }
 
-    if (args.content && args.content.length > 1000) {
-      throw new Error('Message content exceeds maximum length of 1000 characters');
+    if (args.content && args.content.length > MAX_MESSAGE_LENGTH) {
+      throw new Error(`Message content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`);
     }
 
     const existingChat = await ctx.db
