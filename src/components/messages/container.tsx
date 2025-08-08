@@ -8,6 +8,8 @@ import { api } from '../../../convex/_generated/api';
 import { ChatInput } from '@/components/messages/chat-input';
 import { Message, MessageSkeleton } from '@/components/messages/message';
 import { Button } from '@/components/ui/button';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
@@ -17,6 +19,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
 
   const { results, status, loadMore } = usePaginatedQuery(api.messages.getPaginatedMessages, { chatId }, { initialNumItems: 50 });
   const setLastRead = useMutation(api.chats.setLastRead);
+  const deleteMessage = useMutation(api.messages.deleteMessage);
 
   const messages = [...results].reverse(); // Reverse to show the latest messages at the bottom
 
@@ -59,18 +62,45 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
           )}
           {messages.length ? (
             messages.map((message, index) => (
-              <Message
-                key={message._id}
-                message={message}
-                showAvatar={message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > 60_000 * 5} // Show avatar if sender changed or if more than 5 minutes passed
-                userId={userId}
-                replyingTo={replyingTo}
-                setReplyingTo={setReplyingTo}
-                editing={editing}
-                setEditing={setEditing}
-                reactionPicker={reactionPicker}
-                setReactionPicker={setReactionPicker}
-              />
+              <ContextMenu key={message._id}>
+                <ContextMenuTrigger>
+                  <Message
+                    message={message}
+                    showAvatar={message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > 60_000 * 5} // Show avatar if sender changed or if more than 5 minutes passed
+                    userId={userId}
+                    replyingTo={replyingTo}
+                    setReplyingTo={setReplyingTo}
+                    editing={editing}
+                    setEditing={setEditing}
+                    reactionPicker={reactionPicker}
+                    setReactionPicker={setReactionPicker}
+                  />
+                </ContextMenuTrigger>
+                <ContextMenuContent className='w-52'>
+                  <ContextMenuItem onClick={() => setReactionPicker(message._id)}>
+                    <SmilePlusIcon /> React
+                  </ContextMenuItem>
+                  <ContextMenuItem onClick={() => setReplyingTo(message._id)}>
+                    <CornerUpRightIcon /> Reply
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  {message.senderId === userId && (
+                    <>
+                      <ContextMenuItem onClick={() => setEditing(message._id)}>
+                        <PencilIcon /> Edit Message
+                      </ContextMenuItem>
+                      <ContextMenuItem variant='destructive' onClick={() => deleteMessage({ messageId: message._id })}>
+                        <Trash2Icon /> Delete Message
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                    </>
+                  )}
+                  <ContextMenuItem onClick={() => navigator.clipboard.writeText(message._id)}>
+                    <ClipboardCopyIcon />
+                    Copy Id
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
             ))
           ) : (
             <div className='text-muted-foreground self-center text-center text-sm'>No messages yet. Start the conversation!</div>
