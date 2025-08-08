@@ -1,4 +1,4 @@
-import { ReplyIcon } from 'lucide-react';
+import { CornerUpRightIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -18,7 +18,7 @@ export function ReplyButton({ replyingTo, setReplyingTo, messageId }: { messageI
       }}
       title='Reply to message'
     >
-      <ReplyIcon />
+      <CornerUpRightIcon />
     </Button>
   );
 }
