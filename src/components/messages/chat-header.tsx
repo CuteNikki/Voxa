@@ -169,8 +169,12 @@ function UserDropdown({ targetId, userId, chatId }: { targetId: string; userId: 
             <AlertDialogDescription>This action cannot be undone. This will permanently delete all messages.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClear}>Continue</AlertDialogAction>
+            <AlertDialogCancel asChild>
+              <Button variant='secondary'>Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild onClick={handleClear}>
+              <Button variant='destructive'>Continue</Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -179,11 +183,15 @@ function UserDropdown({ targetId, userId, chatId }: { targetId: string; userId: 
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone. This will remove them from your friendlist.</AlertDialogDescription>
+            <AlertDialogDescription>This will remove them from your friend list. To undo this, they will have to add you back.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnfriend}>Continue</AlertDialogAction>
+            <AlertDialogCancel asChild>
+              <Button variant='secondary'>Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild onClick={handleUnfriend}>
+              <Button variant='destructive'>Continue</Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

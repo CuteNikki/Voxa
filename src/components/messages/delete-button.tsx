@@ -52,8 +52,12 @@ export function DeleteMessageButton({ messageId }: { messageId: string }) {
           <AlertDialogDescription>This action cannot be undone. This will permanently delete the message.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
+          <AlertDialogCancel asChild>
+            <Button variant='secondary'>Cancel</Button>
+          </AlertDialogCancel>
+          <AlertDialogAction asChild onClick={handleDelete}>
+            <Button variant='destructive'>Continue</Button>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
