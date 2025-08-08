@@ -36,7 +36,7 @@ export function ChatInput({
     if (areaRef.current) {
       areaRef.current.focus();
     }
-  }, [disabled]);
+  }, [disabled, replyingTo]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
