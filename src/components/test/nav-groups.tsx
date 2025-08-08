@@ -92,7 +92,9 @@ function GroupItem({
 }) {
   const lastMessage = useQuery(api.groups.getLastMessage, { groupId: item._id });
 
-  const activeMembers = item.members.filter((member) => !member.lastReadAt || member.lastReadAt < Date.now() - 5 * 60 * 1000);
+  const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - 60_000);
+
+  console.log('Active Members:', activeMembers);
 
   return (
     <SidebarMenuItem>
