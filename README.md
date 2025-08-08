@@ -2,6 +2,8 @@
 
 > A sleek, serverless, full-stack real-time chat app with public channels, DMs, and media support — powered by **Next.js**, **Convex**, **Clerk**, and **UploadThing**.
 
+![Preview Image](preview.png)
+
 ---
 
 ## ✨ Features
