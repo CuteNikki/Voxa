@@ -91,7 +91,7 @@ export function ChatInput({
                 <SmileIcon />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-fit p-0'>
+            <PopoverContent align='end' className='w-fit p-0'>
               <EmojiPicker
                 className='h-[342px]'
                 onEmojiSelect={({ emoji }) => {

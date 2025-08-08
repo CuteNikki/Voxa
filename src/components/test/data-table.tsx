@@ -322,8 +322,8 @@ export function DataTable({ data: initialData }: { data: z.infer<typeof schema>[
   }
 
   return (
-    <Tabs defaultValue='outline' className='w-full flex-col justify-start gap-6'>
-      <div className='flex items-center justify-between px-4 lg:px-6'>
+    <Tabs defaultValue='outline' className='w-full flex-col justify-start gap-2'>
+      <div className='flex items-center justify-between px-4'>
         <Label htmlFor='view-selector' className='sr-only'>
           View
         </Label>
@@ -382,7 +382,7 @@ export function DataTable({ data: initialData }: { data: z.infer<typeof schema>[
           </Button>
         </div>
       </div>
-      <TabsContent value='outline' className='relative flex flex-col gap-4 overflow-auto px-4 lg:px-6'>
+      <TabsContent value='outline' className='relative flex flex-col gap-2 overflow-auto px-4'>
         <div className='overflow-hidden rounded-lg border'>
           <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors} id={sortableId}>
             <Table>
