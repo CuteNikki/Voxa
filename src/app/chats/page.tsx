@@ -11,7 +11,7 @@ export default function Page() {
       <SiteHeader />
       <div className='flex flex-1 flex-col overflow-y-auto'>
         <div className='@container/main flex flex-1 flex-col gap-2'>
-          <div className='flex flex-col gap-4 py-4 md:py-4'>
+          <div className='flex flex-col gap-6 py-4 md:py-4'>
             <SectionCards />
             <div className='px-4'>
               <ChartAreaInteractive />
