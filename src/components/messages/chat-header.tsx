@@ -3,6 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { EllipsisVertical, Trash2Icon, UserMinus2Icon } from 'lucide-react';
 
@@ -10,6 +11,16 @@ import { api } from '../../../convex/_generated/api';
 
 import { formatPresenceTimestamp } from '@/lib/utils';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,7 +32,7 @@ export function ChatHeader({ chatId }: { chatId: string }) {
   const chatInfo = useQuery(api.chats.getChatById, { chatId });
   const { user } = useUser();
   const router = useRouter();
-  
+
   const otherUserId = user?.id === chatInfo?.userIdOne ? chatInfo?.userIdTwo : chatInfo?.userIdOne;
 
   if (chatInfo === null) {
@@ -30,15 +41,15 @@ export function ChatHeader({ chatId }: { chatId: string }) {
 
   if (!otherUserId || !user) {
     return (
-      <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
-        <div className='flex w-full items-center gap-2 px-2'>
+      <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
+        <div className='flex w-full items-center gap-1'>
           <SidebarTrigger />
-          <Separator orientation='vertical' className='mx-2 data-[orientation=vertical]:h-4' />
+          <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
           <UserDetailsSkeleton />
         </div>
 
-        <div className='flex items-center gap-2 pr-2'>
-          <Separator orientation='vertical' className='mx-2 data-[orientation=vertical]:h-4' />
+        <div className='flex items-center gap-1'>
+          <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
           <Button variant='ghost' size='icon' disabled aria-label='Chat Options'>
             <EllipsisVertical />
           </Button>
@@ -48,15 +59,15 @@ export function ChatHeader({ chatId }: { chatId: string }) {
   }
 
   return (
-    <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
-      <div className='flex w-full items-center gap-2 px-2'>
+    <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
+      <div className='flex w-full items-center gap-1'>
         <SidebarTrigger />
-        <Separator orientation='vertical' className='mx-2 data-[orientation=vertical]:h-4' />
+        <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
         <UserDetails targetId={otherUserId} />
       </div>
 
-      <div className='flex items-center gap-2 pr-2'>
-        <Separator orientation='vertical' className='mx-2 data-[orientation=vertical]:h-4' />
+      <div className='flex items-center gap-1'>
+        <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
         <UserDropdown targetId={otherUserId} chatId={chatId} userId={user.id} />
       </div>
     </header>
@@ -65,7 +76,7 @@ export function ChatHeader({ chatId }: { chatId: string }) {
 
 function UserDetailsSkeleton() {
   return (
-    <>
+    <div className='flex flex-row items-center gap-1 pl-1 sm:gap-2 sm:pl-2'>
       <Avatar>
         <AvatarFallback>
           <Skeleton>U</Skeleton>
@@ -77,7 +88,7 @@ function UserDetailsSkeleton() {
           <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatPresenceTimestamp(0)}</Skeleton>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -90,7 +101,7 @@ function UserDetails({ targetId }: { targetId: string }) {
   }
 
   return (
-    <>
+    <div className='flex flex-row items-center gap-1 pl-1 sm:gap-2 sm:pl-2'>
       <Avatar>
         <AvatarImage src={targetUser?.imageUrl} />
         <AvatarFallback>{targetUser?.username ? targetUser.username.charAt(0).toUpperCase() : <Skeleton>U</Skeleton>}</AvatarFallback>
@@ -110,45 +121,72 @@ function UserDetails({ targetId }: { targetId: string }) {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
 function UserDropdown({ targetId, userId, chatId }: { targetId: string; userId: string; chatId: string }) {
+  const [clearAlertOpen, setClearAlertOpen] = useState(false);
+  const [removeAlertOpen, setRemoveAlertOpen] = useState(false);
+
   const removeFriend = useMutation(api.friends.removeFriend);
   const clearMessages = useMutation(api.chats.clearMessages);
 
   const handleClear = async () => {
-    if (confirm('Are you sure you want to delete all messages in this chat?')) {
-      await clearMessages({ chatId });
-    }
+    await clearMessages({ chatId });
   };
 
   const handleUnfriend = async () => {
-    if (confirm('Are you sure you want to remove this user from your friends?')) {
-      await removeFriend({ friendId: targetId, userId });
-    }
+    await removeFriend({ friendId: targetId, userId });
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='icon' aria-label='Chat Options'>
-          <EllipsisVertical />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={handleClear} variant='destructive'>
-            <Trash2Icon />
-            Clear Messages
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleUnfriend} variant='destructive'>
-            <UserMinus2Icon />
-            Remove Friend
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='ghost' size='icon' aria-label='Chat Options'>
+            <EllipsisVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuItem variant='destructive' onClick={() => setClearAlertOpen(true)}>
+              <Trash2Icon />
+              Clear Messages
+            </DropdownMenuItem>
+            <DropdownMenuItem variant='destructive' onClick={() => setRemoveAlertOpen(true)}>
+              <UserMinus2Icon />
+              Remove Friend
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={clearAlertOpen} onOpenChange={setClearAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone. This will permanently delete all messages.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClear}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={removeAlertOpen} onOpenChange={setRemoveAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone. This will remove them from your friendlist.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnfriend}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
