@@ -43,7 +43,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
           </div>
         </div>
 
-        <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
+        <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} disabled />
       </div>
     );
   }
@@ -57,20 +57,24 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
               Load More Messages
             </Button>
           )}
-          {messages.map((message, index) => (
-            <Message
-              key={message._id}
-              message={message}
-              showAvatar={message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > 60_000 * 5} // Show avatar if sender changed or if more than 5 minutes passed
-              userId={userId}
-              replyingTo={replyingTo}
-              setReplyingTo={setReplyingTo}
-              editing={editing}
-              setEditing={setEditing}
-              reactionPicker={reactionPicker}
-              setReactionPicker={setReactionPicker}
-            />
-          ))}
+          {messages.length ? (
+            messages.map((message, index) => (
+              <Message
+                key={message._id}
+                message={message}
+                showAvatar={message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > 60_000 * 5} // Show avatar if sender changed or if more than 5 minutes passed
+                userId={userId}
+                replyingTo={replyingTo}
+                setReplyingTo={setReplyingTo}
+                editing={editing}
+                setEditing={setEditing}
+                reactionPicker={reactionPicker}
+                setReactionPicker={setReactionPicker}
+              />
+            ))
+          ) : (
+            <div className='text-muted-foreground self-center text-center text-sm'>No messages yet. Start the conversation!</div>
+          )}
         </div>
       </div>
 

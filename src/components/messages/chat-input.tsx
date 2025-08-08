@@ -15,7 +15,17 @@ import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch }
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 
-export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: string; replyingTo?: string; setReplyingTo: (messageId?: string) => void }) {
+export function ChatInput({
+  chatId,
+  replyingTo,
+  setReplyingTo,
+  disabled,
+}: {
+  chatId: string;
+  replyingTo?: string;
+  setReplyingTo: (messageId?: string) => void;
+  disabled?: boolean;
+}) {
   const sendMessage = useMutation(api.messages.sendChatMessage);
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
@@ -60,6 +70,7 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
           onKeyDown={handleKeyDown}
           placeholder='Your Message'
           className='no-scrollbar z-40 max-h-18 resize-none py-3 pr-22'
+          disabled={disabled}
         />
         {value.length >= MAX_MESSAGE_LENGTH_WARNING && (
           <span className={`absolute top-1 right-4 z-50 text-xs ${value.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
@@ -69,7 +80,7 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
         <div className='absolute right-3.5 bottom-3.25 z-50 flex flex-row items-center gap-1'>
           <Popover onOpenChange={setEmojiPickerOpen} open={emojiPickerOpen}>
             <PopoverTrigger asChild>
-              <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker'>
+              <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker' disabled={disabled}>
                 <SmileIcon />
               </Button>
             </PopoverTrigger>
@@ -93,7 +104,7 @@ export function ChatInput({ chatId, replyingTo, setReplyingTo }: { chatId: strin
             variant='default'
             size='icon'
             aria-label='Send message'
-            disabled={!value.trim() || value.length > MAX_MESSAGE_LENGTH}
+            disabled={disabled || !value.trim() || value.length > MAX_MESSAGE_LENGTH}
             title='Send message'
           >
             <SendHorizontalIcon />
