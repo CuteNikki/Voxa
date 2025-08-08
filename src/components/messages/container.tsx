@@ -12,8 +12,9 @@ import { Button } from '@/components/ui/button';
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState<string | undefined>(undefined);
+  const [reactionPicker, setReactionPicker] = useState<string | undefined>(undefined);
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   const { results, status, loadMore } = usePaginatedQuery(api.messages.getPaginatedMessages, { chatId }, { initialNumItems: 50 });
   const setLastRead = useMutation(api.chats.setLastRead);
 
@@ -66,6 +67,8 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
               setReplyingTo={setReplyingTo}
               editing={editing}
               setEditing={setEditing}
+              reactionPicker={reactionPicker}
+              setReactionPicker={setReactionPicker}
             />
           ))}
         </div>

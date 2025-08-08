@@ -26,6 +26,8 @@ export function Message({
   setReplyingTo,
   editing,
   setEditing,
+  reactionPicker,
+  setReactionPicker,
 }: {
   message: {
     imageUrl?: string;
@@ -44,6 +46,8 @@ export function Message({
   setReplyingTo: (messageId?: string) => void;
   editing?: string;
   setEditing: (messageId?: string) => void;
+  reactionPicker?: string;
+  setReactionPicker: (messageId?: string) => void;
 }) {
   const [editingValue, setEditingValue] = useState(message.content ?? '');
 
@@ -59,7 +63,7 @@ export function Message({
 
   return (
     <div
-      className={`hover:bg-muted/60 ${message._id === replyingTo || message._id === editing ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
+      className={`hover:bg-muted/60 ${message._id === replyingTo || message._id === editing || message._id === reactionPicker ? 'bg-muted/50 border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
         {message.reference && <MessageReference messageId={message.reference} />}
@@ -77,8 +81,10 @@ export function Message({
               <div className='flex justify-between'>
                 <div className='leading-tight font-semibold capitalize'>{author.username}</div>
                 <div className='flex items-center gap-2'>
-                  <div className='bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-lg p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
-                    <ReactionButton messageId={message._id} />
+                  <div
+                    className={`bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${message._id === replyingTo || message._id === editing || message._id === reactionPicker ? 'opacity-100' : 'group-hover:opacity-100'}`}
+                  >
+                    <ReactionButton messageId={message._id} reactionPicker={reactionPicker} setReactionPicker={setReactionPicker} />
                     <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
                       <>
@@ -143,9 +149,11 @@ export function Message({
                 <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
               )}
               {!showAvatar && (
-                <div className='bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity group-hover:opacity-100'>
+                <div
+                  className={`bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${message._id === replyingTo || message._id === editing || message._id === reactionPicker ? 'opacity-100' : 'group-hover:opacity-100'}`}
+                >
                   <div className='flex flex-row gap-1'>
-                    <ReactionButton messageId={message._id} />
+                    <ReactionButton messageId={message._id} reactionPicker={reactionPicker} setReactionPicker={setReactionPicker} />
                     <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
                     {isOwnMessage && (
                       <>
