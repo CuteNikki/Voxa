@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation } from 'convex/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -26,11 +26,17 @@ export function ChatInput({
   setReplyingTo: (messageId?: string) => void;
   disabled?: boolean;
 }) {
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [value, setValue] = useState('');
+  const areaRef = useRef<HTMLTextAreaElement>(null);
+
   const sendMessage = useMutation(api.messages.sendChatMessage);
 
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-
-  const [value, setValue] = useState('');
+  useEffect(() => {
+    if (areaRef.current) {
+      areaRef.current.focus();
+    }
+  }, [disabled]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
@@ -64,6 +70,7 @@ export function ChatInput({
       {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} />}
       <div className={`${replyingTo ? 'bg-muted' : 'bg-background'} flex w-full flex-row items-center gap-2 p-2 pt-0`}>
         <Textarea
+          ref={areaRef}
           autoFocus
           value={value}
           onChange={handleChange}
