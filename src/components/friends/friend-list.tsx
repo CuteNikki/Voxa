@@ -3,8 +3,8 @@ import { fetchQuery } from 'convex/nextjs';
 
 import { api } from '../../../convex/_generated/api';
 
-import { UserDetails } from '@/components/chat/user';
 import { RemoveFriendButton } from '@/components/friends/remove';
+import { UserDetails } from '@/components/friends/user-details';
 
 export async function FriendList() {
   const { userId } = await auth();
