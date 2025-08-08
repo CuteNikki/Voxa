@@ -1,32 +1,36 @@
 'use client';
 
 import { useMutation, usePaginatedQuery } from 'convex/react';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
+
+import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
 
 import { ChatInput } from '@/components/messages/chat-input';
 import { Message, MessageSkeleton } from '@/components/messages/message';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu';
-import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState<string | undefined>(undefined);
   const [reactionPicker, setReactionPicker] = useState<string | undefined>(undefined);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const isGroup = pathname.startsWith('/groups');
 
   const { results, status, loadMore } = usePaginatedQuery(api.messages.getPaginatedMessages, { chatId }, { initialNumItems: 50 });
-  const setLastRead = useMutation(api.chats.setLastRead);
   const deleteMessage = useMutation(api.messages.deleteMessage);
+  const setLastRead = useMutation(api.chats.setLastRead);
 
   const messages = [...results].reverse(); // Reverse to show the latest messages at the bottom
 
   useEffect(() => {
     const userLastRead = messages[messages.length - 1]?.createdAt ?? Date.now();
-    setLastRead({ chatId, lastReadAt: userLastRead });
-  }, [chatId, messages, setLastRead]);
+    setLastRead({ chatId, lastReadAt: userLastRead, isGroup });
+  }, [chatId, messages, setLastRead, isGroup]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -108,7 +112,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
         </div>
       </div>
 
-      <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
+      <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} isGroup={isGroup} />
     </div>
   );
 }

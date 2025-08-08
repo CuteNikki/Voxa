@@ -40,10 +40,15 @@ export default defineSchema({
 
   groups: defineTable({
     name: v.string(),
-    memberIds: v.array(v.string()),
+    members: v.array(
+      v.object({
+        userId: v.string(),
+        lastReadAt: v.optional(v.number()),
+      }),
+    ),
     createdBy: v.string(),
     createdAt: v.number(),
-  }).index('by_memberIds', ['memberIds']),
+  }),
 
   messages: defineTable({
     chatId: v.string(),

@@ -1,7 +1,7 @@
 import { v } from 'convex/values';
-
 import { paginationOptsValidator } from 'convex/server';
-import { Id } from './_generated/dataModel';
+
+import { Doc, Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 
 export const createChat = mutation({
@@ -50,7 +50,7 @@ export const createGroupChat = mutation({
 
     return await ctx.db.insert('groups', {
       name: args.name,
-      memberIds: [],
+      members: [],
       createdBy: args.userId,
       createdAt: Date.now(),
     });
@@ -192,6 +192,7 @@ export const setLastRead = mutation({
   args: {
     chatId: v.string(),
     lastReadAt: v.number(),
+    isGroup: v.optional(v.boolean()),
   },
   handler: async (ctx, { chatId, lastReadAt }) => {
     const user = await ctx.auth.getUserIdentity();
@@ -200,21 +201,40 @@ export const setLastRead = mutation({
       throw new Error('User not authenticated');
     }
 
-    const chat = await ctx.db.get(chatId as Id<'chats'>);
+    const channel = await ctx.db.get(chatId as Id<'chats' | 'groups'>);
 
-    if (!chat) {
+    if (!channel) {
       throw new Error('Chat does not exist');
     }
 
-    if (![chat.userIdOne, chat.userIdTwo].includes(user.subject)) {
-      throw new Error('You are not a participant in this chat');
+    function isChat(obj: unknown): obj is Doc<'chats'> {
+      return obj !== null && typeof obj === 'object' && 'userIdOne' in obj && 'userIdTwo' in obj;
     }
 
-    const field = chat.userIdOne === user.subject ? 'userLastReadOne' : 'userLastReadTwo';
+    if (isChat(channel)) {
+      if (![channel.userIdOne, channel.userIdTwo].includes(user.subject)) {
+        throw new Error('You are not a participant in this chat');
+      }
 
-    await ctx.db.patch(chat._id, {
-      [field]: lastReadAt,
-    });
+      const field = channel.userIdOne === user.subject ? 'userLastReadOne' : 'userLastReadTwo';
+
+      await ctx.db.patch(channel._id, {
+        [field]: lastReadAt,
+      });
+    } else {
+      const existingMember = channel.members.find((m) => m.userId === user.subject);
+
+      let updatedMembers;
+      if (existingMember) {
+        updatedMembers = channel.members.map((m) => (m.userId === user.subject ? { ...m, lastReadAt } : m));
+      } else {
+        updatedMembers = [...channel.members, { userId: user.subject, lastReadAt }];
+      }
+
+      await ctx.db.patch(channel._id, {
+        members: updatedMembers,
+      });
+    }
   },
 });
 

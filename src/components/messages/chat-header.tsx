@@ -2,12 +2,13 @@
 
 import { useUser } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { EllipsisVertical, Trash2Icon, UserMinus2Icon } from 'lucide-react';
 
 import { api } from '../../../convex/_generated/api';
+import { Doc } from '../../../convex/_generated/dataModel';
 
 import { formatPresenceTimestamp } from '@/lib/utils';
 
@@ -29,17 +30,22 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function ChatHeader({ chatId }: { chatId: string }) {
-  const chatInfo = useQuery(api.chats.getChatById, { chatId });
   const { user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+  const isGroup = pathname.startsWith('/groups');
+  const channel = useQuery(isGroup ? api.groups.getGroupById : api.chats.getChatById, { chatId });
 
-  const otherUserId = user?.id === chatInfo?.userIdOne ? chatInfo?.userIdTwo : chatInfo?.userIdOne;
-
-  if (chatInfo === null) {
-    router.push('/chats');
+  if (channel === null) {
+    router.push('/');
   }
 
-  if (!otherUserId || !user) {
+  // Could be a group or a chat, so we need to check the type
+  function isChat(obj: unknown): obj is Doc<'chats'> {
+    return obj !== null && typeof obj === 'object' && 'userIdOne' in obj && 'userIdTwo' in obj;
+  }
+
+  if (!user) {
     return (
       <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
         <div className='flex w-full items-center gap-1'>
@@ -63,12 +69,12 @@ export function ChatHeader({ chatId }: { chatId: string }) {
       <div className='flex w-full items-center gap-1'>
         <SidebarTrigger />
         <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-        <UserDetails targetId={otherUserId} />
+        {isChat(channel) ? <UserDetails targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} /> : <span className='px-2 text-sm'>{channel?.name}</span>}
       </div>
 
       <div className='flex items-center gap-1'>
         <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-        <UserDropdown targetId={otherUserId} chatId={chatId} userId={user.id} />
+        {isChat(channel) && <UserDropdown targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />}
       </div>
     </header>
   );

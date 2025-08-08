@@ -46,6 +46,7 @@ export const sendGroupMessage = mutation({
 export const sendChatMessage = mutation({
   args: {
     chatId: v.string(),
+    isGroup: v.optional(v.boolean()),
     content: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     reference: v.optional(v.string()),
@@ -76,17 +77,30 @@ export const sendChatMessage = mutation({
       }
     }
 
-    const existingChat = await ctx.db
-      .query('chats')
-      .filter((q) => q.eq(q.field('_id'), args.chatId))
-      .first();
+    if (args.isGroup) {
+      const existingGroup = await ctx.db
+        .query('groups')
+        .filter((q) => q.eq(q.field('_id'), args.chatId))
+        .first();
 
-    if (!existingChat) {
-      throw new Error('Chat does not exist');
+      if (!existingGroup) {
+        throw new Error('Group chat does not exist');
+      }
+    } else {
+      const existingChat = await ctx.db
+        .query('chats')
+        .filter((q) => q.eq(q.field('_id'), args.chatId))
+        .first();
+
+      if (!existingChat) {
+        throw new Error('Chat does not exist');
+      }
     }
 
     return await ctx.db.insert('messages', {
-      ...args,
+      chatId: args.chatId,
+      content: args.content?.trim() || '',
+      imageUrl: args.imageUrl,
       createdAt: Date.now(),
       senderId: user.subject,
       reference: args.reference,

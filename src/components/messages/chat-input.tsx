@@ -20,11 +20,13 @@ export function ChatInput({
   replyingTo,
   setReplyingTo,
   disabled,
+  isGroup,
 }: {
   chatId: string;
   replyingTo?: string;
   setReplyingTo: (messageId?: string) => void;
   disabled?: boolean;
+  isGroup?: boolean;
 }) {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [value, setValue] = useState('');
@@ -45,7 +47,7 @@ export function ChatInput({
   const handleSend = async () => {
     const trimmed = value.trim();
     if (!trimmed) return;
-    await sendMessage({ chatId, content: trimmed, reference: replyingTo });
+    await sendMessage({ chatId, content: trimmed, reference: replyingTo, isGroup });
     setValue(''); // Clear the input after sending
     setReplyingTo(undefined); // Clear the replying state after sending
   };

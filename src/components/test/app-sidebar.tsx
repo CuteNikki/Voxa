@@ -1,14 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { AudioLinesIcon, HomeIcon, MessageSquareMoreIcon, UsersRoundIcon } from 'lucide-react';
 
 import { NavChats } from '@/components/test/nav-chats';
 import { NavMain } from '@/components/test/nav-main';
-// import { NavSecondary } from '@/components/test/nav-secondary';
 import { NavUser } from '@/components/test/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { NavGroups } from '@/components/test/nav-groups';
 
 const navMain = [
   {
@@ -31,6 +32,9 @@ const navMain = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible='offcanvas' {...props}>
       <SidebarHeader>
@@ -47,7 +51,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
-        <NavChats />
+        {pathname.startsWith('/chats') && <NavChats />}
+        {pathname.startsWith('/groups') && <NavGroups />}
+
         {/* <NavSecondary items={data.navSecondary} className='mt-auto' /> */}
       </SidebarContent>
       <SidebarFooter>
