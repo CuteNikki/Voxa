@@ -19,7 +19,7 @@ export async function PrivateChats() {
       <h3 className='mb-2 text-lg font-semibold'>Private Chats:</h3>
       <ul>
         {privateChats.map((chat) => (
-          <Link href={`/chat/${chat.userIdOne === userId ? chat.userIdTwo : chat.userIdOne}`} key={chat._id} className='mb-2 flex min-h-[24px] items-center'>
+          <Link href={`/chats/${chat._id}`} key={chat._id} className='mb-2 flex min-h-[24px] items-center'>
             <ChatName members={[chat.userIdOne, chat.userIdTwo]} currentUser={userId} />
           </Link>
         ))}

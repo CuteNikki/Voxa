@@ -12,7 +12,7 @@ export async function GroupChats() {
       {groupChats ? (
         <ul>
           {groupChats.map((chat) => (
-            <Link href={`/group/${chat._id}`} key={chat._id} className='mb-2 flex min-h-[24px] items-center'>
+            <Link href={`/groups/${chat._id}`} key={chat._id} className='mb-2 flex min-h-[24px] items-center'>
               <span className='capitalize'>{chat.name}</span>
             </Link>
           ))}
