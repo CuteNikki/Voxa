@@ -1,6 +1,6 @@
-import { auth } from '@clerk/nextjs/server';
-import { fetchMutation } from 'convex/nextjs';
-import { revalidatePath } from 'next/cache';
+'use client';
+
+import { useMutation } from 'convex/react';
 
 import { XIcon } from 'lucide-react';
 
@@ -8,25 +8,12 @@ import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 
-export async function DeclineRequestButton({ targetId }: { targetId: string }) {
-  const { userId } = await auth();
-
-  if (!userId) {
-    return null;
-  }
+export function DeclineRequestButton({ targetId, userId }: { targetId: string; userId: string }) {
+  const respondToRequest = useMutation(api.friends.respondToRequest);
 
   return (
-    <form
-      action={async () => {
-        'use server';
-
-        await fetchMutation(api.friends.respondToRequest, { targetId, userId, response: 'decline' });
-        revalidatePath('/');
-      }}
-    >
-      <Button type='submit' variant='destructive' size='icon' aria-label='Decline request'>
-        <XIcon />
-      </Button>
-    </form>
+    <Button variant='destructive' size='icon' aria-label='Decline request' onClick={() => respondToRequest({ userId, targetId, response: 'decline' })}>
+      <XIcon />
+    </Button>
   );
 }

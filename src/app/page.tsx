@@ -1,10 +1,11 @@
 import Image from 'next/image';
 
-import { SignInButton, UserButton } from '@clerk/nextjs';
+import { SignInButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 
 import { FriendList } from '@/components/friends/friend-list';
 import { RequestList } from '@/components/friends/request-list';
+import { UserList } from '@/components/friends/user-list';
 import { ThemeToggle } from '@/components/theme/toggle';
 import { TypographyH1 } from '@/components/typography/h1';
 import { TypographyH2 } from '@/components/typography/h2';
@@ -19,26 +20,18 @@ import { TypographyP } from '@/components/typography/p';
 import { TypographyBlockquote } from '@/components/typography/quote';
 import { TypographySmall } from '@/components/typography/small';
 import { Button } from '@/components/ui/button';
-import { CreateGroupChat } from '@/components/create-group';
-import { GroupChats } from '@/components/group-chats';
-import { PrivateChats } from '@/components/private-chats';
-import { UserList } from '@/components/friends/user-list';
 
 export default async function Home() {
   const { userId } = await auth();
 
   return (
-    <div className='flex flex-col items-center justify-items-center gap-16 p-8 pb-20 font-sans sm:p-20'>
+    <div className='flex flex-col items-center justify-items-center gap-16 overflow-y-auto p-8 pb-20 font-sans sm:p-20'>
       <main className='row-start-2 flex flex-col items-center gap-[32px] sm:items-start'>
         {userId ? (
           <>
-            <UserButton />
-            <CreateGroupChat />
-            <GroupChats />
-            <PrivateChats />
-            <FriendList />
-            <RequestList />
-            <UserList />
+            <FriendList userId={userId} />
+            <RequestList userId={userId} />
+            <UserList userId={userId} />
           </>
         ) : (
           <SignInButton />

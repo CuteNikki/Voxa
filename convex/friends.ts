@@ -41,15 +41,15 @@ export const sendRequest = mutation({
 export const removeFriend = mutation({
   args: {
     userId: v.string(),
-    friendId: v.string(),
+    targetUserId: v.string(),
   },
   handler: async (ctx, args) => {
     const friend = await ctx.db
       .query('friends')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), args.friendId)),
-          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), args.userId)),
+          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), args.targetUserId)),
+          q.and(q.eq(q.field('userIdOne'), args.targetUserId), q.eq(q.field('userIdTwo'), args.userId)),
         ),
       )
       .first();
@@ -64,8 +64,8 @@ export const removeFriend = mutation({
       .query('chats')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), args.friendId)),
-          q.and(q.eq(q.field('userIdOne'), args.friendId), q.eq(q.field('userIdTwo'), args.userId)),
+          q.and(q.eq(q.field('userIdOne'), args.userId), q.eq(q.field('userIdTwo'), args.targetUserId)),
+          q.and(q.eq(q.field('userIdOne'), args.targetUserId), q.eq(q.field('userIdTwo'), args.userId)),
         ),
       )
       .first();

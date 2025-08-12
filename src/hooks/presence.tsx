@@ -4,6 +4,8 @@ import React from 'react';
 
 import { api } from '../../convex/_generated/api';
 
+import { ONLINE_UPDATE_INTERVAL } from '@/constants/limits';
+
 export function usePresenceSync() {
   const { user } = useUser();
   const updatePresence = useMutation(api.presence.setOnlineStatus);
@@ -13,9 +15,9 @@ export function usePresenceSync() {
 
     const interval = setInterval(() => {
       updatePresence();
-    }, 20_000); // Update presence every 20 seconds
+    }, ONLINE_UPDATE_INTERVAL);
 
-    updatePresence(); // Initial presence update
+    updatePresence();
 
     return () => clearInterval(interval);
   }, [user, updatePresence]);

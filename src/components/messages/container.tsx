@@ -8,6 +8,8 @@ import { api } from '../../../convex/_generated/api';
 
 import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
 
+import { LAST_READ_UPDATE_INTERVAL, MESSAGE_GROUPING_THRESHOLD } from '@/constants/limits';
+
 import { ChatInput } from '@/components/messages/chat-input';
 import { Message, MessageSkeleton } from '@/components/messages/message';
 import { Button } from '@/components/ui/button';
@@ -30,7 +32,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   useEffect(() => {
     const interval = setInterval(() => {
       setLastRead({ chatId, lastReadAt: Date.now(), isGroup });
-    }, 4_000);
+    }, LAST_READ_UPDATE_INTERVAL);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -78,7 +80,9 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                 <ContextMenuTrigger>
                   <Message
                     message={message}
-                    showAvatar={message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > 60_000 * 5} // Show avatar if sender changed or if more than 5 minutes passed
+                    showAvatar={
+                      message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > MESSAGE_GROUPING_THRESHOLD
+                    } // Show avatar if sender changed or if more than 5 minutes passed
                     userId={userId}
                     replyingTo={replyingTo}
                     setReplyingTo={setReplyingTo}

@@ -78,7 +78,7 @@ export function ChatHeader({ chatId }: { chatId: string }) {
     isGroup || !isChat(channel) ? null : (
       <div className='flex items-center gap-1'>
         <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-        <UserDropdown targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />
+        <UserDropdown targetUserId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />
       </div>
     );
 
@@ -145,19 +145,19 @@ function UserDetails({ targetId }: { targetId: string }) {
   );
 }
 
-function UserDropdown({ targetId, userId, chatId }: { targetId: string; userId: string; chatId: string }) {
+function UserDropdown({ targetUserId, userId, chatId }: { targetUserId: string; userId: string; chatId: string }) {
   const [clearAlertOpen, setClearAlertOpen] = useState(false);
   const [removeAlertOpen, setRemoveAlertOpen] = useState(false);
 
   const removeFriend = useMutation(api.friends.removeFriend);
   const clearMessages = useMutation(api.chats.clearMessages);
 
-  const handleClear = async () => {
-    await clearMessages({ chatId });
+  const handleClear = () => {
+    clearMessages({ chatId });
   };
 
-  const handleUnfriend = async () => {
-    await removeFriend({ friendId: targetId, userId });
+  const handleUnfriend = () => {
+    removeFriend({ targetUserId, userId });
   };
 
   return (

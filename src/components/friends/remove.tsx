@@ -1,6 +1,6 @@
-import { auth } from '@clerk/nextjs/server';
-import { fetchMutation } from 'convex/nextjs';
-import { revalidatePath } from 'next/cache';
+'use client';
+
+import { useMutation } from 'convex/react';
 
 import { UserMinus2Icon } from 'lucide-react';
 
@@ -8,25 +8,12 @@ import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 
-export async function RemoveFriendButton({ friendId }: { friendId: string }) {
-  const { userId } = await auth();
-
-  if (!userId) {
-    return null;
-  }
+export function RemoveFriendButton({ targetUserId, userId }: { targetUserId: string; userId: string }) {
+  const removeFriend = useMutation(api.friends.removeFriend);
 
   return (
-    <form
-      action={async () => {
-        'use server';
-
-        await fetchMutation(api.friends.removeFriend, { friendId, userId });
-        revalidatePath('/');
-      }}
-    >
-      <Button type='submit' variant='destructive' size='icon' aria-label='Remove friend'>
-        <UserMinus2Icon />
-      </Button>
-    </form>
+    <Button variant='destructive' size='icon' aria-label='Remove friend' onClick={() => removeFriend({ targetUserId, userId })}>
+      <UserMinus2Icon />
+    </Button>
   );
 }

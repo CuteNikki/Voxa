@@ -1,8 +1,10 @@
 import { ClerkProvider } from '@clerk/nextjs';
-
+import { shadcn } from '@clerk/themes';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { defaultMetadata } from '@/constants/metadata';
+
+import { UserSyncer } from '@/hooks/user';
 
 import ConvexProviderWithClerk from '@/providers/convex';
 import { ThemeProvider } from '@/providers/theme';
@@ -10,9 +12,8 @@ import { ThemeProvider } from '@/providers/theme';
 // import { Navbar } from '@/components/navigation/navbar';
 import PresenceSyncClient from '@/components/presence';
 
-import { UserSyncer } from '@/hooks/user';
-
-import { shadcn } from '@clerk/themes';
+import { AppSidebar } from '@/components/navigation/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import './globals.css';
 
@@ -41,12 +42,19 @@ export default function RootLayout({
             <ConvexProviderWithClerk>
               <PresenceSyncClient />
               <UserSyncer />
-
-              {/* <div className='flex h-screen w-full flex-col'> */}
-              {/* <Navbar /> */}
-              {/* <div className='min-h-0 flex-1'>{children}</div> */}
-              {/* </div> */}
-              {children}
+              <div className='flex h-screen flex-col'>
+                <SidebarProvider
+                  style={
+                    {
+                      '--sidebar-width': 'calc(var(--spacing) * 72)',
+                      '--header-height': 'calc(var(--spacing) * 12)',
+                    } as React.CSSProperties
+                  }
+                >
+                  <AppSidebar variant='inset' />
+                  <SidebarInset className='flex-1 overflow-hidden'>{children}</SidebarInset>
+                </SidebarProvider>
+              </div>
             </ConvexProviderWithClerk>
           </ThemeProvider>
         </ClerkProvider>

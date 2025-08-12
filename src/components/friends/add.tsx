@@ -1,6 +1,6 @@
-import { auth } from '@clerk/nextjs/server';
-import { fetchMutation } from 'convex/nextjs';
-import { revalidatePath } from 'next/cache';
+'use client';
+
+import { useMutation } from 'convex/react';
 
 import { UserPlus2Icon } from 'lucide-react';
 
@@ -8,25 +8,20 @@ import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 
-export async function AddFriendButton({ targetUserId }: { targetUserId: string }) {
-  const { userId } = await auth();
+export function AddFriendButton({ targetUserId, userId }: { targetUserId?: string; userId?: string }) {
+  const addFriend = useMutation(api.friends.sendRequest);
 
-  if (!userId) {
-    return null;
+  if (!targetUserId || !userId) {
+    return (
+      <Button size='icon' aria-label='Add friend'>
+        <UserPlus2Icon />
+      </Button>
+    );
   }
 
   return (
-    <form
-      action={async () => {
-        'use server';
-
-        await fetchMutation(api.friends.sendRequest, { to: targetUserId, from: userId });
-        revalidatePath('/');
-      }}
-    >
-      <Button type='submit' size='icon' aria-label='Add friend'>
-        <UserPlus2Icon />
-      </Button>
-    </form>
+    <Button size='icon' aria-label='Add friend' onClick={() => addFriend({ to: targetUserId, from: userId })}>
+      <UserPlus2Icon />
+    </Button>
   );
 }

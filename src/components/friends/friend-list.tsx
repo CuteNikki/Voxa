@@ -1,27 +1,21 @@
-import { auth } from '@clerk/nextjs/server';
-import { fetchQuery } from 'convex/nextjs';
+'use client';
+
+import { useQuery } from 'convex/react';
 
 import { api } from '../../../convex/_generated/api';
 
-import { RemoveFriendButton } from '@/components/friends/remove';
-import { UserDetails } from '@/components/friends/user-details';
+import { UserElement } from '@/components/friends/user';
 
-export async function FriendList() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    return null;
-  }
-
-  const friendIds = await fetchQuery(api.friends.getFriendIds, { userId });
+export function FriendList({ userId }: { userId: string }) {
+  const friendIds = useQuery(api.friends.getFriendIds, { userId });
 
   return (
     <div>
       <h2>Friend List</h2>
       {friendIds ? (
-        <ul>
+        <ul className='flex flex-col gap-2 p-2'>
           {friendIds.map((id) => (
-            <UserElement key={id} userId={id} />
+            <UserElement key={id} userId={userId} targetId={id} />
           ))}
         </ul>
       ) : (
@@ -29,14 +23,5 @@ export async function FriendList() {
       )}
       {friendIds && friendIds.length === 0 && <p>No friends found.</p>}
     </div>
-  );
-}
-
-function UserElement({ userId }: { userId: string }) {
-  return (
-    <li className='flex items-center gap-4'>
-      <UserDetails userId={userId} />
-      <RemoveFriendButton friendId={userId} />
-    </li>
   );
 }

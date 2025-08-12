@@ -1,3 +1,5 @@
+import { ONLINE_THRESHOLD } from '@/constants/limits';
+
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -37,9 +39,10 @@ export function formatPresenceTimestamp(timestamp?: number): string {
   if (typeof timestamp !== 'number' || isNaN(timestamp)) return 'Invalid date';
   const date = new Date(timestamp);
   const now = new Date();
-  const diffMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+  const diff = Math.floor(now.getTime() - date.getTime());
 
-  if (diffMinutes < 1) return 'Online';
+  console.log('formatPresenceTimestamp', { timestamp, date, now, diff });
+  if (diff < ONLINE_THRESHOLD) return 'Online';
 
   if (isToday(date, now)) return `Last Seen ${getTimeString(date)}`;
 

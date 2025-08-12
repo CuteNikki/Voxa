@@ -10,6 +10,8 @@ import { EllipsisIcon } from 'lucide-react';
 
 import { formatSidebarTimestamp } from '@/lib/utils';
 
+import { LAST_READ_THRESHOLD } from '@/constants/limits';
+
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
@@ -89,7 +91,7 @@ function GroupItem({
   currentUserId: string;
 }) {
   const lastMessage = useQuery(api.groups.getLastMessage, { groupId: item._id });
-  const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - 4_000);
+  const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - LAST_READ_THRESHOLD);
 
   console.log('Active Members:', activeMembers);
 

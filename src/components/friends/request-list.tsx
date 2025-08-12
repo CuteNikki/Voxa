@@ -1,5 +1,7 @@
-import { auth } from '@clerk/nextjs/server';
+'use client';
+
 import { fetchQuery } from 'convex/nextjs';
+import { useQuery } from 'convex/react';
 import Image from 'next/image';
 
 import { api } from '../../../convex/_generated/api';
@@ -8,15 +10,9 @@ import { AcceptRequestButton } from '@/components/friends/accept';
 import { CancelRequestButton } from '@/components/friends/cancel';
 import { DeclineRequestButton } from '@/components/friends/decline';
 
-export async function RequestList() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    return null;
-  }
-
-  const receivedRequests = await fetchQuery(api.friends.getFriendRequests, { userId });
-  const sentRequests = await fetchQuery(api.friends.getSentRequests, { userId });
+export function RequestList({ userId }: { userId: string }) {
+  const receivedRequests = useQuery(api.friends.getFriendRequests, { userId });
+  const sentRequests = useQuery(api.friends.getSentRequests, { userId });
 
   return (
     <div>
@@ -24,7 +20,7 @@ export async function RequestList() {
       {receivedRequests ? (
         <ul>
           {receivedRequests.map((req) => (
-            <ReceivedRequestUser key={req._id} targetId={req.from} />
+            <ReceivedRequestUser key={req._id} targetId={req.from} userId={userId} />
           ))}
         </ul>
       ) : (
@@ -35,7 +31,7 @@ export async function RequestList() {
       {sentRequests ? (
         <ul>
           {sentRequests.map((req) => (
-            <SentRequestUser key={req._id} targetId={req.to} />
+            <SentRequestUser key={req._id} targetId={req.to} userId={userId} />
           ))}
         </ul>
       ) : (
@@ -46,7 +42,7 @@ export async function RequestList() {
   );
 }
 
-async function ReceivedRequestUser({ targetId }: { targetId: string }) {
+async function ReceivedRequestUser({ targetId, userId }: { targetId: string; userId: string }) {
   const targetUser = await fetchQuery(api.users.getUser, { clerkId: targetId });
 
   if (!targetUser) {
@@ -65,13 +61,13 @@ async function ReceivedRequestUser({ targetId }: { targetId: string }) {
       <div className='flex flex-col items-start'>
         <span className='capitalize'>{targetUser.username}</span>
       </div>
-      <AcceptRequestButton targetId={targetId} />
-      <DeclineRequestButton targetId={targetId} />
+      <AcceptRequestButton userId={userId} targetId={targetId} />
+      <DeclineRequestButton userId={userId} targetId={targetId} />
     </div>
   );
 }
 
-async function SentRequestUser({ targetId }: { targetId: string }) {
+async function SentRequestUser({ targetId, userId }: { targetId: string; userId: string }) {
   const targetUser = await fetchQuery(api.users.getUser, { clerkId: targetId });
 
   if (!targetUser) {
@@ -90,7 +86,7 @@ async function SentRequestUser({ targetId }: { targetId: string }) {
       <div className='flex flex-col items-start'>
         <span className='capitalize'>{targetUser.username}</span>
       </div>
-      <CancelRequestButton targetId={targetId} />
+      <CancelRequestButton userId={userId} targetId={targetId} />
     </div>
   );
 }

@@ -1,12 +1,13 @@
 import { v } from 'convex/values';
 
+import { TYPING_THRESHOLD } from '../src/constants/limits';
 import { mutation, query } from './_generated/server';
 
 export const getTypingUsers = query({
   args: { chatId: v.string() },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const activeThreshold = now - 5000; // 5 seconds ago
+    const activeThreshold = now - TYPING_THRESHOLD;
 
     const all = await ctx.db
       .query('typing')
