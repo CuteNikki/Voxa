@@ -1,4 +1,4 @@
-import { AppSidebar } from '@/components/test/app-sidebar';
+import { AppSidebar } from '@/components/navigation/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export default function GroupsLayout({ children }: { children: React.ReactNode }) {

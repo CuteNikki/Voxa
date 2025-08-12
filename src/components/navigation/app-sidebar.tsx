@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 
 import { AudioLinesIcon, HomeIcon, MessageSquareMoreIcon, UsersRoundIcon } from 'lucide-react';
 
-import { NavChats } from '@/components/test/nav-chats';
-import { NavMain } from '@/components/test/nav-main';
-import { NavUser } from '@/components/test/nav-user';
+import { NavChats } from '@/components/navigation/nav-chats';
+import { NavGroups } from '@/components/navigation/nav-groups';
+import { NavMain } from '@/components/navigation/nav-main';
+import { NavUser } from '@/components/navigation/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { NavGroups } from '@/components/test/nav-groups';
 
 const navMain = [
   {
@@ -32,7 +32,6 @@ const navMain = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  
   const pathname = usePathname();
 
   return (

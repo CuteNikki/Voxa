@@ -1,7 +1,7 @@
+import { SiteHeader } from '@/components/navigation/site-header';
 import { ChartAreaInteractive } from '@/components/test/chart-area-interactive';
 import { DataTable } from '@/components/test/data-table';
 import { SectionCards } from '@/components/test/section-cards';
-import { SiteHeader } from '@/components/test/site-header';
 
 import data from './data.json';
 
