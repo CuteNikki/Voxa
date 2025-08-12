@@ -20,7 +20,7 @@ export function NavMain({
     requiresAuthenticated?: boolean;
   }[];
 }) {
-  const { user } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
 
   return (
     <SidebarGroup>
@@ -43,10 +43,12 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item, index) => (
             <SidebarMenuItem key={`nav-main-${index}-${item.title}`}>
-              {item.requiresAuthenticated && !user ? (
-                <SidebarMenuButton className='text-sidebar-foreground/70'>
-                  <Skeleton className='h-4 w-24' />
-                </SidebarMenuButton>
+              {item.requiresAuthenticated && !isSignedIn ? (
+                isLoaded ? null : (
+                  <SidebarMenuButton className='text-sidebar-foreground/70'>
+                    <Skeleton className='h-4 w-24' />
+                  </SidebarMenuButton>
+                )
               ) : (
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <Link href={item.url}>
