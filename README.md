@@ -46,7 +46,7 @@
 - [x] Real-time messaging with Convex
   - [x] Emoji support
     - [ ] Reactions
-  - [ ] Editing messages
+  - [x] Editing messages
   - [x] Deleting messages
   - [x] Replying to messages
     - [ ] Scroll to messages
