@@ -66,7 +66,7 @@ function OutgoingRequests({ userId }: { userId: string }) {
       <h2>Outgoing requests</h2>
       <ul className='flex flex-col gap-2'>
         {outgoingRequests.map((req) => (
-          <OutgoingRequestUser key={req._id} targetId={req.from} userId={userId} />
+          <OutgoingRequestUser key={req._id} targetId={req.to} userId={userId} />
         ))}
       </ul>
       {!outgoingRequests.length && <TypographyMuted>No outgoing requests.</TypographyMuted>}
