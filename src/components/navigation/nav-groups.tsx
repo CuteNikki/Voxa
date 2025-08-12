@@ -93,8 +93,6 @@ function GroupItem({
   const lastMessage = useQuery(api.groups.getLastMessage, { groupId: item._id });
   const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - LAST_READ_THRESHOLD);
 
-  console.log('Active Members:', activeMembers);
-
   return (
     <SidebarMenuItem>
       <SidebarMenuButton className='items-center py-6' asChild>

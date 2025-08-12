@@ -41,7 +41,6 @@ export function formatPresenceTimestamp(timestamp?: number): string {
   const now = new Date();
   const diff = Math.floor(now.getTime() - date.getTime());
 
-  console.log('formatPresenceTimestamp', { timestamp, date, now, diff });
   if (diff < ONLINE_THRESHOLD) return 'Online';
 
   if (isToday(date, now)) return `Last Seen ${getTimeString(date)}`;
