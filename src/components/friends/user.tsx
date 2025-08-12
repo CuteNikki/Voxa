@@ -71,7 +71,7 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
   }
 
   return (
-    <li className='bg-accent/70 hover:bg-primary/20 flex items-center justify-between gap-6 rounded-xl p-2 px-4 transition-colors'>
+    <li className='bg-accent/70 hover:bg-primary/20 flex items-center justify-between gap-6 rounded-xl p-2 px-4 shadow-md transition-colors'>
       <div className='flex flex-row items-center gap-4'>
         <Avatar className='size-12'>
           <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
