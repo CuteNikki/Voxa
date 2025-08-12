@@ -47,14 +47,12 @@ export function NavGroups() {
             <GroupItem key={item._id} item={item} currentUserId={user.id} />
           ))}
         </ScrollArea>
-        {/* {status === 'CanLoadMore' && ( */}
         <SidebarMenuItem>
           <SidebarMenuButton disabled={status === 'LoadingMore' || status === 'Exhausted'} onClick={() => loadMore(6)} className='text-muted-foreground'>
             <EllipsisIcon className='text-muted-foreground' />
             <span>Load More</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
-        {/* )} */}
       </SidebarMenu>
     </SidebarGroup>
   );
@@ -91,8 +89,7 @@ function GroupItem({
   currentUserId: string;
 }) {
   const lastMessage = useQuery(api.groups.getLastMessage, { groupId: item._id });
-
-  const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - 60_000);
+  const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - 4_000);
 
   console.log('Active Members:', activeMembers);
 

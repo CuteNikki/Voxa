@@ -28,9 +28,17 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   const messages = [...results].reverse(); // Reverse to show the latest messages at the bottom
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setLastRead({ chatId, lastReadAt: Date.now(), isGroup });
+    }, 4_000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const userLastRead = messages[messages.length - 1]?.createdAt ?? Date.now();
     setLastRead({ chatId, lastReadAt: userLastRead, isGroup });
-  }, [chatId, messages, setLastRead, isGroup]);
+  }, [messages, chatId, isGroup, setLastRead]);
 
   useEffect(() => {
     const el = scrollRef.current;
