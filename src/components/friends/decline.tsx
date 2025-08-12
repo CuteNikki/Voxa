@@ -12,7 +12,13 @@ export function DeclineRequestButton({ targetId, userId }: { targetId: string; u
   const respondToRequest = useMutation(api.friends.respondToRequest);
 
   return (
-    <Button variant='destructive' size='icon' aria-label='Decline request' onClick={() => respondToRequest({ userId, targetId, response: 'decline' })}>
+    <Button
+      variant='destructive'
+      size='icon'
+      title='Decline friend request'
+      aria-label='Decline friend request'
+      onClick={() => respondToRequest({ userId, targetId, response: 'decline' })}
+    >
       <XIcon />
     </Button>
   );

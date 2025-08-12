@@ -1,7 +1,13 @@
 'use client';
 
 import { useQuery } from 'convex/react';
+import { useEffect, useState } from 'react';
+
 import { api } from '../../../convex/_generated/api';
+
+import { formatPresenceTimestamp } from '@/lib/utils';
+
+import { ONLINE_UPDATE_INTERVAL } from '@/constants/limits';
 
 import { AddFriendButton } from '@/components/friends/add';
 import { RemoveFriendButton } from '@/components/friends/remove';
@@ -9,7 +15,24 @@ import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatPresenceTimestamp } from '@/lib/utils';
+
+export function UserSkeleton() {
+  return (
+    <li className='bg-accent/70 hover:bg-primary/20 flex items-center gap-6 rounded-xl p-2 px-4 transition-colors'>
+      <div className='flex flex-row items-center gap-4'>
+        <Avatar className='size-12'>
+          <AvatarFallback>
+            <Skeleton>U</Skeleton>
+          </AvatarFallback>
+        </Avatar>
+        <div className='flex flex-col'>
+          <TypographyLarge className='capitalize'>Unknown User</TypographyLarge>
+          <TypographyMuted>{formatPresenceTimestamp(0)}</TypographyMuted>
+        </div>
+      </div>
+    </li>
+  );
+}
 
 export function UserElement({ targetId, userId }: { targetId: string; userId: string }) {
   const target = useQuery(api.users.getUser, { clerkId: targetId });
@@ -17,32 +40,24 @@ export function UserElement({ targetId, userId }: { targetId: string; userId: st
   const isFriend = useQuery(api.friends.isFriend, { userId: userId, targetId: targetId });
   const isPending = useQuery(api.friends.isPendingRequest, { userId: userId, targetId: targetId });
 
+  // Re-render update presence status
+  const [, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), ONLINE_UPDATE_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
+
   const lastSeen = presence?.lastSeen ?? 0;
   const formatted = formatPresenceTimestamp(lastSeen);
 
   if (!target) {
-    return (
-      <li className='bg-accent hover:bg-accent/80 flex items-center gap-6 rounded-xl p-2 px-4 transition-colors'>
-        <div className='flex flex-row items-center gap-4'>
-          <Skeleton className='rounded-full'>
-            <Avatar className='size-10'>
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-          </Skeleton>
-          <div className='flex flex-col'>
-            <TypographyLarge className='capitalize'>Unknown User</TypographyLarge>
-            <TypographyMuted>{formatPresenceTimestamp(0)}</TypographyMuted>
-          </div>
-        </div>
-        <AddFriendButton />
-      </li>
-    );
+    return <UserSkeleton />;
   }
 
   return (
-    <li className='bg-accent hover:bg-accent/80 flex items-center gap-6 rounded-xl p-2 px-4 transition-colors'>
+    <li className='bg-accent/70 hover:bg-primary/20 flex items-center justify-between gap-6 rounded-xl p-2 px-4 transition-colors'>
       <div className='flex flex-row items-center gap-4'>
-        <Avatar className='size-10'>
+        <Avatar className='size-12'>
           <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
           <AvatarFallback>{target.username ? target.username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
         </Avatar>

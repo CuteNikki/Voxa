@@ -12,7 +12,7 @@ export function RemoveFriendButton({ targetUserId, userId }: { targetUserId: str
   const removeFriend = useMutation(api.friends.removeFriend);
 
   return (
-    <Button variant='destructive' size='icon' aria-label='Remove friend' onClick={() => removeFriend({ targetUserId, userId })}>
+    <Button variant='destructive' size='icon' title='Remove friend' aria-label='Remove friend' onClick={() => removeFriend({ targetUserId, userId })}>
       <UserMinus2Icon />
     </Button>
   );

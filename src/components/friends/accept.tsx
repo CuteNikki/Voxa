@@ -10,7 +10,12 @@ export function AcceptRequestButton({ targetId, userId }: { targetId: string; us
   const respondToRequest = useMutation(api.friends.respondToRequest);
 
   return (
-    <Button size='icon' aria-label='Accept request' onClick={async () => respondToRequest({ targetId, userId, response: 'accept' })}>
+    <Button
+      size='icon'
+      title='Accept friend request'
+      aria-label='Accept friend request'
+      onClick={async () => respondToRequest({ targetId, userId, response: 'accept' })}
+    >
       <CheckIcon />
     </Button>
   );

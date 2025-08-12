@@ -28,11 +28,11 @@ export default async function Home() {
     <div className='flex flex-col items-center justify-items-center gap-16 overflow-y-auto p-8 pb-20 font-sans sm:p-20'>
       <main className='row-start-2 flex flex-col items-center gap-[32px] sm:items-start'>
         {userId ? (
-          <>
+          <div className='flex w-full max-w-md flex-col gap-8'>
             <FriendList userId={userId} />
             <RequestList userId={userId} />
             <UserList userId={userId} />
-          </>
+          </div>
         ) : (
           <SignInButton />
         )}
