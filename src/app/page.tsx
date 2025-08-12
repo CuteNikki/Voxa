@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 
-import { SignInButton } from '@clerk/nextjs';
-import { auth } from '@clerk/nextjs/server';
+import { SignInButton, useUser } from '@clerk/nextjs';
 
 import { FriendList } from '@/components/friends/friend-list';
 import { RequestList } from '@/components/friends/request-list';
@@ -21,17 +22,17 @@ import { TypographyBlockquote } from '@/components/typography/quote';
 import { TypographySmall } from '@/components/typography/small';
 import { Button } from '@/components/ui/button';
 
-export default async function Home() {
-  const { userId } = await auth();
+export default function Home() {
+  const { user } = useUser();
 
   return (
     <div className='flex flex-col items-center justify-items-center gap-16 overflow-y-auto p-8 pb-20 font-sans sm:p-20'>
       <main className='row-start-2 flex flex-col items-center gap-[32px] sm:items-start'>
-        {userId ? (
+        {user?.id ? (
           <div className='flex w-full max-w-md flex-col gap-8'>
-            <FriendList userId={userId} />
-            <RequestList userId={userId} />
-            <UserList userId={userId} />
+            <FriendList userId={user.id} />
+            <RequestList userId={user.id} />
+            <UserList userId={user.id} />
           </div>
         ) : (
           <SignInButton />
