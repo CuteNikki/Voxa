@@ -4,7 +4,7 @@ import { useQuery } from 'convex/react';
 
 import { api } from '../../../convex/_generated/api';
 
-import { UserElement, UserSkeleton } from '@/components/friends/user';
+import { BaseSkeleton, FriendElement } from '@/components/friends/user';
 import { TypographyMuted } from '@/components/typography/muted';
 
 export function UserList({ userId }: { userId: string }) {
@@ -16,7 +16,7 @@ export function UserList({ userId }: { userId: string }) {
         <h2>User List</h2>
         <ul className='flex flex-col gap-2'>
           {Array.from({ length: 3 }).map((_, index) => (
-            <UserSkeleton key={index} />
+            <BaseSkeleton key={index} />
           ))}
         </ul>
       </div>
@@ -28,7 +28,7 @@ export function UserList({ userId }: { userId: string }) {
       <h2>User List</h2>
       <ul className='flex flex-col gap-2'>
         {users.map((target) => (
-          <UserElement key={target.clerkId} targetId={target.clerkId} userId={userId} />
+          <FriendElement key={target.clerkId} targetId={target.clerkId} userId={userId} />
         ))}
       </ul>
       {!users.length && <TypographyMuted>No users found.</TypographyMuted>}
