@@ -36,46 +36,60 @@ export function ChatHeader({ chatId }: { chatId: string }) {
   const isGroup = pathname.startsWith('/groups');
   const channel = useQuery(isGroup ? api.groups.getGroupById : api.chats.getChatById, { chatId });
 
+  // Helper to check if channel is a chat
+  const isChat = (obj: unknown): obj is Doc<'chats'> => !!obj && typeof obj === 'object' && 'userIdOne' in obj && 'userIdTwo' in obj;
+
+  // Redirect if channel is null
   if (channel === null) {
     router.push('/');
+    return null;
   }
 
-  // Could be a group or a chat, so we need to check the type
-  function isChat(obj: unknown): obj is Doc<'chats'> {
-    return obj !== null && typeof obj === 'object' && 'userIdOne' in obj && 'userIdTwo' in obj;
-  }
-
-  if (!user) {
+  // Loading or unauthenticated state
+  if (!user || channel === undefined) {
     return (
       <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
         <div className='flex w-full items-center gap-1'>
           <SidebarTrigger />
           <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-          <UserDetailsSkeleton />
+          {isGroup ? <span className='px-2 text-sm'>Loading Channel</span> : <UserDetailsSkeleton />}
         </div>
-
-        <div className='flex items-center gap-1'>
-          <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-          <Button variant='ghost' size='icon' disabled aria-label='Chat Options'>
-            <EllipsisVertical />
-          </Button>
-        </div>
+        {isGroup ? null : (
+          <div className='flex items-center gap-1'>
+            <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
+            <Button variant='ghost' size='icon' disabled aria-label='Chat Options'>
+              <EllipsisVertical />
+            </Button>
+          </div>
+        )}
       </header>
     );
   }
+
+  // Main header content
+  const headerContent =
+    isGroup || !isChat(channel) ? (
+      <span className='px-2 text-sm'>{'name' in channel ? channel.name : 'Unnamed Group'}</span>
+    ) : (
+      <UserDetails targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} />
+    );
+  // Dropdown menu for chat options
+  const dropdown =
+    isGroup || !isChat(channel) ? null : (
+      <div className='flex items-center gap-1'>
+        <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
+        <UserDropdown targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />
+      </div>
+    );
 
   return (
     <header className='z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
       <div className='flex w-full items-center gap-1'>
         <SidebarTrigger />
         <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-        {isChat(channel) ? <UserDetails targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} /> : <span className='px-2 text-sm'>{channel?.name}</span>}
+        {headerContent}
       </div>
-
-      <div className='flex items-center gap-1'>
-        <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-        {isChat(channel) && <UserDropdown targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />}
-      </div>
+      {dropdown}
     </header>
   );
 }
