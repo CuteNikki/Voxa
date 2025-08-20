@@ -15,6 +15,7 @@ import { ReactionButton } from '@/components/messages/reaction-button';
 import { ReplyButton } from '@/components/messages/reply-button';
 import { MessageTimestamp } from '@/components/messages/timestamp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -37,7 +38,7 @@ export function Message({
     senderId: string;
     _id: string;
     editedAt?: number;
-    reactions?: { userId: string; reaction: string }[];
+    reactions?: { userId: string; reaction: string; createdAt: number }[];
     reference?: string;
   };
   showAvatar?: boolean;
@@ -53,6 +54,8 @@ export function Message({
 
   const author = useQuery(api.users.getUser, { clerkId: message.senderId });
   const editMessage = useMutation(api.messages.editMessage);
+  const addReaction = useMutation(api.messages.addReaction);
+  const removeReaction = useMutation(api.messages.removeReaction);
 
   if (!author) {
     return <MessageSkeleton />;
@@ -171,6 +174,27 @@ export function Message({
                 </div>
               )}
             </div>
+            {(message.reactions?.length ?? 0) > 0 && (
+              <div className='flex flex-row items-center gap-1 py-2'>
+                {Array.from(new Set(message.reactions?.map((r) => r.reaction))).map((uniqueReaction, index) => {
+                  const userReacted = message.reactions?.some((r) => r.reaction === uniqueReaction && r.userId === userId);
+                  return (
+                    <Button
+                      key={`message-${message._id}-reaction-${index}`}
+                      variant={userReacted ? 'default' : 'secondary'}
+                      size='sm'
+                      onClick={() =>
+                        userReacted
+                          ? removeReaction({ messageId: message._id, reaction: uniqueReaction })
+                          : addReaction({ messageId: message._id, reaction: uniqueReaction })
+                      }
+                    >
+                      {uniqueReaction} <span className='font-mono'>{message.reactions?.filter((r) => r.reaction === uniqueReaction).length}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

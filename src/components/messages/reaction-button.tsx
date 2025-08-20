@@ -1,6 +1,9 @@
 'use client';
 
+import { useMutation } from 'convex/react';
 import { SmilePlusIcon } from 'lucide-react';
+
+import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
@@ -15,6 +18,8 @@ export function ReactionButton({
   reactionPicker?: string;
   setReactionPicker: (messageId?: string) => void;
 }) {
+  const addReaction = useMutation(api.messages.addReaction);
+
   return (
     <Popover
       onOpenChange={(open) => {
@@ -36,7 +41,8 @@ export function ReactionButton({
           className='h-[342px]'
           onEmojiSelect={({ emoji }) => {
             setReactionPicker(undefined);
-            alert(`Reaction added: ${emoji}`);
+
+            addReaction({ messageId, reaction: emoji });
           }}
         >
           <EmojiPickerSearch />
