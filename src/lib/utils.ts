@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
 function isToday(date: Date, now: Date = new Date()) {
   return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
 }
@@ -65,6 +66,22 @@ export function formatMessageTimestamp(createdAt?: number): string {
 
   if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
   if (isToday(date, now)) return getTimeString(date);
+  return date.toLocaleString([], {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export function formatReactionTimestamp(createdAt?: number): string {
+  if (typeof createdAt !== 'number' || isNaN(createdAt)) return 'Invalid date';
+  const date = new Date(createdAt);
+  const now = new Date();
+
+  if (isToday(date, now)) return `Today, ${getTimeString(date)}`;
+  if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
   return date.toLocaleString([], {
     year: 'numeric',
     month: '2-digit',
