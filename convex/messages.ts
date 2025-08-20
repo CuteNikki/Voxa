@@ -205,6 +205,81 @@ export const editMessage = mutation({
   },
 });
 
+export const addReaction = mutation({
+  args: {
+    messageId: v.string(),
+    reaction: v.string(),
+  },
+  handler: async (ctx, { messageId, reaction }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const message = await ctx.db
+      .query('messages')
+      .filter((q) => q.eq(q.field('_id'), messageId))
+      .first();
+
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    const existingReaction = message.reactions?.find((r) => r.userId === user.subject && r.reaction === reaction);
+
+    if (existingReaction) {
+      throw new Error('You have already reacted with this reaction');
+    }
+
+    return await ctx.db.patch(message._id, {
+      reactions: [
+        ...(message.reactions || []),
+        {
+          userId: user.subject,
+          reaction,
+          createdAt: Date.now(),
+        },
+      ],
+    });
+  },
+});
+
+export const removeReaction = mutation({
+  args: {
+    messageId: v.string(),
+    reaction: v.string(),
+  },
+  handler: async (ctx, { messageId, reaction }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const message = await ctx.db
+      .query('messages')
+      .filter((q) => q.eq(q.field('_id'), messageId))
+      .first();
+
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    const existingReactionIndex = message.reactions?.findIndex((r) => r.userId === user.subject && r.reaction === reaction);
+
+    if (existingReactionIndex === undefined || existingReactionIndex < 0) {
+      throw new Error('You have not reacted with this reaction');
+    }
+
+    const updatedReactions = [...(message.reactions || [])];
+    updatedReactions.splice(existingReactionIndex, 1);
+    return await ctx.db.patch(message._id, {
+      reactions: updatedReactions,
+    });
+  },
+});
+
 export const sendMessage = mutation({
   args: {
     chatId: v.string(),

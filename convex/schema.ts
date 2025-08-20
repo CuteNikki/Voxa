@@ -56,7 +56,7 @@ export default defineSchema({
     content: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     editedAt: v.optional(v.number()),
-    reactions: v.optional(v.array(v.object({ userId: v.string(), reaction: v.string() }))),
+    reactions: v.optional(v.array(v.object({ userId: v.string(), reaction: v.string(), createdAt: v.number() }))),
     reference: v.optional(v.string()), // (messageId) reference to the original message if this is a reply
     createdAt: v.number(),
   }).index('by_chatId', ['chatId']),
