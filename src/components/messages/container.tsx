@@ -10,20 +10,20 @@ import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmileIcon, SmilePlusI
 
 import { LAST_READ_UPDATE_INTERVAL, MESSAGE_GROUPING_THRESHOLD } from '@/constants/limits';
 
+import { formatReactionTimestamp } from '@/lib/utils';
+
 import { ChatInput } from '@/components/messages/chat-input';
 import { Message, MessageSkeleton } from '@/components/messages/message';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { formatReactionTimestamp } from '@/lib/utils';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState<string | undefined>(undefined);
   const [reactionPicker, setReactionPicker] = useState<string | undefined>(undefined);
   const [viewReactionsFor, setViewReactionsFor] = useState<string | undefined>(undefined);
-  const [viewReactionsForPending, setViewReactionsForPending] = useState<string | undefined>(undefined);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -80,17 +80,9 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
               Load More Messages
             </Button>
           )}
-          {messages.length ? (
+          {messages.length > 0 ? (
             messages.map((message, index) => (
-              <ContextMenu
-                key={message._id}
-                onOpenChange={(open) => {
-                  if (!open && viewReactionsForPending) {
-                    setViewReactionsFor(viewReactionsForPending);
-                    setViewReactionsForPending(undefined);
-                  }
-                }}
-              >
+              <ContextMenu key={message._id} modal={false}>
                 <ContextMenuTrigger>
                   <Message
                     message={message}
@@ -108,31 +100,31 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                 </ContextMenuTrigger>
 
                 <ContextMenuContent>
-                  <ContextMenuItem onClick={() => setReplyingTo(message._id)}>
+                  <ContextMenuItem onSelect={() => setReplyingTo(message._id)}>
                     <CornerUpRightIcon /> Reply
                   </ContextMenuItem>
-                  <ContextMenuItem onClick={() => setReactionPicker(message._id)}>
+                  <ContextMenuItem onSelect={() => setReactionPicker(message._id)}>
                     <SmilePlusIcon /> React
                   </ContextMenuItem>
-                  <ContextMenuSeparator />
                   {(message.reactions?.length ?? 0) > 0 && (
-                    <ContextMenuItem onSelect={() => setViewReactionsForPending(message._id)}>
+                    <ContextMenuItem onSelect={() => setViewReactionsFor(message._id)}>
                       <SmileIcon />
                       View Reactions
                     </ContextMenuItem>
                   )}
+                  <ContextMenuSeparator />
                   {message.senderId === userId && (
                     <>
-                      <ContextMenuItem onClick={() => setEditing(message._id)}>
+                      <ContextMenuItem onSelect={() => setEditing(message._id)}>
                         <PencilIcon /> Edit Message
                       </ContextMenuItem>
-                      <ContextMenuItem variant='destructive' onClick={() => deleteMessage({ messageId: message._id })}>
+                      <ContextMenuItem variant='destructive' onSelect={() => deleteMessage({ messageId: message._id })}>
                         <Trash2Icon /> Delete Message
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                     </>
                   )}
-                  <ContextMenuItem onClick={() => navigator.clipboard.writeText(message._id)}>
+                  <ContextMenuItem onSelect={() => navigator.clipboard.writeText(message._id)}>
                     <ClipboardCopyIcon />
                     Copy Id
                   </ContextMenuItem>

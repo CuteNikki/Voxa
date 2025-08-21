@@ -162,7 +162,7 @@ function UserDropdown({ targetUserId, userId, chatId }: { targetUserId: string; 
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' size='icon' aria-label='Chat Options'>
             <EllipsisVertical />
@@ -170,11 +170,11 @@ function UserDropdown({ targetUserId, userId, chatId }: { targetUserId: string; 
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <DropdownMenuItem variant='destructive' onClick={() => setClearAlertOpen(true)}>
+            <DropdownMenuItem variant='destructive' onSelect={() => setClearAlertOpen(true)}>
               <Trash2Icon />
               Clear Messages
             </DropdownMenuItem>
-            <DropdownMenuItem variant='destructive' onClick={() => setRemoveAlertOpen(true)}>
+            <DropdownMenuItem variant='destructive' onSelect={() => setRemoveAlertOpen(true)}>
               <UserMinus2Icon />
               Remove Friend
             </DropdownMenuItem>
