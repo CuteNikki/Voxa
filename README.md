@@ -44,12 +44,11 @@
 ## ✅ Roadmap
 
 - [x] Real-time messaging with Convex
-  - [x] Emoji support
-    - [ ] Reactions
   - [x] Editing messages
   - [x] Deleting messages
+  - [x] Reactions
   - [x] Replying to messages
-    - [ ] Scroll to messages
+    - [x] Scroll to messages if reference is clicked
 - [x] User presence view (online/offline)
 - [x] Unread messages indicator
 - [ ] Typing indicator

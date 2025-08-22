@@ -24,6 +24,8 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   const [editing, setEditing] = useState<string | undefined>(undefined);
   const [reactionPicker, setReactionPicker] = useState<string | undefined>(undefined);
   const [viewReactionsFor, setViewReactionsFor] = useState<string | undefined>(undefined);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | undefined>(undefined);
+  const [disableAutoScrollUntil, setDisableAutoScrollUntil] = useState<number>(0);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -49,11 +51,22 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   }, [messages, chatId, isGroup, setLastRead]);
 
   useEffect(() => {
+    if (highlightedMessageId) {
+      setDisableAutoScrollUntil(Date.now() + 1600);
+      const timeout = setTimeout(() => {
+        setHighlightedMessageId(undefined);
+      }, 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [highlightedMessageId]);
+
+  useEffect(() => {
     const el = scrollRef.current;
-    if (el) {
+    // Only auto-scroll if not disabled
+    if (el && Date.now() > disableAutoScrollUntil) {
       el.scrollTop = el.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, disableAutoScrollUntil]);
 
   if (status === 'LoadingFirstPage') {
     return (
@@ -87,7 +100,8 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                   <Message
                     message={message}
                     showAvatar={
-                      message.senderId !== messages[index - 1]?.senderId || message._creationTime - messages[index - 1]?._creationTime > MESSAGE_GROUPING_THRESHOLD
+                      message.senderId !== messages[index - 1]?.senderId ||
+                      message._creationTime - messages[index - 1]?._creationTime > MESSAGE_GROUPING_THRESHOLD
                     }
                     userId={userId}
                     replyingTo={replyingTo}
@@ -97,6 +111,9 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                     reactionPicker={reactionPicker}
                     setReactionPicker={setReactionPicker}
                     setViewReactionsFor={setViewReactionsFor}
+                    highlightedMessageId={highlightedMessageId}
+                    setHighlightedMessageId={setHighlightedMessageId}
+                    setDisableAutoScrollUntil={setDisableAutoScrollUntil}
                   />
                 </ContextMenuTrigger>
 

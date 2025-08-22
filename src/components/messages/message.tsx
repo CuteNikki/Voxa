@@ -31,6 +31,9 @@ export function Message({
   reactionPicker,
   setReactionPicker,
   setViewReactionsFor,
+  highlightedMessageId,
+  setHighlightedMessageId,
+  setDisableAutoScrollUntil,
 }: {
   message: {
     imageUrl?: string;
@@ -52,6 +55,9 @@ export function Message({
   reactionPicker?: string;
   setReactionPicker: (messageId?: string) => void;
   setViewReactionsFor: (messageId?: string) => void;
+  highlightedMessageId?: string;
+  setHighlightedMessageId: (messageId?: string) => void;
+  setDisableAutoScrollUntil: (timestamp: number) => void;
 }) {
   const [editingValue, setEditingValue] = useState(message.content ?? '');
 
@@ -70,10 +76,16 @@ export function Message({
   return (
     <div
       id={message._id}
-      className={`hover:bg-primary/10 focus:bg-primary/10 focus-within:bg-primary/10 ${message._id === replyingTo || message._id === editing || message._id === reactionPicker ? 'bg-primary/5 border-primary border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
+      className={`hover:bg-primary/15 focus:bg-primary/15 focus-within:bg-primary/15 ${message._id === replyingTo || message._id === editing || message._id === reactionPicker || message._id === highlightedMessageId ? 'bg-primary/10 border-primary border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
-        {message.reference && <MessageReference messageId={message.reference} />}
+        {message.reference && (
+          <MessageReference
+            messageId={message.reference}
+            setHighlightedMessageId={setHighlightedMessageId}
+            setDisableAutoScrollUntil={setDisableAutoScrollUntil}
+          />
+        )}
         <div className='flex flex-row gap-2'>
           {showAvatar ? (
             <Avatar>
@@ -308,7 +320,15 @@ function MessageReferenceSkeleton() {
   );
 }
 
-function MessageReference({ messageId }: { messageId: string }) {
+function MessageReference({
+  messageId,
+  setHighlightedMessageId,
+  setDisableAutoScrollUntil,
+}: {
+  messageId: string;
+  setHighlightedMessageId: (messageId?: string) => void;
+  setDisableAutoScrollUntil: (timestamp: number) => void;
+}) {
   const message = useQuery(api.messages.getMessageById, { messageId });
 
   if (message === undefined) return <MessageReferenceSkeleton />;
@@ -324,15 +344,28 @@ function MessageReference({ messageId }: { messageId: string }) {
   if (!message) return null;
 
   return (
-    <div className='flex flex-row items-center gap-2'>
+    <button
+      type='button'
+      onClick={() => {
+        const el = document.getElementById(messageId);
+        if (el) {
+          setDisableAutoScrollUntil(Date.now() + 1600);
+
+          el.focus();
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setHighlightedMessageId(messageId);
+        }
+      }}
+      className='group/ref flex w-fit cursor-pointer flex-row items-center gap-2'
+    >
       <CornerUpRightIcon className='text-muted-foreground ml-2.5 size-5' />
       <div className='flex flex-row items-center gap-1'>
         <ReferenceUser targetId={message.senderId} />
-        <span className='text-muted-foreground max-w-30 truncate text-sm italic sm:max-w-60 lg:max-w-90' title={message.content}>
+        <span className='text-muted-foreground max-w-30 truncate text-sm italic group-hover/ref:underline sm:max-w-60 lg:max-w-90' title={message.content}>
           {message.content}
         </span>
       </div>
-    </div>
+    </button>
   );
 }
 
