@@ -74,7 +74,6 @@ export const getOrCreateUser = mutation({
 
     const newUser = await ctx.db.insert('users', {
       clerkId: subject,
-      createdAt: Date.now(),
       ...userData,
     });
 
