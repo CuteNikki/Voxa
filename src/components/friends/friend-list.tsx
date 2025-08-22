@@ -5,33 +5,30 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 
 import { BaseSkeleton, FriendElement } from '@/components/friends/user';
+import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 
 export function FriendList({ userId }: { userId: string }) {
   const friendIds = useQuery(api.friends.getFriendIds, { userId });
 
-  if (friendIds === undefined) {
-    return (
-      <div className='p-2'>
-        <h2>Friend List</h2>
+  return (
+    <div className='flex flex-col gap-2'>
+      <TypographyLarge>Friends</TypographyLarge>
+      {friendIds === undefined ? (
         <ul className='flex flex-col gap-2'>
           {Array.from({ length: 3 }).map((_, index) => (
             <BaseSkeleton key={index} />
           ))}
         </ul>
-      </div>
-    );
-  }
-
-  return (
-    <div className='p-2'>
-      <h2>Friend List</h2>
-      <ul className='flex flex-col gap-2'>
-        {friendIds.map((id) => (
-          <FriendElement key={id} userId={userId} targetId={id} />
-        ))}
-      </ul>
-      {!friendIds.length && <TypographyMuted>No friends found.</TypographyMuted>}
+      ) : friendIds.length > 0 ? (
+        <ul className='flex flex-col gap-2'>
+          {friendIds.map((id) => (
+            <FriendElement key={id} userId={userId} targetId={id} />
+          ))}
+        </ul>
+      ) : (
+        <TypographyMuted>No friends found</TypographyMuted>
+      )}
     </div>
   );
 }
