@@ -188,7 +188,7 @@ export function ReactionDialogContent({
           {emojis.map((emoji) => (
             <button
               key={emoji}
-              className={`flex items-center gap-1 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1 border-b-2 px-3 py-2 text-sm font-medium transition-colors duration-300 ${
                 activeTab === emoji ? 'border-primary text-primary' : 'text-muted-foreground hover:text-primary border-transparent'
               }`}
               onClick={() => setActiveTab(emoji)}
