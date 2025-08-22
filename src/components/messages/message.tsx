@@ -115,6 +115,7 @@ export function Message({
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') {
                         setEditing(undefined);
+                        setEditingValue(message.content ?? '');
                         return;
                       }
 
@@ -125,33 +126,17 @@ export function Message({
 
                         if (!trimmedContent || trimmedContent === message.content) {
                           setEditing(undefined);
+                          setEditingValue(message.content ?? '');
                           return;
                         }
 
                         setEditing(undefined);
+                        setEditingValue(trimmedContent);
                         editMessage({ messageId: message._id, content: trimmedContent });
                       }
                     }}
-                    onBlur={(e) => {
-                      const trimmedContent = e.target.value.trim();
-
-                      if (!trimmedContent || trimmedContent === message.content) {
-                        setEditing(undefined);
-                        return;
-                      }
-
-                      setEditing(undefined);
-                      editMessage({ messageId: message._id, content: trimmedContent });
-                    }}
-                    className='no-scrollbar max-h-18 w-full resize-none pr-18 break-all whitespace-pre-line'
+                    className='no-scrollbar max-h-18 w-full resize-none break-all whitespace-pre-line'
                   />
-                  {editingValue.length >= MAX_MESSAGE_LENGTH_WARNING && (
-                    <span
-                      className={`absolute right-2 bottom-2 text-xs ${editingValue.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}
-                    >
-                      {editingValue.length}/{MAX_MESSAGE_LENGTH}
-                    </span>
-                  )}
                 </div>
               ) : (
                 <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
@@ -174,7 +159,7 @@ export function Message({
                 </div>
               )}
             </div>
-            {(message.reactions?.length ?? 0) > 0 && (
+            {(message.reactions?.length ?? 0) > 0 && !editing && (
               <div className='flex flex-row items-center gap-1 py-2'>
                 {Array.from(new Set(message.reactions?.map((r) => r.reaction))).map((uniqueReaction, index) => {
                   const userReacted = message.reactions?.some((r) => r.reaction === uniqueReaction && r.userId === userId);
@@ -193,6 +178,44 @@ export function Message({
                     </Button>
                   );
                 })}
+              </div>
+            )}
+            {editing === message._id && (
+              <div className='flex flex-row items-center gap-2'>
+                <Button
+                  variant='secondary'
+                  onClick={() => {
+                    setEditing(undefined);
+                    setEditingValue(message.content ?? '');
+                  }}
+                  className='mt-2 ml-2'
+                  size='sm'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    const trimmedContent = editingValue.trim();
+
+                    if (!trimmedContent || trimmedContent === message.content) {
+                      setEditing(undefined);
+                      return;
+                    }
+
+                    setEditing(undefined);
+                    editMessage({ messageId: message._id, content: trimmedContent });
+                  }}
+                  disabled={editingValue.length > MAX_MESSAGE_LENGTH}
+                  className='mt-2'
+                  size='sm'
+                >
+                  Save
+                </Button>
+                {editingValue.length >= MAX_MESSAGE_LENGTH_WARNING && (
+                  <span className={`text-xs ${editingValue.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    {editingValue.length}/{MAX_MESSAGE_LENGTH}
+                  </span>
+                )}
               </div>
             )}
           </div>
