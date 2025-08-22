@@ -180,7 +180,7 @@ function ChatDropdown({ targetUserId, userId, chatId }: { targetUserId: string; 
             <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align='end'>
           <DropdownMenuItem onSelect={() => window.navigator.clipboard.writeText(chatId)}>
             <ClipboardListIcon />
             Copy Channel ID
