@@ -33,7 +33,6 @@ export const sendRequest = mutation({
     return await ctx.db.insert('requests', {
       from: args.from,
       to: args.to,
-      createdAt: Date.now(),
     });
   },
 });
@@ -126,13 +125,11 @@ export const respondToRequest = mutation({
       await ctx.db.insert('friends', {
         userIdOne: request.from,
         userIdTwo: request.to,
-        createdAt: Date.now(),
       });
 
       await ctx.db.insert('chats', {
         userIdOne: request.from,
         userIdTwo: request.to,
-        createdAt: Date.now(),
       });
 
       await ctx.db.delete(request._id);

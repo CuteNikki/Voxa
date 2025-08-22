@@ -84,7 +84,7 @@ function GroupItem({
 }: {
   item: {
     _id: string;
-    createdAt: number;
+    _creationTime: number;
     members: { userId: string; lastReadAt?: number }[];
     name: string;
   };
@@ -109,7 +109,9 @@ function GroupItem({
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>No Messages</span>
               )}
             </div>
-            {lastMessage?.createdAt && <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage.createdAt)}</span>}
+            {lastMessage?._creationTime && (
+              <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage._creationTime)}</span>
+            )}
           </div>
           {activeMembers?.length > 0 && <Badge className='rounded-full'>{activeMembers.length}</Badge>}
         </Link>

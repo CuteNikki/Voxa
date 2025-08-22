@@ -27,7 +27,6 @@ export const createChat = mutation({
     return await ctx.db.insert('chats', {
       userIdOne: user.subject,
       userIdTwo: args.userId,
-      createdAt: Date.now(),
     });
   },
 });
@@ -52,7 +51,6 @@ export const createGroupChat = mutation({
       name: args.name,
       members: [],
       createdBy: args.userId,
-      createdAt: Date.now(),
     });
   },
 });
@@ -262,7 +260,7 @@ export const getUnreadMessages = query({
     return await ctx.db
       .query('messages')
       .withIndex('by_chatId', (q) => q.eq('chatId', chatId))
-      .filter((q) => q.gt(q.field('createdAt'), lastReadAt ?? 0))
+      .filter((q) => q.gt(q.field('_creationTime'), lastReadAt ?? 0))
       .collect();
   },
 });

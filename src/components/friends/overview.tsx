@@ -19,13 +19,14 @@ export function FriendsOverview({
 }) {
   const incomingRequests = useQuery(api.friends.getFriendRequests, { userId });
   const outgoingRequests = useQuery(api.friends.getSentRequests, { userId });
+  const friendIds = useQuery(api.friends.getFriendIds, { userId });
 
   return (
     <>
       <FriendsHeader groups={groups} activeTab={activeTab} setActiveTab={setActiveTab} requestCount={incomingRequests?.length} />
       <div>
         <div className='flex flex-col gap-2 p-3'>
-          {activeTab === 'Friends' && <FriendList userId={userId} />}
+          {activeTab === 'Friends' && <FriendList userId={userId} friendIds={friendIds} />}
           {activeTab === 'Requests' && <RequestList userId={userId} incomingRequests={incomingRequests} outgoingRequests={outgoingRequests} />}
         </div>
       </div>

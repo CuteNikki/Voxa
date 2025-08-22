@@ -7,7 +7,7 @@ export function EditMessageButton({
   editing,
   setEditing,
 }: {
-  message: { imageUrl?: string; content?: string; chatId: string; createdAt: number; senderId: string; _id: string };
+  message: { imageUrl?: string; content?: string; chatId: string; _creationTime: number; senderId: string; _id: string };
   editing?: string;
   setEditing: (messageId?: string) => void;
 }) {

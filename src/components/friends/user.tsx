@@ -23,6 +23,10 @@ export function FriendElement({ targetId, userId }: { targetId: string; userId: 
   const isFriend = useQuery(api.friends.isFriend, { userId: userId, targetId: targetId });
   const isPending = useQuery(api.friends.isPendingRequest, { userId: userId, targetId: targetId });
 
+  if (isFriend === undefined || isPending === undefined) {
+    return <BaseSkeleton />;
+  }
+
   return (
     <BaseUser targetId={targetId}>
       {targetId !== userId &&

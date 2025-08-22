@@ -8,14 +8,12 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     username: v.optional(v.string()),
     emailVerified: v.optional(v.boolean()),
-    createdAt: v.number(),
     isAdmin: v.optional(v.boolean()),
   }).index('by_clerkId', ['clerkId']),
 
   friends: defineTable({
     userIdOne: v.string(),
     userIdTwo: v.string(),
-    createdAt: v.number(),
   })
     .index('by_userIdOne', ['userIdOne'])
     .index('by_userIdTwo', ['userIdTwo']),
@@ -23,7 +21,6 @@ export default defineSchema({
   requests: defineTable({
     from: v.string(),
     to: v.string(),
-    createdAt: v.number(),
   })
     .index('by_to', ['to'])
     .index('by_from', ['from']),
@@ -33,7 +30,6 @@ export default defineSchema({
     userIdTwo: v.string(),
     userLastReadOne: v.optional(v.number()),
     userLastReadTwo: v.optional(v.number()),
-    createdAt: v.number(),
   })
     .index('by_userIdOne', ['userIdOne'])
     .index('by_userIdTwo', ['userIdTwo']),
@@ -47,7 +43,6 @@ export default defineSchema({
       }),
     ),
     createdBy: v.string(),
-    createdAt: v.number(),
   }),
 
   messages: defineTable({
@@ -58,7 +53,6 @@ export default defineSchema({
     editedAt: v.optional(v.number()),
     reactions: v.optional(v.array(v.object({ userId: v.string(), reaction: v.string(), createdAt: v.number() }))),
     reference: v.optional(v.string()), // (messageId) reference to the original message if this is a reply
-    createdAt: v.number(),
   }).index('by_chatId', ['chatId']),
 
   typing: defineTable({

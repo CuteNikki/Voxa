@@ -90,7 +90,7 @@ function UserItem({
 }: {
   item: {
     _id: string;
-    createdAt: number;
+    _creationTime: number;
     userIdOne: string;
     userIdTwo: string;
   };
@@ -124,7 +124,9 @@ function UserItem({
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>No Messages</span>
               )}
             </div>
-            {lastMessage?.createdAt && <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage.createdAt)}</span>}
+            {lastMessage?._creationTime && (
+              <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage._creationTime)}</span>
+            )}
           </div>
           {/* Stop flickering by only showing the badge when you're not in the channel already */}
           {unreadMessages && unreadMessages.length > 0 && lastMessage?.senderId !== currentUserId && item._id !== window.location.pathname.split('/').pop() && (

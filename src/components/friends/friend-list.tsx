@@ -1,16 +1,10 @@
 'use client';
 
-import { useQuery } from 'convex/react';
-
-import { api } from '../../../convex/_generated/api';
-
 import { BaseSkeleton, FriendElement } from '@/components/friends/user';
 import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 
-export function FriendList({ userId }: { userId: string }) {
-  const friendIds = useQuery(api.friends.getFriendIds, { userId });
-
+export function FriendList({ userId, friendIds }: { userId: string; friendIds?: string[] }) {
   return (
     <div className='flex flex-col gap-2'>
       <TypographyLarge>Friends</TypographyLarge>

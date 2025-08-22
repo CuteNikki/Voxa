@@ -36,12 +36,12 @@ export function Message({
     imageUrl?: string;
     content?: string;
     chatId: string;
-    createdAt: number;
     senderId: string;
     _id: string;
     editedAt?: number;
     reactions?: { userId: string; reaction: string; createdAt: number }[];
     reference?: string;
+    _creationTime: number;
   };
   showAvatar?: boolean;
   userId: string;
@@ -284,7 +284,7 @@ export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean })
           <div className='flex justify-between'>
             <Skeleton className='leading-tight font-semibold capitalize'>Unknown User</Skeleton>
             <div className='flex items-center gap-2'>
-              <MessageTimestamp message={{ createdAt: 0 }} />
+              <MessageTimestamp message={{ _creationTime: 0 }} />
             </div>
           </div>
         )}

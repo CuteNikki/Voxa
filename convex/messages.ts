@@ -37,7 +37,6 @@ export const sendGroupMessage = mutation({
 
     return await ctx.db.insert('messages', {
       ...args,
-      createdAt: Date.now(),
       senderId: user.subject,
     });
   },
@@ -101,7 +100,6 @@ export const sendChatMessage = mutation({
       chatId: args.chatId,
       content: args.content?.trim() || '',
       imageUrl: args.imageUrl,
-      createdAt: Date.now(),
       senderId: user.subject,
       reference: args.reference,
     });
@@ -314,7 +312,6 @@ export const sendMessage = mutation({
       chatId: args.chatId,
       content: args.content?.trim() || '',
       imageUrl: args.imageUrl,
-      createdAt: Date.now(),
       senderId: user.subject,
     });
   },

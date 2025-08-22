@@ -2,7 +2,7 @@ import { cn, formatMessageTimestamp } from '@/lib/utils';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-export function MessageTimestamp({ message, className }: { message: { createdAt: number; editedAt?: number }; className?: string }) {
+export function MessageTimestamp({ message, className }: { message: { _creationTime: number; editedAt?: number }; className?: string }) {
   return (
     <>
       {message.editedAt && (
@@ -11,7 +11,7 @@ export function MessageTimestamp({ message, className }: { message: { createdAt:
           <TooltipContent>Edited at {formatMessageTimestamp(message.editedAt)}</TooltipContent>
         </Tooltip>
       )}
-      <div className={cn('text-muted-foreground text-sm', className)}>{formatMessageTimestamp(message.createdAt)}</div>
+      <div className={cn('text-muted-foreground text-sm', className)}>{formatMessageTimestamp(message._creationTime)}</div>
     </>
   );
 }

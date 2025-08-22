@@ -44,7 +44,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   }, []);
 
   useEffect(() => {
-    const userLastRead = messages[messages.length - 1]?.createdAt ?? Date.now();
+    const userLastRead = messages[messages.length - 1]?._creationTime ?? Date.now();
     setLastRead({ chatId, lastReadAt: userLastRead, isGroup });
   }, [messages, chatId, isGroup, setLastRead]);
 
@@ -87,7 +87,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                   <Message
                     message={message}
                     showAvatar={
-                      message.senderId !== messages[index - 1]?.senderId || message.createdAt - messages[index - 1]?.createdAt > MESSAGE_GROUPING_THRESHOLD
+                      message.senderId !== messages[index - 1]?.senderId || message._creationTime - messages[index - 1]?._creationTime > MESSAGE_GROUPING_THRESHOLD
                     }
                     userId={userId}
                     replyingTo={replyingTo}
