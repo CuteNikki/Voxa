@@ -1,25 +1,29 @@
 'use client';
 
-import { useQuery } from 'convex/react';
-
-import { api } from '../../../convex/_generated/api';
+import { Doc } from '../../../convex/_generated/dataModel';
 
 import { BaseSkeleton, OutgoingRequestUser, ReceivedRequestUser } from '@/components/friends/user';
 import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 
-export function RequestList({ userId }: { userId: string }) {
+export function RequestList({
+  userId,
+  incomingRequests,
+  outgoingRequests,
+}: {
+  userId: string;
+  incomingRequests?: Doc<'requests'>[];
+  outgoingRequests?: Doc<'requests'>[];
+}) {
   return (
     <div className='flex flex-col gap-6'>
-      <IncomingRequests userId={userId} />
-      <OutgoingRequests userId={userId} />
+      <IncomingRequests userId={userId} incomingRequests={incomingRequests} />
+      <OutgoingRequests userId={userId} outgoingRequests={outgoingRequests} />
     </div>
   );
 }
 
-function IncomingRequests({ userId }: { userId: string }) {
-  const incomingRequests = useQuery(api.friends.getFriendRequests, { userId });
-
+function IncomingRequests({ userId, incomingRequests }: { userId: string; incomingRequests?: Doc<'requests'>[] }) {
   return (
     <div className='flex flex-col gap-2'>
       <TypographyLarge>Incoming</TypographyLarge>
@@ -42,9 +46,7 @@ function IncomingRequests({ userId }: { userId: string }) {
   );
 }
 
-function OutgoingRequests({ userId }: { userId: string }) {
-  const outgoingRequests = useQuery(api.friends.getSentRequests, { userId });
-
+function OutgoingRequests({ userId, outgoingRequests }: { userId: string; outgoingRequests?: Doc<'requests'>[] }) {
   return (
     <div className='flex flex-col gap-2'>
       <TypographyLarge>Outgoing</TypographyLarge>

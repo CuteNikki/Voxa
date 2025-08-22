@@ -3,9 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
 
-import { FriendList } from '@/components/friends/friend-list';
-import { FriendsHeader } from '@/components/friends/friends-header';
-import { RequestList } from '@/components/friends/request-list';
+import { FriendsOverview } from '@/components/friends/overview';
 
 export default function Page() {
   const { user } = useUser();
@@ -21,15 +19,5 @@ export default function Page() {
     return null;
   }
 
-  return (
-    <>
-      <FriendsHeader groups={groups} activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div>
-        <div className='flex flex-col gap-2 p-3'>
-          {activeTab === 'Friends' && <FriendList userId={user.id} />}
-          {activeTab === 'Requests' && <RequestList userId={user.id} />}
-        </div>
-      </div>
-    </>
-  );
+  return <FriendsOverview activeTab={activeTab} userId={user.id} groups={groups} setActiveTab={setActiveTab} />;
 }
