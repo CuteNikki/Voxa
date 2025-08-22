@@ -13,6 +13,25 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Enum for presence text states.
+ * Used to display user presence status in the UI.
+ */
+export enum PresenceText {
+  Online = 'Online',
+  LastSeen = 'Last seen',
+  Offline = 'Offline',
+}
+
+/**
+ * Returns the presence text based on the type.
+ * @param type The presence text type.
+ * @returns The corresponding presence text.
+ */
+export function getPresenceText(type: PresenceText) {
+  return type; // Might return localized text in the future
+}
+
+/**
  * Checks if the user is online based on the last seen timestamp.
  * @param timestamp The last seen timestamp of the user.
  * @returns True if the user is online, false otherwise.

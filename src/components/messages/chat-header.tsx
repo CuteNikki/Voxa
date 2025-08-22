@@ -10,7 +10,7 @@ import { EllipsisVertical, Trash2Icon, UserMinus2Icon } from 'lucide-react';
 import { api } from '../../../convex/_generated/api';
 import { Doc } from '../../../convex/_generated/dataModel';
 
-import { formatPresenceTimestamp, isOnline } from '@/lib/utils';
+import { formatPresenceTimestamp, getPresenceText, isOnline, PresenceText } from '@/lib/utils';
 
 import {
   AlertDialog,
@@ -121,7 +121,9 @@ function UserDetails({ targetId }: { targetId: string }) {
   }
 
   const online = isOnline(targetUserPresence.lastSeen);
-  const formatted = online ? 'Online' : 'Last Seen ' + formatPresenceTimestamp(targetUserPresence.lastSeen);
+  const formatted = online
+    ? getPresenceText(PresenceText.Online)
+    : getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(targetUserPresence.lastSeen ?? 0);
 
   return (
     <div className='flex flex-row items-center gap-1 pl-1 sm:gap-2 sm:pl-2'>
@@ -140,7 +142,7 @@ function UserDetails({ targetId }: { targetId: string }) {
           {targetUserPresence ? (
             <span className={`text-muted-foreground text-xs leading-tight ${online ? 'text-green-500' : ''}`}>{formatted}</span>
           ) : (
-            <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatPresenceTimestamp(0)}</Skeleton>
+            <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatted}</Skeleton>
           )}
         </div>
       </div>
