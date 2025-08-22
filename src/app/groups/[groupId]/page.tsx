@@ -1,21 +1,24 @@
-import { auth } from '@clerk/nextjs/server';
+'use client';
+
+import { useUser } from '@clerk/nextjs';
+import { useParams } from 'next/navigation';
 
 import { ChatHeader } from '@/components/messages/chat-header';
 import { MessageContainer } from '@/components/messages/container';
 
-export default async function ChatPage({ params }: { params: Promise<{ groupId: string }> }) {
-  const { groupId } = await params;
+export default function GroupPage() {
+  const { groupId } = useParams<{ groupId: string }>();
 
-  const { userId } = await auth();
+  const { user } = useUser();
 
-  if (!userId) {
+  if (!user?.id) {
     return;
   }
 
   return (
     <>
       <ChatHeader chatId={groupId} />
-      <MessageContainer chatId={groupId} userId={userId} />
+      <MessageContainer chatId={groupId} userId={user.id} />
     </>
   );
 }
