@@ -5,7 +5,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { EllipsisVertical, Trash2Icon, UserMinus2Icon } from 'lucide-react';
+import { ClipboardCopyIcon, ClipboardListIcon, EllipsisVertical, Trash2Icon, UserMinus2Icon } from 'lucide-react';
 
 import { api } from '../../../convex/_generated/api';
 import { Doc } from '../../../convex/_generated/dataModel';
@@ -24,7 +24,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -78,7 +85,7 @@ export function ChatHeader({ chatId }: { chatId: string }) {
     isGroup || !isChat(channel) ? null : (
       <div className='flex items-center gap-1'>
         <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-        <UserDropdown targetUserId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />
+        <ChatDropdown targetUserId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} chatId={chatId} userId={user.id} />
       </div>
     );
 
@@ -150,7 +157,7 @@ function UserDetails({ targetId }: { targetId: string }) {
   );
 }
 
-function UserDropdown({ targetUserId, userId, chatId }: { targetUserId: string; userId: string; chatId: string }) {
+function ChatDropdown({ targetUserId, userId, chatId }: { targetUserId: string; userId: string; chatId: string }) {
   const [clearAlertOpen, setClearAlertOpen] = useState(false);
   const [removeAlertOpen, setRemoveAlertOpen] = useState(false);
 
@@ -174,6 +181,16 @@ function UserDropdown({ targetUserId, userId, chatId }: { targetUserId: string; 
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          <DropdownMenuItem onSelect={() => window.navigator.clipboard.writeText(chatId)}>
+            <ClipboardListIcon />
+            Copy Channel ID
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => window.navigator.clipboard.writeText(targetUserId)}>
+            <ClipboardCopyIcon />
+            Copy User ID
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem variant='destructive' onSelect={() => setClearAlertOpen(true)}>
               <Trash2Icon />
