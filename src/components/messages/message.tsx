@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function Message({
   message,
@@ -29,6 +30,7 @@ export function Message({
   setEditing,
   reactionPicker,
   setReactionPicker,
+  setViewReactionsFor,
 }: {
   message: {
     imageUrl?: string;
@@ -49,6 +51,7 @@ export function Message({
   setEditing: (messageId?: string) => void;
   reactionPicker?: string;
   setReactionPicker: (messageId?: string) => void;
+  setViewReactionsFor: (messageId?: string) => void;
 }) {
   const [editingValue, setEditingValue] = useState(message.content ?? '');
 
@@ -162,20 +165,51 @@ export function Message({
             {(message.reactions?.length ?? 0) > 0 && !editing && (
               <div className='flex flex-row items-center gap-1 py-2'>
                 {Array.from(new Set(message.reactions?.map((r) => r.reaction))).map((uniqueReaction, index) => {
-                  const userReacted = message.reactions?.some((r) => r.reaction === uniqueReaction && r.userId === userId);
+                  const reactions = message.reactions?.filter((r) => r.reaction === uniqueReaction);
+                  const userReacted = reactions?.find((r) => r.userId === userId);
+
                   return (
-                    <Button
-                      key={`message-${message._id}-reaction-${index}`}
-                      variant={userReacted ? 'default' : 'secondary'}
-                      size='sm'
-                      onClick={() =>
-                        userReacted
-                          ? removeReaction({ messageId: message._id, reaction: uniqueReaction })
-                          : addReaction({ messageId: message._id, reaction: uniqueReaction })
-                      }
-                    >
-                      {uniqueReaction} <span className='font-mono'>{message.reactions?.filter((r) => r.reaction === uniqueReaction).length}</span>
-                    </Button>
+                    <Tooltip key={`message-${message._id}-reaction-${index}`}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={userReacted ? 'default' : 'secondary'}
+                          size='sm'
+                          onClick={() =>
+                            userReacted
+                              ? removeReaction({ messageId: message._id, reaction: uniqueReaction })
+                              : addReaction({ messageId: message._id, reaction: uniqueReaction })
+                          }
+                        >
+                          {uniqueReaction} <span className='font-mono'>{reactions?.length}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent variant='secondary' onClick={() => setViewReactionsFor(message._id)} className='group hover:cursor-pointer'>
+                        <span className='text-xs'>
+                          {uniqueReaction} reacted by{' '}
+                          {(() => {
+                            const maxNames = 3;
+                            const names = reactions?.slice(0, maxNames) ?? [];
+                            const othersCount = (reactions?.length ?? 0) - names.length;
+                            return (
+                              <span className='text-primary group-hover:underline'>
+                                {names.map((r, i) => (
+                                  <span key={`message-${message._id}-reaction-${i}-user-${r.userId}-name`}>
+                                    <ReactionName userId={r.userId} />
+                                    {i < names.length - 1 && ', '}
+                                  </span>
+                                ))}
+                                {othersCount > 0 && (
+                                  <span>
+                                    {' '}
+                                    and {othersCount} other{othersCount > 1 ? 's' : ''}
+                                  </span>
+                                )}
+                              </span>
+                            );
+                          })()}
+                        </span>
+                      </TooltipContent>
+                    </Tooltip>
                   );
                 })}
               </div>
@@ -223,6 +257,14 @@ export function Message({
       </div>
     </div>
   );
+}
+
+function ReactionName({ userId }: { userId: string }) {
+  const user = useQuery(api.users.getUser, { clerkId: userId });
+
+  if (!user) return <span>Unknown User</span>;
+
+  return <span className='capitalize'>{user.username}</span>;
 }
 
 export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean }) {

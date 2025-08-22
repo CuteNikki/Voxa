@@ -96,6 +96,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                     setEditing={setEditing}
                     reactionPicker={reactionPicker}
                     setReactionPicker={setReactionPicker}
+                    setViewReactionsFor={setViewReactionsFor}
                   />
                 </ContextMenuTrigger>
 
