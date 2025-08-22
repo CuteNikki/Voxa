@@ -77,7 +77,7 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
 
   return (
     <li className='bg-accent/70 hover:bg-primary/20 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors duration-300'>
-      <div className='flex flex-row items-center gap-2 md:gap-4'>
+      <div className='flex flex-row items-center gap-2 xl:gap-4'>
         <Avatar className='size-10'>
           <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
           <AvatarFallback>{target.username ? target.username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
