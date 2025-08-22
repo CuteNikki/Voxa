@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 import { auth } from '@clerk/nextjs/server';
 import { fetchMutation } from 'convex/nextjs';
 
@@ -19,7 +21,7 @@ export async function CreateGroupChat() {
         action={async () => {
           'use server';
 
-          await fetchMutation(api.chats.createGroupChat, { name: 'New Group Chat', userId });
+          await fetchMutation(api.chats.createGroupChat, { name: randomUUID(), userId });
         }}
       >
         <Button className='mt-4' type='submit'>
