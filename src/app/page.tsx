@@ -4,8 +4,6 @@ import Image from 'next/image';
 
 import { SignInButton, useUser } from '@clerk/nextjs';
 
-import { FriendList } from '@/components/friends/friend-list';
-import { RequestList } from '@/components/friends/request-list';
 import { UserList } from '@/components/friends/user-list';
 import { ThemeToggle } from '@/components/theme/toggle';
 import { TypographyH1 } from '@/components/typography/h1';
@@ -30,8 +28,6 @@ export default function Home() {
       <main className='row-start-2 flex flex-col items-center gap-[32px] sm:items-start'>
         {user?.id ? (
           <div className='flex w-full max-w-md flex-col gap-8'>
-            <FriendList userId={user.id} />
-            <RequestList userId={user.id} />
             <UserList userId={user.id} />
           </div>
         ) : (
