@@ -6,39 +6,43 @@ import { mutation, query } from './_generated/server';
 export const getTypingUsers = query({
   args: { chatId: v.string() },
   handler: async (ctx, args) => {
-    const now = Date.now();
-    const activeThreshold = now - TYPING_THRESHOLD;
-
-    const all = await ctx.db
+    return await ctx.db
       .query('typing')
       .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
+      .filter((q) => q.and(q.gt(q.field('updatedAt'), Date.now() - TYPING_THRESHOLD), q.eq(q.field('typing'), true)))
       .collect();
-
-    return all.filter((entry) => entry.typing && entry.updatedAt > activeThreshold);
   },
 });
 
 export const setTyping = mutation({
   args: {
     chatId: v.string(),
-    userId: v.string(),
     typing: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const existing = await ctx.db
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const typingUsers = await ctx.db
       .query('typing')
       .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
       .collect();
 
-    const found = existing.find((entry) => entry.userId === args.userId);
-    if (found) {
-      await ctx.db.patch(found._id, {
+    const typingUserExists = typingUsers.find((entry) => entry.userId === user.subject);
+
+    if (typingUserExists) {
+      await ctx.db.patch(typingUserExists._id, {
         typing: args.typing,
         updatedAt: Date.now(),
       });
     } else {
       await ctx.db.insert('typing', {
-        ...args,
+        chatId: args.chatId,
+        userId: user.subject,
+        typing: args.typing,
         updatedAt: Date.now(),
       });
     }

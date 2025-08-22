@@ -1,6 +1,4 @@
-'use client';
-
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { useEffect, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
@@ -10,67 +8,92 @@ import { SendHorizontalIcon, SmileIcon } from 'lucide-react';
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
 
 import { ReplyHeader } from '@/components/messages/reply-header';
+import { TypingHeader } from '@/components/messages/typing-header';
 import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 
 export function ChatInput({
+  userId,
   chatId,
   replyingTo,
   setReplyingTo,
   disabled,
   isGroup,
 }: {
+  userId: string;
   chatId: string;
   replyingTo?: string;
   setReplyingTo: (messageId?: string) => void;
   disabled?: boolean;
   isGroup?: boolean;
 }) {
+  // States
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [value, setValue] = useState('');
+  // References
   const areaRef = useRef<HTMLTextAreaElement>(null);
-
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Mutations and Queries
   const sendMessage = useMutation(api.messages.sendChatMessage);
+  const setTyping = useMutation(api.typing.setTyping);
+  const typingUsers = useQuery(api.typing.getTypingUsers, { chatId })?.filter((u) => u.userId !== userId);
+  // Utility variables
+  const someoneTyping = typingUsers && typingUsers.length > 0;
+  const inputBg = replyingTo || someoneTyping ? 'bg-muted' : '';
 
+  // Effects
   useEffect(() => {
-    if (areaRef.current) {
-      areaRef.current.focus();
-    }
+    if (areaRef.current) areaRef.current.focus();
   }, [disabled, replyingTo]);
 
+  useEffect(() => {
+    const handleBeforeUnload = () => setTyping({ chatId, typing: false });
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      setTyping({ chatId, typing: false });
+    };
+  }, [chatId, setTyping]);
+
+  // Handles
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
+    setTyping({ chatId, typing: true });
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => setTyping({ chatId, typing: false }), 2000);
   };
 
   const handleSend = async () => {
-    const trimmed = value.trim();
-    if (!trimmed) return;
-    await sendMessage({ chatId, content: trimmed, reference: replyingTo, isGroup });
-    setValue(''); // Clear the input after sending
-    setReplyingTo(undefined); // Clear the replying state after sending
+    if (!value.trim) return;
+    setValue('');
+    setReplyingTo(undefined);
+    await sendMessage({ chatId, content: value, reference: replyingTo, isGroup });
+    await setTyping({ chatId, typing: false });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Escape') {
-      setReplyingTo(undefined);
-      return;
+      return setReplyingTo(undefined);
     }
 
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-
+      e.preventDefault(); // Prevent submitting the form
+      // Check if the message is valid
       if (!value.trim() || value.length > MAX_MESSAGE_LENGTH) return;
-
-      handleSend();
+      return handleSend(); // Send the message
     }
   };
 
   return (
     <div className='relative'>
-      {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} />}
-      <div className={`${replyingTo ? 'bg-muted' : 'bg-background'} flex w-full flex-row items-center gap-2 p-2 pt-0`}>
+      {typingUsers && <TypingHeader typingUsers={typingUsers} />}
+      {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={someoneTyping} />}
+      <div className={`${inputBg} flex w-full flex-row items-center gap-2 p-2 pt-0`}>
         <Textarea
           ref={areaRef}
           autoFocus
@@ -78,7 +101,7 @@ export function ChatInput({
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder='Your Message'
-          className='no-scrollbar z-40 max-h-18 resize-none py-3 pr-22'
+          className='no-scrollbar !bg-background z-40 max-h-18 resize-none py-3 pr-22'
           disabled={disabled}
         />
         {value.length >= MAX_MESSAGE_LENGTH_WARNING && (
@@ -98,7 +121,6 @@ export function ChatInput({
                 className='h-[342px]'
                 onEmojiSelect={({ emoji }) => {
                   setEmojiPickerOpen(false);
-                  // Add space before emoji if not already present and the emoji isn't at the start of the message
                   setValue((prev) => prev + (prev.length > 0 && prev[prev.length - 1] !== ' ' ? ' ' + emoji : emoji));
                 }}
               >

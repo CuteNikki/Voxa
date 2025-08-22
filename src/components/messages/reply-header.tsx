@@ -6,12 +6,20 @@ import { api } from '../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
 
-export function ReplyHeader({ messageId, setReplyingTo }: { messageId: string; setReplyingTo: (messageId?: string) => void }) {
+export function ReplyHeader({
+  messageId,
+  setReplyingTo,
+  roundCorners,
+}: {
+  messageId: string;
+  roundCorners?: boolean;
+  setReplyingTo: (messageId?: string) => void;
+}) {
   const message = useQuery(api.messages.getMessageById, { messageId });
 
   if (!message) {
     return (
-      <div className='bg-muted w-full rounded-tl-md rounded-tr-md'>
+      <div className={`bg-muted relative w-full ${roundCorners ? 'rounded-tl-md rounded-tr-md' : 'rounded-none'}`}>
         <div className='flex items-center gap-2 p-2 px-4'>
           <span className='shrink-0 text-sm font-semibold'>
             Replying to <span className='capitalize'>unknown user</span>:
@@ -32,7 +40,7 @@ export function ReplyHeader({ messageId, setReplyingTo }: { messageId: string; s
   }
 
   return (
-    <div className='bg-muted w-full rounded-tl-md rounded-tr-md'>
+    <div className={`bg-muted relative w-full ${roundCorners ? 'rounded-tl-md rounded-tr-md' : 'rounded-none'}`}>
       <div className='flex items-center gap-2 p-2 px-4'>
         <ReplyHeaderUser targetId={message.senderId} />
 

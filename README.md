@@ -51,7 +51,7 @@
     - [x] Scroll to messages if reference is clicked
 - [x] User presence view (online/offline)
 - [x] Unread messages indicator
-- [ ] Typing indicator
+- [x] Typing indicator
 - [ ] Drag-and-drop upload UX
 
 ---

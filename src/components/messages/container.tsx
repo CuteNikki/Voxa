@@ -79,7 +79,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
           </div>
         </div>
 
-        <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} disabled />
+        <ChatInput userId={userId} chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} disabled />
       </div>
     );
   }
@@ -166,7 +166,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
         </Dialog>
       )}
 
-      <ChatInput chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} isGroup={isGroup} />
+      <ChatInput userId={userId} chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} isGroup={isGroup} />
     </div>
   );
 }
