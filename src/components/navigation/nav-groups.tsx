@@ -113,7 +113,9 @@ function GroupItem({
                   {lastMessage.content.slice(0, 20)}
                 </span>
               ) : (
-                <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>No Messages</span>
+                <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
+                  {lastMessage?.imageUrl ? (lastMessage.senderId === currentUserId ? 'You: image 🖼️' : 'image 🖼️') : 'No messages'}
+                </span>
               )}
             </div>
             {lastMessage?._creationTime && (
