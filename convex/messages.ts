@@ -3,7 +3,7 @@ import { v } from 'convex/values';
 import { paginationOptsValidator } from 'convex/server';
 import { mutation, query } from './_generated/server';
 
-import { MAX_MESSAGE_LENGTH } from '../src/constants/limits';
+import { MAX_MESSAGE_LENGTH, MAX_UNIQUE_REACTIONS } from '../src/constants/limits';
 
 export const sendGroupMessage = mutation({
   args: {
@@ -222,6 +222,11 @@ export const addReaction = mutation({
 
     if (!message) {
       throw new Error('Message not found');
+    }
+
+    const uniqueEmojis = new Set((message.reactions || []).map((r) => r.reaction));
+    if (!uniqueEmojis.has(reaction) && uniqueEmojis.size >= MAX_UNIQUE_REACTIONS) {
+      throw new Error('Maximum of 6 unique emojis per message');
     }
 
     const existingReaction = message.reactions?.find((r) => r.userId === user.subject && r.reaction === reaction);
