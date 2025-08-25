@@ -18,9 +18,9 @@ import PresenceSyncClient from '@/components/presence';
 
 import { AppSidebar } from '@/components/navigation/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Toaster } from '@/components/ui/sonner';
 
 import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Toaster />
+        <Toaster richColors position='top-center' />
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <ClerkProvider appearance={{ baseTheme: shadcn }}>
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
