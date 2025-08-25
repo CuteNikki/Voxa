@@ -92,7 +92,7 @@ export function ChatInput({
   return (
     <div className='relative'>
       {typingUsers && <TypingHeader typingUsers={typingUsers} />}
-      {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={someoneTyping} />}
+      {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={!someoneTyping} />}
       <div className={`${inputBg} flex w-full flex-row items-center gap-2 p-2 pt-0`}>
         <Textarea
           ref={areaRef}
