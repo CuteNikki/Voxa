@@ -77,7 +77,7 @@ export function Message({
   return (
     <div
       id={message._id}
-      className={`hover:bg-primary/15 focus:bg-primary/15 focus-within:bg-primary/15 ${message._id === replyingTo || message._id === editing || message._id === reactionPicker || message._id === highlightedMessageId ? 'bg-primary/10 border-primary border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
+      className={`hover:bg-accent/40 focus:bg-accent/40 focus-within:bg-accent/40 ${message._id === replyingTo || message._id === editing || message._id === reactionPicker || message._id === highlightedMessageId ? 'bg-accent/30 border-primary border-l-4' : ''} group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'pt-2 pb-1' : 'pt-1 pb-1'}`}
     >
       <div className='flex flex-1 flex-col gap-2'>
         {message.reference && (
