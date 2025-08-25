@@ -14,10 +14,10 @@ export function usePresenceSync() {
     if (!user) return;
 
     const interval = setInterval(() => {
-      updatePresence();
+      updatePresence().catch(console.error);
     }, ONLINE_UPDATE_INTERVAL);
 
-    updatePresence();
+    updatePresence().catch(console.error);
 
     return () => clearInterval(interval);
   }, [user, updatePresence]);

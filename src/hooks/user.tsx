@@ -12,7 +12,7 @@ export function UserSyncer() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      getOrCreateUser();
+      getOrCreateUser().catch(console.error);
     }
   }, [getOrCreateUser, isLoaded, user]);
 

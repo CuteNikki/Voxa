@@ -41,7 +41,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setLastRead({ chatId, lastReadAt: Date.now(), isGroup });
+      setLastRead({ chatId, lastReadAt: Date.now(), isGroup }).catch(console.error);
     }, LAST_READ_UPDATE_INTERVAL);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,7 +49,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
 
   useEffect(() => {
     const userLastRead = messages[messages.length - 1]?._creationTime ?? Date.now();
-    setLastRead({ chatId, lastReadAt: userLastRead, isGroup });
+    setLastRead({ chatId, lastReadAt: userLastRead, isGroup }).catch(console.error);
   }, [messages, chatId, isGroup, setLastRead]);
 
   useEffect(() => {
@@ -143,7 +143,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                       <ContextMenuItem onSelect={() => setEditing(message._id)}>
                         <PencilIcon /> Edit Message
                       </ContextMenuItem>
-                      <ContextMenuItem variant='destructive' onSelect={() => deleteMessage({ messageId: message._id })}>
+                      <ContextMenuItem variant='destructive' onSelect={() => deleteMessage({ messageId: message._id }).catch(console.error)}>
                         <Trash2Icon /> Delete Message
                       </ContextMenuItem>
                       <ContextMenuSeparator />

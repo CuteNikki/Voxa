@@ -24,7 +24,7 @@ export function DeleteMessageButton({ messageId }: { messageId: string }) {
   const deleteMessage = useMutation(api.messages.deleteMessage);
 
   const handleDelete = async () => {
-    await deleteMessage({ messageId });
+    await deleteMessage({ messageId }).catch(console.error);
   };
 
   return (

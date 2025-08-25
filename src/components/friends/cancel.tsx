@@ -15,7 +15,7 @@ export function CancelRequestButton({ targetId, userId }: { targetId: string; us
       size='icon'
       title='Cancel friend request'
       aria-label='Cancel friend request'
-      onClick={async () => respondToRequest({ targetId, userId, response: 'decline' })}
+      onClick={async () => respondToRequest({ targetId, userId, response: 'decline' }).catch(console.error)}
     >
       <XIcon />
     </Button>

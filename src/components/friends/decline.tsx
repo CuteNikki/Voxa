@@ -17,7 +17,7 @@ export function DeclineRequestButton({ targetId, userId }: { targetId: string; u
       size='icon'
       title='Decline friend request'
       aria-label='Decline friend request'
-      onClick={() => respondToRequest({ userId, targetId, response: 'decline' })}
+      onClick={() => respondToRequest({ userId, targetId, response: 'decline' }).catch(console.error)}
     >
       <XIcon />
     </Button>

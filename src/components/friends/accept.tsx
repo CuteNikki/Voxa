@@ -14,7 +14,7 @@ export function AcceptRequestButton({ targetId, userId }: { targetId: string; us
       size='icon'
       title='Accept friend request'
       aria-label='Accept friend request'
-      onClick={async () => respondToRequest({ targetId, userId, response: 'accept' })}
+      onClick={async () => respondToRequest({ targetId, userId, response: 'accept' }).catch(console.error)}
     >
       <CheckIcon />
     </Button>

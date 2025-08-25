@@ -167,7 +167,7 @@ export function Message({
 
                         setEditing(undefined);
                         setEditingValue(trimmedContent);
-                        editMessage({ messageId: message._id, content: trimmedContent });
+                        editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);;
                       }
                     }}
                     className='no-scrollbar max-h-18 w-full resize-none break-all whitespace-pre-line'
@@ -221,8 +221,8 @@ export function Message({
                           size='sm'
                           onClick={() =>
                             userReacted
-                              ? removeReaction({ messageId: message._id, reaction: uniqueReaction })
-                              : addReaction({ messageId: message._id, reaction: uniqueReaction })
+                              ? removeReaction({ messageId: message._id, reaction: uniqueReaction }).catch(console.error)
+                              : addReaction({ messageId: message._id, reaction: uniqueReaction }).catch(console.error)
                           }
                         >
                           {uniqueReaction} <span className='font-mono'>{reactions?.length}</span>
@@ -282,7 +282,7 @@ export function Message({
                     }
 
                     setEditing(undefined);
-                    editMessage({ messageId: message._id, content: trimmedContent });
+                    editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);
                   }}
                   disabled={editingValue.length > MAX_MESSAGE_LENGTH}
                   className='mt-2'

@@ -74,8 +74,8 @@ export function ChatInput({
     if (!value.trim || isUploading) return;
     setValue('');
     setReplyingTo(undefined);
-    await sendMessage({ chatId, content: value, reference: replyingTo, isGroup });
-    await setTyping({ chatId, typing: false });
+    await sendMessage({ chatId, content: value, reference: replyingTo, isGroup }).catch(console.error);;
+    await setTyping({ chatId, typing: false }).catch(console.error);;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

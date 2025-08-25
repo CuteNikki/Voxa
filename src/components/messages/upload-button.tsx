@@ -40,7 +40,7 @@ export function UploadButton({
         reference,
         imageUrl: res[0].ufsUrl,
         content: value,
-      });
+      }).catch(console.error);
       setValue('');
       setReference(undefined);
       setUploading(false);
