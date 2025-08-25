@@ -52,7 +52,7 @@ export function UploadButton({
       console.error(e);
     },
     onUploadBegin: (fileName) => {
-      toast.info('Uploading image...', { description: `Uploading ${fileName}` });
+      toast.info('Uploading...', { description: `Uploading image ${fileName}` });
       setUploading(true);
     },
   });
@@ -80,7 +80,7 @@ export function UploadButton({
             const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
             if (selectedFiles.length > 0 && !uploading) {
               if (selectedFiles[0].size > MAX_IMAGE_SIZE_BYTES) {
-                toast.error('File too large', { description: `Max size is ${MAX_IMAGE_SIZE_MB}MB` });
+                toast.error('Failed to upload image', { description: `The image is too big! Max file size is ${MAX_IMAGE_SIZE_MB}MB` });
                 e.target.value = '';
                 return;
               }
