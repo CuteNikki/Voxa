@@ -97,12 +97,8 @@ export function formatSidebarTimestamp(timestamp: number) {
   const date = new Date(timestamp);
 
   if (isToday(date)) return getTimeString(date);
-  return date.toLocaleDateString([], {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+
+  return date.toLocaleDateString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
 /**
@@ -122,13 +118,8 @@ export function formatPresenceTimestamp(timestamp?: number): string {
 
   if (isToday(date, now)) return getTimeString(date);
   if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
-  return date.toLocaleString([], {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+
+  return date.toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
 /**
@@ -148,13 +139,8 @@ export function formatMessageTimestamp(createdAt?: number): string {
 
   if (isToday(date, now)) return getTimeString(date);
   if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
-  return date.toLocaleString([], {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+
+  return date.toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
 /**
@@ -174,11 +160,13 @@ export function formatReactionTimestamp(createdAt?: number): string {
 
   if (isToday(date, now)) return `Today, ${getTimeString(date)}`;
   if (isYesterday(date, now)) return `Yesterday, ${getTimeString(date)}`;
-  return date.toLocaleString([], {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+
+  return date.toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatJoinedTimestamp(createdAt?: number): string {
+  if (typeof createdAt !== 'number' || isNaN(createdAt)) return 'Invalid date';
+  const date = new Date(createdAt);
+
+  return date.toLocaleDateString([], { year: 'numeric', month: 'long', day: '2-digit' });
 }

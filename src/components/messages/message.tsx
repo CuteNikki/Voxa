@@ -15,12 +15,18 @@ import { EditMessageButton } from '@/components/messages/edit-button';
 import { ReactionButton } from '@/components/messages/reaction-button';
 import { ReplyButton } from '@/components/messages/reply-button';
 import { MessageTimestamp } from '@/components/messages/timestamp';
+import { TypographyLarge } from '@/components/typography/large';
+import { TypographyMuted } from '@/components/typography/muted';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatJoinedTimestamp } from '@/lib/utils';
 import Image from 'next/image';
+import { Doc } from '../../../convex/_generated/dataModel';
 
 export function Message({
   message,
@@ -90,19 +96,29 @@ export function Message({
         )}
         <div className='flex flex-row gap-2'>
           {showAvatar ? (
-            <Avatar>
-              <AvatarImage src={author.imageUrl} />
-              <AvatarFallback>
-                {author.username ? author.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
-              </AvatarFallback>
-            </Avatar>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Avatar>
+                  <AvatarImage src={author.imageUrl} />
+                  <AvatarFallback>
+                    {author.username ? author.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
+                  </AvatarFallback>
+                </Avatar>
+              </PopoverTrigger>
+              <PopoverContentUser user={author} />
+            </Popover>
           ) : (
             <div className='w-8' />
           )}
           <div className='flex-1'>
             {showAvatar && (
               <div className='flex justify-between'>
-                <div className='leading-tight font-semibold capitalize'>{author.username}</div>
+                <Popover>
+                  <PopoverTrigger className='hover:underline' asChild>
+                    <div className='leading-tight font-semibold capitalize'>{author.username}</div>
+                  </PopoverTrigger>
+                  <PopoverContentUser user={author} />
+                </Popover>
                 <div className='flex items-center gap-2'>
                   <div
                     className={`bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${
@@ -410,5 +426,28 @@ function ReferenceUser({ targetId }: { targetId: string }) {
       </Avatar>
       <span className='capitalize'>{user.username}:</span>
     </div>
+  );
+}
+
+function PopoverContentUser({ user }: { user: Doc<'users'> }) {
+  return (
+    <PopoverContent>
+      <div className='flex flex-col gap-4'>
+        <div className='flex gap-2'>
+          <Avatar className='size-10'>
+            <AvatarImage src={user.imageUrl} />
+            <AvatarFallback>{user.username ? user.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
+          </Avatar>
+          <div className='flex flex-col'>
+            <TypographyLarge className='leading-tight capitalize'>{user.username}</TypographyLarge>
+            <TypographyMuted>Joined {formatJoinedTimestamp(user._creationTime)}</TypographyMuted>
+          </div>
+        </div>
+        <Separator />
+        <div>
+          <span>{"I don't know what to put here yet"}</span>
+        </div>
+      </div>
+    </PopoverContent>
   );
 }
