@@ -52,7 +52,7 @@
 - [x] User presence view (online/offline)
 - [x] Unread messages indicator
 - [x] Typing indicator
-- [ ] Drag-and-drop upload UX
+- [x] Uploading images
 
 ---
 

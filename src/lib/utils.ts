@@ -1,7 +1,12 @@
-import { ONLINE_THRESHOLD } from '@/constants/limits';
-
+import { generateReactHelpers } from '@uploadthing/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+
+import type { OurFileRouter } from '@/app/api/uploadthing/core';
+
+import { ONLINE_THRESHOLD } from '@/constants/limits';
+
+// Tailwind:
 
 /**
  * Merges class names and removes duplicates.
@@ -11,6 +16,12 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+// Uploadthing:
+
+export const { useUploadThing, uploadFiles } = generateReactHelpers<OurFileRouter>();
+
+// Presence and Time Formatting:
 
 /**
  * Enum for presence text states.

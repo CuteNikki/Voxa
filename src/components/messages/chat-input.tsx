@@ -9,6 +9,7 @@ import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limi
 
 import { ReplyHeader } from '@/components/messages/reply-header';
 import { TypingHeader } from '@/components/messages/typing-header';
+import { UploadButton } from '@/components/messages/upload-button';
 import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -31,6 +32,7 @@ export function ChatInput({
 }) {
   // States
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [value, setValue] = useState('');
   // References
   const areaRef = useRef<HTMLTextAreaElement>(null);
@@ -69,7 +71,7 @@ export function ChatInput({
   };
 
   const handleSend = async () => {
-    if (!value.trim) return;
+    if (!value.trim || isUploading) return;
     setValue('');
     setReplyingTo(undefined);
     await sendMessage({ chatId, content: value, reference: replyingTo, isGroup });
@@ -90,10 +92,10 @@ export function ChatInput({
   };
 
   return (
-    <div className='relative'>
+    <div>
       {typingUsers && <TypingHeader typingUsers={typingUsers} />}
       {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={!someoneTyping} />}
-      <div className={`${inputBg} flex w-full flex-row items-center gap-2 p-2 pt-0`}>
+      <div className={`${inputBg} relative flex w-full`}>
         <Textarea
           ref={areaRef}
           autoFocus
@@ -101,45 +103,51 @@ export function ChatInput({
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder='Your Message'
-          className='no-scrollbar !bg-background z-40 max-h-18 resize-none py-3 pr-22'
-          disabled={disabled}
+          className='no-scrollbar !bg-background z-40 m-2 mt-0 max-h-18 resize-none py-3 pr-20 pl-12'
+          disabled={disabled || isUploading}
         />
         {value.length >= MAX_MESSAGE_LENGTH_WARNING && (
           <span className={`absolute top-1 right-4 z-50 text-xs ${value.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
             {value.length}/{MAX_MESSAGE_LENGTH}
           </span>
         )}
-        <div className='absolute right-3.5 bottom-3.25 z-50 flex flex-row items-center gap-1'>
-          <Popover onOpenChange={setEmojiPickerOpen} open={emojiPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker' disabled={disabled}>
-                <SmileIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align='end' className='w-fit p-0'>
-              <EmojiPicker
-                className='h-[342px]'
-                onEmojiSelect={({ emoji }) => {
-                  setEmojiPickerOpen(false);
-                  setValue((prev) => prev + (prev.length > 0 && prev[prev.length - 1] !== ' ' ? ' ' + emoji : emoji));
-                }}
-              >
-                <EmojiPickerSearch />
-                <EmojiPickerContent />
-                <EmojiPickerFooter />
-              </EmojiPicker>
-            </PopoverContent>
-          </Popover>
-          <Button
-            onClick={handleSend}
-            variant='default'
-            size='icon'
-            aria-label='Send message'
-            disabled={disabled || !value.trim() || value.length > MAX_MESSAGE_LENGTH}
-            title='Send message'
-          >
-            <SendHorizontalIcon />
-          </Button>
+        <div className='absolute flex h-full w-full flex-row items-center justify-between px-3 pb-2'>
+          <div className='flex items-center gap-1'>
+            <UploadButton chatId={chatId} isGroup={isGroup} value={value} setValue={setValue} uploading={isUploading} setUploading={setIsUploading} />
+          </div>
+          <div className='flex items-center gap-1'>
+            <Popover onOpenChange={setEmojiPickerOpen} open={emojiPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker' className='z-50' disabled={disabled || isUploading}>
+                  <SmileIcon />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align='end' className='w-fit p-0'>
+                <EmojiPicker
+                  className='h-[342px]'
+                  onEmojiSelect={({ emoji }) => {
+                    setEmojiPickerOpen(false);
+                    setValue((prev) => prev + (prev.length > 0 && prev[prev.length - 1] !== ' ' ? ' ' + emoji : emoji));
+                  }}
+                >
+                  <EmojiPickerSearch />
+                  <EmojiPickerContent />
+                  <EmojiPickerFooter />
+                </EmojiPicker>
+              </PopoverContent>
+            </Popover>
+            <Button
+              onClick={handleSend}
+              variant='default'
+              size='icon'
+              aria-label='Send message'
+              disabled={disabled || !value.trim() || value.length > MAX_MESSAGE_LENGTH || isUploading}
+              title='Send message'
+              className='z-50'
+            >
+              <SendHorizontalIcon />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

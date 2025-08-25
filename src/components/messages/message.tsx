@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import Image from 'next/image';
 
 export function Message({
   message,
@@ -123,7 +124,7 @@ export function Message({
                 </div>
               </div>
             )}
-            <div className='flex items-start justify-between'>
+            <div className='flex items-start'>
               {editing === message._id ? (
                 <div className='relative w-full py-1'>
                   <Textarea
@@ -157,7 +158,20 @@ export function Message({
                   />
                 </div>
               ) : (
-                <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
+                <div className='flex flex-col'>
+                  <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
+                  {message.imageUrl && (
+                    <Image
+                      src={message.imageUrl}
+                      unoptimized
+                      alt='Message attachment'
+                      width={240}
+                      height={240}
+                      className='max-h-60 rounded-md'
+                      aria-label='image'
+                    />
+                  )}
+                </div>
               )}
               {!showAvatar && (
                 <div
