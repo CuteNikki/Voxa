@@ -137,7 +137,9 @@ function UserDetails({ targetId }: { targetId: string }) {
     <div className='flex flex-row items-center gap-1 pl-1 sm:gap-2 sm:pl-2'>
       <Avatar>
         <AvatarImage src={targetUser?.imageUrl} />
-        <AvatarFallback>{targetUser?.username ? targetUser.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
+        <AvatarFallback>
+          {targetUser?.username ? targetUser.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
+        </AvatarFallback>
       </Avatar>
 
       <div className='flex w-full flex-row items-center justify-between gap-2'>

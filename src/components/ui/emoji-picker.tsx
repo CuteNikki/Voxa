@@ -94,7 +94,7 @@ function EmojiPickerFooter({ className, ...props }: React.ComponentProps<'div'>)
             emoji ? (
               <>
                 <div className='flex size-7 flex-none items-center justify-center text-lg'>{emoji.emoji}</div>
-                <span className='text-secondary-foreground truncate text-xs pr-2'>{emoji.label}</span>
+                <span className='text-secondary-foreground truncate pr-2 text-xs'>{emoji.label}</span>
               </>
             ) : (
               <span className='text-muted-foreground ml-1.5 flex h-7 items-center truncate text-xs'>Select an emoji…</span>
