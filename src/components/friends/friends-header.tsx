@@ -25,7 +25,7 @@ export function FriendsHeader({
             <button
               key={group}
               className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors duration-300 ${
-                activeTab === group ? 'border-primary text-primary' : 'text-muted-foreground hover:text-primary border-transparent'
+                activeTab === group ? 'border-primary text-foreground/80 hover:text-foreground' : 'text-muted-foreground hover:text-foreground border-transparent'
               }`}
               onClick={() => setActiveTab(group)}
               type='button'
