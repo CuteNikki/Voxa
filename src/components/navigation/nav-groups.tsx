@@ -11,6 +11,7 @@ import { EllipsisIcon } from 'lucide-react';
 import { formatSidebarTimestamp } from '@/lib/utils';
 
 import { LAST_READ_THRESHOLD } from '@/constants/limits';
+import { PLACEHOLDER_GROUP } from '@/constants/placeholders';
 
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,9 +27,11 @@ export function NavGroups() {
       <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
         <SidebarGroupLabel>Group Chats</SidebarGroupLabel>
         <SidebarMenu>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <GroupItemSkeleton key={index} />
-          ))}
+          <ScrollArea className='max-h-200'>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <GroupItemSkeleton key={index} />
+            ))}
+          </ScrollArea>
           <SidebarMenuItem>
             <SidebarMenuButton disabled className='text-muted-foreground'>
               <EllipsisIcon className='text-muted-foreground' />
@@ -66,11 +69,11 @@ function GroupItemSkeleton() {
       <SidebarMenuButton className='items-center py-6'>
         <div className='flex w-full flex-row items-center justify-between gap-2'>
           <div className='flex flex-col'>
-            <Skeleton className='w-fit'>Unknown Group</Skeleton>
-            <Skeleton className='text-muted-foreground w-fit max-w-30 truncate text-sm leading-tight'>No Messages</Skeleton>
+            <Skeleton className='w-fit max-w-30 truncate leading-tight font-semibold capitalize'>{PLACEHOLDER_GROUP.name}</Skeleton>
+            <Skeleton className='text-muted-foreground w-fit max-w-30 truncate text-sm leading-tight'>{PLACEHOLDER_GROUP.message}</Skeleton>
           </div>
           <div>
-            <Skeleton className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(0)}</Skeleton>
+            <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatSidebarTimestamp(PLACEHOLDER_GROUP.timestamp)}</Skeleton>
           </div>
         </div>
       </SidebarMenuButton>
@@ -92,6 +95,10 @@ function GroupItem({
 }) {
   const lastMessage = useQuery(api.groups.getLastMessage, { groupId: item._id });
   const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - LAST_READ_THRESHOLD);
+
+  if (lastMessage === undefined) {
+    return <GroupItemSkeleton />;
+  }
 
   return (
     <SidebarMenuItem>

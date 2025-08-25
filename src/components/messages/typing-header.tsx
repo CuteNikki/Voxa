@@ -1,6 +1,11 @@
 import { useQuery } from 'convex/react';
 import React from 'react';
+
 import { api } from '../../../convex/_generated/api';
+
+import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
+
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function TypingHeader({ typingUsers }: { typingUsers?: { userId: string }[] }) {
   if (!typingUsers?.length) {
@@ -42,6 +47,8 @@ export function TypingHeader({ typingUsers }: { typingUsers?: { userId: string }
 
 export const TypingUsername = ({ userId }: { userId: string }) => {
   const user = useQuery(api.users.getUser, { clerkId: userId });
-  if (!user) return <span>Unknown User</span>;
+
+  if (!user) return <Skeleton>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>;
+
   return <span className='capitalize'>{user.username}</span>;
 };

@@ -18,6 +18,7 @@ import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 export function FriendElement({ targetId, userId }: { targetId: string; userId: string }) {
   const isFriend = useQuery(api.friends.isFriend, { userId: userId, targetId: targetId });
@@ -76,11 +77,13 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
   }
 
   return (
-    <li className='bg-accent/70 hover:bg-primary/20 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors duration-300'>
+    <li className='bg-accent/50 hover:bg-accent/70 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors'>
       <div className='flex flex-row items-center gap-2 xl:gap-4'>
         <Avatar className='size-10'>
           <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
-          <AvatarFallback>{target.username ? target.username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+          <AvatarFallback>
+            {target.username ? target.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
+          </AvatarFallback>
         </Avatar>
         <div className='flex flex-col'>
           <TypographyLarge className='capitalize'>{target.username}</TypographyLarge>
@@ -94,16 +97,20 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
 
 export function BaseSkeleton() {
   return (
-    <li className='bg-accent/70 hover:bg-primary/20 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors duration-300'>
+    <li className='bg-accent/50 hover:bg-accent/70 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors'>
       <div className='flex flex-row items-center gap-2 md:gap-4'>
         <Avatar className='size-10'>
           <AvatarFallback>
-            <Skeleton>U</Skeleton>
+            <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
           </AvatarFallback>
         </Avatar>
         <div className='flex flex-col'>
-          <TypographyLarge className='capitalize'>Unknown User</TypographyLarge>
-          <TypographyMuted className='text-xs'>{getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(0)}</TypographyMuted>
+          <TypographyLarge className='capitalize'>
+            <Skeleton>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
+          </TypographyLarge>
+          <TypographyMuted className='text-xs'>
+            <Skeleton>{getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(PLACEHOLDER_UNKNOWN_USER.timestamp)}</Skeleton>
+          </TypographyMuted>
         </div>
       </div>
     </li>

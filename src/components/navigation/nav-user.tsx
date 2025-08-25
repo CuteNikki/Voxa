@@ -5,6 +5,8 @@ import { useTheme } from 'next-themes';
 
 import { EllipsisVertical, LogOutIcon, MoonIcon, OrbitIcon, PaintbrushIcon, SunIcon, User2Icon } from 'lucide-react';
 
+import { PLACEHOLDER_GUEST_USER } from '@/constants/placeholders';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -39,12 +41,12 @@ export function NavUser() {
           <SidebarMenuButton size='lg' className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'>
             <Avatar className='h-8 w-8 rounded-lg'>
               <AvatarFallback className='rounded-lg'>
-                <Skeleton>U</Skeleton>
+                <Skeleton>{PLACEHOLDER_GUEST_USER.initials}</Skeleton>
               </AvatarFallback>
             </Avatar>
             <div className='grid flex-1 text-left text-sm leading-tight'>
-              <Skeleton className='w-fit truncate font-medium capitalize'>Unknown User</Skeleton>
-              <Skeleton className='text-muted-foreground w-fit truncate text-xs'>unknown@voxa</Skeleton>
+              <Skeleton className='w-fit truncate font-medium capitalize'>{PLACEHOLDER_GUEST_USER.username}</Skeleton>
+              <Skeleton className='text-muted-foreground w-fit truncate text-xs'>{PLACEHOLDER_GUEST_USER.mail}</Skeleton>
             </div>
             <EllipsisVertical className='ml-auto size-4' />
           </SidebarMenuButton>
@@ -61,11 +63,11 @@ export function NavUser() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton size='lg' className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'>
                 <Avatar className='h-8 w-8 rounded-lg'>
-                  <AvatarFallback className='rounded-lg'>G</AvatarFallback>
+                  <AvatarFallback className='rounded-lg'>{PLACEHOLDER_GUEST_USER.initials}</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-left text-sm leading-tight'>
-                  <span className='truncate font-medium capitalize'>Guest</span>
-                  <span className='text-muted-foreground truncate text-xs'>Not signed in</span>
+                  <span className='truncate font-medium capitalize'>{PLACEHOLDER_GUEST_USER.username}</span>
+                  <span className='text-muted-foreground truncate text-xs'>{PLACEHOLDER_GUEST_USER.mail}</span>
                 </div>
                 <EllipsisVertical className='ml-auto size-4' />
               </SidebarMenuButton>
@@ -79,11 +81,11 @@ export function NavUser() {
               <DropdownMenuLabel className='p-0 font-normal'>
                 <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
                   <Avatar className='h-8 w-8 rounded-lg'>
-                    <AvatarFallback className='rounded-lg'>G</AvatarFallback>
+                    <AvatarFallback className='rounded-lg'>{PLACEHOLDER_GUEST_USER.initials}</AvatarFallback>
                   </Avatar>
                   <div className='grid flex-1 text-left text-sm leading-tight'>
-                    <span className='truncate font-medium capitalize'>Guest</span>
-                    <span className='text-muted-foreground truncate text-xs'>Not signed in</span>
+                    <span className='truncate font-medium capitalize'>{PLACEHOLDER_GUEST_USER.username}</span>
+                    <span className='text-muted-foreground truncate text-xs'>{PLACEHOLDER_GUEST_USER.mail}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -132,7 +134,7 @@ export function NavUser() {
             <SidebarMenuButton size='lg' className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'>
               <Avatar className='h-8 w-8 rounded-lg'>
                 <AvatarImage src={user?.imageUrl} alt={user?.username + ' avatar'} />
-                <AvatarFallback className='rounded-lg'>CN</AvatarFallback>
+                <AvatarFallback className='rounded-lg'>{user.username?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-medium capitalize'>{user.username}</span>
@@ -151,7 +153,7 @@ export function NavUser() {
               <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
                 <Avatar className='h-8 w-8 rounded-lg'>
                   <AvatarImage src={user.imageUrl} alt={user.username + ' avatar'} />
-                  <AvatarFallback className='rounded-lg'>CN</AvatarFallback>
+                  <AvatarFallback className='rounded-lg'>{user.username?.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-left text-sm leading-tight'>
                   <span className='truncate font-medium capitalize'>{user.username}</span>

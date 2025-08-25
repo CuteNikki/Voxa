@@ -8,6 +8,7 @@ import { api } from '../../../convex/_generated/api';
 import { CornerUpRightIcon } from 'lucide-react';
 
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
+import { PLACEHOLDER_MESSAGE, PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 import { DeleteMessageButton } from '@/components/messages/delete-button';
 import { EditMessageButton } from '@/components/messages/edit-button';
@@ -90,7 +91,9 @@ export function Message({
           {showAvatar ? (
             <Avatar>
               <AvatarImage src={author.imageUrl} />
-              <AvatarFallback>{author.username ? author.username.charAt(0).toUpperCase() : <Skeleton>U</Skeleton>}</AvatarFallback>
+              <AvatarFallback>
+                {author.username ? author.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
+              </AvatarFallback>
             </Avatar>
           ) : (
             <div className='w-8' />
@@ -274,7 +277,7 @@ export function Message({
 function ReactionName({ userId }: { userId: string }) {
   const user = useQuery(api.users.getUser, { clerkId: userId });
 
-  if (!user) return <span>Unknown User</span>;
+  if (!user) return <Skeleton>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>;
 
   return <span className='capitalize'>{user.username}</span>;
 }
@@ -285,7 +288,7 @@ export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean })
       {showAvatar ? (
         <Avatar>
           <AvatarFallback>
-            <Skeleton>U</Skeleton>
+            <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
           </AvatarFallback>
         </Avatar>
       ) : (
@@ -294,14 +297,14 @@ export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean })
       <div className='flex-1'>
         {showAvatar && (
           <div className='flex justify-between'>
-            <Skeleton className='leading-tight font-semibold capitalize'>Unknown User</Skeleton>
+            <Skeleton className='leading-tight font-semibold capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
             <div className='flex items-center gap-2'>
-              <MessageTimestamp message={{ _creationTime: 0 }} />
+              <MessageTimestamp message={{ _creationTime: PLACEHOLDER_MESSAGE.timestamp }} />
             </div>
           </div>
         )}
         <div className='flex items-start justify-between'>
-          <Skeleton className='text-sm break-all whitespace-pre-line'>No Content</Skeleton>
+          <Skeleton className='text-sm break-all whitespace-pre-line'>{PLACEHOLDER_MESSAGE.content}</Skeleton>
         </div>
       </div>
     </div>
@@ -314,7 +317,7 @@ function MessageReferenceSkeleton() {
       <CornerUpRightIcon className='text-muted-foreground ml-2.5 size-5' />
       <div className='flex flex-row items-center gap-1'>
         <ReferenceUserSkeleton />
-        <span className='text-muted-foreground max-w-30 truncate text-sm italic sm:max-w-60 lg:max-w-90'>Some Message</span>
+        <Skeleton className='text-muted-foreground max-w-30 truncate text-sm italic sm:max-w-60 lg:max-w-90'>{PLACEHOLDER_MESSAGE.content}</Skeleton>
       </div>
     </div>
   );
@@ -340,8 +343,6 @@ function MessageReference({
         <span className='text-muted-foreground text-sm italic'>Replied message was deleted</span>
       </div>
     );
-
-  if (!message) return null;
 
   return (
     <button
@@ -374,10 +375,10 @@ function ReferenceUserSkeleton() {
     <div className='flex flex-row items-center gap-1 text-sm'>
       <Avatar className='size-4'>
         <AvatarFallback>
-          <Skeleton>U</Skeleton>
+          <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
         </AvatarFallback>
       </Avatar>
-      <span className='capitalize'>Unknown:</span>
+      <Skeleton className='capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}:</Skeleton>
     </div>
   );
 }
@@ -391,7 +392,7 @@ function ReferenceUser({ targetId }: { targetId: string }) {
     <div className='flex flex-row items-center gap-1 text-sm'>
       <Avatar className='size-4'>
         <AvatarImage src={user.imageUrl} />
-        <AvatarFallback>{user.username ? user.username.charAt(0).toUpperCase() : <Skeleton>U</Skeleton>}</AvatarFallback>
+        <AvatarFallback>{user.username ? user.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
       </Avatar>
       <span className='capitalize'>{user.username}:</span>
     </div>

@@ -9,6 +9,7 @@ import { api } from '../../../convex/_generated/api';
 import { EllipsisIcon } from 'lucide-react';
 
 import { formatSidebarTimestamp } from '@/lib/utils';
+import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -25,9 +26,11 @@ export function NavChats() {
       <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
         <SidebarGroupLabel>Direct Messages</SidebarGroupLabel>
         <SidebarMenu>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <UserItemSkeleton key={index} />
-          ))}
+          <ScrollArea className='max-h-200'>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <UserItemSkeleton key={index} />
+            ))}
+          </ScrollArea>
           <SidebarMenuItem>
             <SidebarMenuButton disabled className='text-muted-foreground'>
               <EllipsisIcon className='text-muted-foreground' />
@@ -67,16 +70,16 @@ function UserItemSkeleton() {
       <SidebarMenuButton className='items-center py-6'>
         <Avatar>
           <AvatarFallback>
-            <Skeleton>U</Skeleton>
+            <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
           </AvatarFallback>
         </Avatar>
         <div className='flex w-full flex-row items-center justify-between gap-2'>
           <div className='flex flex-col'>
-            <Skeleton className='w-fit'>Unknown User</Skeleton>
-            <Skeleton className='text-muted-foreground w-fit max-w-30 truncate text-sm leading-tight'>No Messages</Skeleton>
+            <Skeleton className='w-fit'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
+            <Skeleton className='text-muted-foreground w-fit max-w-30 truncate text-sm leading-tight'>{PLACEHOLDER_UNKNOWN_USER.message}</Skeleton>
           </div>
           <div>
-            <Skeleton className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(0)}</Skeleton>
+            <Skeleton className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(PLACEHOLDER_UNKNOWN_USER.timestamp)}</Skeleton>
           </div>
         </div>
       </SidebarMenuButton>
@@ -114,9 +117,9 @@ function UserItem({
           </Avatar>
           <div className='flex w-full flex-row items-center justify-between gap-2'>
             <div className='flex flex-col'>
-              <span className='max-w-30 truncate leading-tight font-semibold capitalize'>{user.username ?? 'Unknown User'}</span>
+              <span className='max-w-30 truncate leading-tight font-semibold capitalize'>{user.username}</span>
               {lastMessage?.content ? (
-                <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
+                <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight' title={lastMessage.content}>
                   {lastMessage.senderId === currentUserId ? 'You: ' : ''}
                   {lastMessage.content.slice(0, 20)}
                 </span>

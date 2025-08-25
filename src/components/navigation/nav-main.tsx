@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 // import { IconCirclePlusFilled, IconMail, type Icon } from '@tabler/icons-react';
 
+import { PLACEHOLDER_LINK } from '@/constants/placeholders';
+
 // import { Button } from '@/components/ui/button';
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,7 +48,8 @@ export function NavMain({
               {item.requiresAuthenticated && !isSignedIn ? (
                 isLoaded ? null : (
                   <SidebarMenuButton className='text-sidebar-foreground/70'>
-                    <Skeleton className='h-4 w-24' />
+                    <Skeleton className='size-5' />
+                    <Skeleton className='w-24'>{PLACEHOLDER_LINK}</Skeleton>
                   </SidebarMenuButton>
                 )
               ) : (

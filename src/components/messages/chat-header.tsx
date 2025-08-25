@@ -11,6 +11,7 @@ import { api } from '../../../convex/_generated/api';
 import { Doc } from '../../../convex/_generated/dataModel';
 
 import { formatPresenceTimestamp, getPresenceText, isOnline, PresenceText } from '@/lib/utils';
+import { PLACEHOLDER_GROUP, PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 import {
   AlertDialog,
@@ -59,7 +60,7 @@ export function ChatHeader({ chatId }: { chatId: string }) {
         <div className='flex w-full items-center gap-1'>
           <SidebarTrigger />
           <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
-          {isGroup ? <span className='px-2 text-sm'>Loading Channel</span> : <UserDetailsSkeleton />}
+          {isGroup ? <Skeleton className='px-2 text-sm'>{PLACEHOLDER_GROUP.name}</Skeleton> : <UserDetailsSkeleton />}
         </div>
         {isGroup ? null : (
           <div className='flex items-center gap-1'>
@@ -76,7 +77,7 @@ export function ChatHeader({ chatId }: { chatId: string }) {
   // Main header content
   const headerContent =
     isGroup || !isChat(channel) ? (
-      <span className='px-2 text-sm'>{'name' in channel ? channel.name : 'Unnamed Group'}</span>
+      <span className='px-2 text-sm'>{'name' in channel ? channel.name : ''}</span>
     ) : (
       <UserDetails targetId={user.id === channel.userIdOne ? channel.userIdTwo : channel.userIdOne} />
     );
@@ -111,8 +112,8 @@ function UserDetailsSkeleton() {
       </Avatar>
       <div className='flex w-full flex-row items-center justify-between gap-2'>
         <div className='flex flex-col'>
-          <Skeleton className='w-fit text-sm leading-tight font-semibold capitalize'>Unknown User</Skeleton>
-          <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatPresenceTimestamp(0)}</Skeleton>
+          <Skeleton className='w-fit text-sm leading-tight font-semibold capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
+          <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatPresenceTimestamp(PLACEHOLDER_UNKNOWN_USER.timestamp)}</Skeleton>
         </div>
       </div>
     </div>
@@ -130,13 +131,13 @@ function UserDetails({ targetId }: { targetId: string }) {
   const online = isOnline(targetUserPresence.lastSeen);
   const formatted = online
     ? getPresenceText(PresenceText.Online)
-    : getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(targetUserPresence.lastSeen ?? 0);
+    : getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(targetUserPresence.lastSeen ?? PLACEHOLDER_UNKNOWN_USER.timestamp);
 
   return (
     <div className='flex flex-row items-center gap-1 pl-1 sm:gap-2 sm:pl-2'>
       <Avatar>
         <AvatarImage src={targetUser?.imageUrl} />
-        <AvatarFallback>{targetUser?.username ? targetUser.username.charAt(0).toUpperCase() : <Skeleton>U</Skeleton>}</AvatarFallback>
+        <AvatarFallback>{targetUser?.username ? targetUser.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
       </Avatar>
 
       <div className='flex w-full flex-row items-center justify-between gap-2'>
@@ -144,7 +145,7 @@ function UserDetails({ targetId }: { targetId: string }) {
           {targetUser?.username ? (
             <span className='text-sm leading-tight font-semibold capitalize'>{targetUser.username}</span>
           ) : (
-            <Skeleton className='w-fit text-sm leading-tight font-semibold capitalize'>Unknown User</Skeleton>
+            <Skeleton className='w-fit text-sm leading-tight font-semibold capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
           )}
           {targetUserPresence ? (
             <span className={`text-muted-foreground text-xs leading-tight ${online ? 'text-green-500' : ''}`}>{formatted}</span>
