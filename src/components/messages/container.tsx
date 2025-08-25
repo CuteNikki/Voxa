@@ -18,6 +18,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
@@ -67,6 +69,11 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
       el.scrollTop = el.scrollHeight;
     }
   }, [messages, disableAutoScrollUntil]);
+
+  useEffect(() => {
+    if (!replyingTo) return;
+    if (!messages.map((m) => m._id.toString()).includes(replyingTo)) setReplyingTo(undefined);
+  }, [messages, replyingTo]);
 
   if (status === 'LoadingFirstPage') {
     return (
@@ -234,14 +241,23 @@ export function ReactionUser({ userId }: { userId: string }) {
   const target = useQuery(api.users.getUser, { clerkId: userId });
 
   if (!target) {
-    return <span className='text-muted-foreground'>Unknown User</span>;
+    return (
+      <div className='flex flex-row items-center gap-2'>
+        <Avatar className='size-6'>
+          <AvatarFallback>
+            <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
+          </AvatarFallback>
+        </Avatar>
+        <Skeleton className='font-medium capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
+      </div>
+    );
   }
 
   return (
     <div className='flex flex-row items-center gap-2'>
       <Avatar className='size-6'>
         <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
-        <AvatarFallback>{target.username ? target.username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+        <AvatarFallback>{target.username ? target.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
       </Avatar>
       <span className='font-medium capitalize'>{target.username}</span>
     </div>
