@@ -113,7 +113,16 @@ export function ChatInput({
         )}
         <div className='absolute flex h-full w-full flex-row items-center justify-between px-3 pb-2'>
           <div className='flex items-center gap-1'>
-            <UploadButton chatId={chatId} isGroup={isGroup} value={value} setValue={setValue} uploading={isUploading} setUploading={setIsUploading} />
+            <UploadButton
+              chatId={chatId}
+              isGroup={isGroup}
+              value={value}
+              setValue={setValue}
+              reference={replyingTo}
+              setReference={setReplyingTo}
+              uploading={isUploading}
+              setUploading={setIsUploading}
+            />
           </div>
           <div className='flex items-center gap-1'>
             <Popover onOpenChange={setEmojiPickerOpen} open={emojiPickerOpen}>

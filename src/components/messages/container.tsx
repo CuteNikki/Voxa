@@ -9,6 +9,7 @@ import { api } from '../../../convex/_generated/api';
 import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmileIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
 
 import { LAST_READ_UPDATE_INTERVAL, MESSAGE_GROUPING_THRESHOLD } from '@/constants/limits';
+import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 import { formatReactionTimestamp } from '@/lib/utils';
 
@@ -19,7 +20,6 @@ import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);

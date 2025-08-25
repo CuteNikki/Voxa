@@ -1,6 +1,7 @@
 export const MAX_MESSAGE_LENGTH = 1_000; // 1000 characters
 export const MAX_MESSAGE_LENGTH_WARNING = 800; // 800 characters
 export const MESSAGE_GROUPING_THRESHOLD = 300_000; // 5 minutes
+export const MAX_UNIQUE_REACTIONS = 6; // 6 unique reactions per message
 
 export const TYPING_THRESHOLD = 3_000; // 3 seconds
 

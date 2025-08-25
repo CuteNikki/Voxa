@@ -2,6 +2,7 @@
 
 import { useMutation } from 'convex/react';
 import { PlusIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -9,13 +10,14 @@ import { useUploadThing } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from '@/constants/limits';
-import { toast } from 'sonner';
 
 export function UploadButton({
   isGroup,
   chatId,
   value,
   setValue,
+  reference,
+  setReference,
   uploading,
   setUploading,
 }: {
@@ -23,19 +25,24 @@ export function UploadButton({
   chatId: string;
   value: string;
   setValue: (value: string) => void;
+  reference: string | undefined;
+  setReference: (reference?: string) => void;
   uploading?: boolean;
   setUploading: (uploading: boolean) => void;
 }) {
-  const sendMessage = useMutation(isGroup ? api.messages.sendGroupMessage : api.messages.sendChatMessage);
+  const sendMessage = useMutation(api.messages.sendChatMessage);
 
   const { startUpload } = useUploadThing('imageUploader', {
     onClientUploadComplete: (res) => {
       sendMessage({
         chatId,
+        isGroup,
+        reference,
         imageUrl: res[0].ufsUrl,
         content: value,
       });
       setValue('');
+      setReference(undefined);
       setUploading(false);
       toast.success('Uploaded!', { description: 'Image uploaded successfully' });
     },
