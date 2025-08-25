@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function NavChats() {
   const { user } = useUser();
-  const { results, loadMore, status } = usePaginatedQuery(api.chats.getOwnChatsPaginated, {}, { initialNumItems: 6 });
+  const { results, loadMore, status } = usePaginatedQuery(api.chats.getOwnChatsPaginated, user ? {} : 'skip', { initialNumItems: 6 });
 
   if (status === 'LoadingFirstPage' || !user) {
     return (

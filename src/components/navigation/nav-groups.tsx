@@ -20,7 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function NavGroups() {
   const { user } = useUser();
-  const { results, loadMore, status } = usePaginatedQuery(api.groups.getGroupsPaginated, {}, { initialNumItems: 6 });
+  const { results, loadMore, status } = usePaginatedQuery(api.groups.getGroupsPaginated, user ? {} : 'skip', { initialNumItems: 6 });
 
   if (status === 'LoadingFirstPage' || !user) {
     return (
