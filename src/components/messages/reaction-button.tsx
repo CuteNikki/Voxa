@@ -2,6 +2,7 @@
 
 import { useMutation } from 'convex/react';
 import { SmilePlusIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -42,7 +43,13 @@ export function ReactionButton({
           onEmojiSelect={({ emoji }) => {
             setReactionPicker(undefined);
 
-            addReaction({ messageId, reaction: emoji });
+            // Extract error message after "Uncaught Error: "
+
+            addReaction({ messageId, reaction: emoji }).catch((error) => {
+              const match = error.message.match(/Uncaught Error: (.*)/);
+              const errorMsg = match ? match[1].split('\n')[0] : error.message;
+              toast.error('Failed to add reaction', { description: errorMsg });
+            });
           }}
         >
           <EmojiPickerSearch />
