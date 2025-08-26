@@ -63,7 +63,6 @@ export function ChatInput({
     onUploadBegin: (fileName) => {
       setUploading(true);
       toast.info(`Uploading ${fileName}...`, { description: 'Your upload has started.' });
-      console.log(`Starting upload for ${fileName}`);
     },
   });
 
@@ -122,7 +121,7 @@ export function ChatInput({
 
   return (
     <div>
-      {typingUsers && <TypingHeader typingUsers={typingUsers} />}
+      {typingUsers && typingUsers.length > 0 && <TypingHeader typingUsers={typingUsers} />}
       {replyingTo && <ReplyHeader disabled={disabled || uploading} messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={!someoneTyping} />}
       {images && images.length > 0 && (
         <ImageHeader disabled={disabled || uploading} images={images} setImages={setImages} roundCorners={!someoneTyping && !replyingTo} />
