@@ -3,7 +3,7 @@ import { v } from 'convex/values';
 import { paginationOptsValidator } from 'convex/server';
 import { mutation, query } from './_generated/server';
 
-import { MAX_MESSAGE_LENGTH, MAX_UNIQUE_REACTIONS } from '../src/constants/limits';
+import { MAX_IMAGE_COUNT, MAX_MESSAGE_LENGTH, MAX_UNIQUE_REACTIONS } from '../src/constants/limits';
 
 export const sendGroupMessage = mutation({
   args: {
@@ -47,7 +47,7 @@ export const sendChatMessage = mutation({
     chatId: v.string(),
     isGroup: v.optional(v.boolean()),
     content: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
+    imageUrls: v.optional(v.array(v.string())),
     reference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -57,8 +57,12 @@ export const sendChatMessage = mutation({
       throw new Error('User not authenticated');
     }
 
-    if (!args.content && !args.imageUrl) {
+    if (!args.content && !args.imageUrls?.length) {
       throw new Error('Message must have either content or an image URL');
+    }
+
+    if (args.imageUrls && args.imageUrls.length > MAX_IMAGE_COUNT) {
+      throw new Error(`You can upload a maximum of ${MAX_IMAGE_COUNT} images per message`);
     }
 
     if (args.content && args.content.length > MAX_MESSAGE_LENGTH) {
@@ -99,7 +103,7 @@ export const sendChatMessage = mutation({
     return await ctx.db.insert('messages', {
       chatId: args.chatId,
       content: args.content?.trim() || '',
-      imageUrl: args.imageUrl,
+      imageUrls: args.imageUrls,
       senderId: user.subject,
       reference: args.reference,
     });
@@ -161,16 +165,16 @@ export const editMessage = mutation({
   args: {
     messageId: v.string(),
     content: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
+    imageUrls: v.optional(v.array(v.string())),
   },
-  handler: async (ctx, { messageId, content, imageUrl }) => {
+  handler: async (ctx, { messageId, content, imageUrls }) => {
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    if (!content && !imageUrl) {
+    if (!content && !imageUrls) {
       throw new Error('Message must have either content or an image URL');
     }
 
@@ -191,13 +195,13 @@ export const editMessage = mutation({
       throw new Error('You can only edit your own messages');
     }
 
-    if (message.content === content && message.imageUrl === imageUrl) {
+    if (message.content === content && message.imageUrls === imageUrls) {
       throw new Error('No changes detected in the message');
     }
 
-    const updatedFields: { content?: string; imageUrl?: string; editedAt: number } = { editedAt: Date.now() };
+    const updatedFields: { content?: string; imageUrls?: string[]; editedAt: number } = { editedAt: Date.now() };
     if (content !== undefined) updatedFields.content = content;
-    if (imageUrl !== undefined) updatedFields.imageUrl = imageUrl;
+    if (imageUrls !== undefined) updatedFields.imageUrls = imageUrls;
 
     return await ctx.db.patch(message._id, updatedFields);
   },
@@ -287,7 +291,8 @@ export const sendMessage = mutation({
   args: {
     chatId: v.string(),
     content: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
+    imageUrls: v.optional(v.array(v.string())),
+    reference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
@@ -296,7 +301,7 @@ export const sendMessage = mutation({
       throw new Error('User not authenticated');
     }
 
-    if (!args.content && !args.imageUrl) {
+    if (!args.content && !args.imageUrls) {
       throw new Error('Message must have either content or an image URL');
     }
 
@@ -316,7 +321,7 @@ export const sendMessage = mutation({
     return await ctx.db.insert('messages', {
       chatId: args.chatId,
       content: args.content?.trim() || '',
-      imageUrl: args.imageUrl,
+      imageUrls: args.imageUrls,
       senderId: user.subject,
     });
   },
