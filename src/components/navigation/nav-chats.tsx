@@ -113,7 +113,7 @@ function UserItem({
         <Link href={`/chats/${item._id}`}>
           <Avatar>
             <AvatarImage src={user?.imageUrl} />
-            <AvatarFallback>{user?.username?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
+            <AvatarFallback>{user?.username?.charAt(0).toUpperCase() ?? <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
           </Avatar>
           <div className='flex w-full flex-row items-center justify-between gap-2'>
             <div className='flex flex-col'>
