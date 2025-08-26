@@ -177,6 +177,11 @@ export function Message({
                           src={url}
                           alt={`Image ${idx + 1} for message ${message._id}`}
                           className='max-h-40 w-fit rounded-md'
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.onerror = null; // Prevent infinite loop
+                            target.src = '/fallback.png';
+                          }}
                         />
                       ))}
                     </div>
