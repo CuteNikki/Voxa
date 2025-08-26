@@ -21,7 +21,20 @@ export function cn(...inputs: ClassValue[]) {
 
 export const { useUploadThing, uploadFiles } = generateReactHelpers<OurFileRouter>();
 
-// Presence and Time Formatting:
+// File Size, Presence and Time Formatting:
+
+/**
+ * Formats the file size into a human-readable string.
+ * @param file The file to format the size for.
+ * @example
+ * formatFileSize(file) // "2.5MB"
+ * @returns A string representing the file size.
+ */
+export function formatFileSize(file: File) {
+  if (file.size >= 1024 * 1024) return `${(file.size / 1024 / 1024).toFixed(1)}MB`;
+  if (file.size >= 1024) return `${(file.size / 1024).toFixed(1)}KB`;
+  return `${file.size}B`;
+}
 
 /**
  * Enum for presence text states.
