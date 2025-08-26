@@ -170,7 +170,6 @@ export function Message({
                     <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
                       {message.imageUrls.map((url, idx) => (
                         <Image
-                          unoptimized
                           key={idx}
                           width={255}
                           height={255}

@@ -21,7 +21,6 @@ export function ImageHeader({
       {Array.from(images).map((image, idx) => (
         <div key={idx} className='group relative inline-block overflow-hidden rounded-md border'>
           <Image
-            unoptimized
             width={255}
             height={255}
             src={URL.createObjectURL(image)}
