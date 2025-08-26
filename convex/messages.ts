@@ -1,6 +1,6 @@
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 
-import { paginationOptsValidator } from 'convex/server';
 import { mutation, query } from './_generated/server';
 
 import { MAX_IMAGE_COUNT, MAX_MESSAGE_LENGTH, MAX_UNIQUE_REACTIONS } from '../src/constants/limits';
@@ -10,7 +10,7 @@ export const sendChatMessage = mutation({
     chatId: v.string(),
     isGroup: v.optional(v.boolean()),
     content: v.optional(v.string()),
-    imageUrls: v.optional(v.array(v.string())),
+    attachments: v.optional(v.array(v.object({ url: v.string(), type: v.string(), name: v.string(), size: v.number(), key: v.string() }))),
     reference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -20,11 +20,11 @@ export const sendChatMessage = mutation({
       throw new Error('User not authenticated');
     }
 
-    if (!args.content && !args.imageUrls?.length) {
+    if (!args.content && !args.attachments?.length) {
       throw new Error('Message must have either content or an image URL');
     }
 
-    if (args.imageUrls && args.imageUrls.length > MAX_IMAGE_COUNT) {
+    if (args.attachments && args.attachments.length > MAX_IMAGE_COUNT) {
       throw new Error(`You can upload a maximum of ${MAX_IMAGE_COUNT} images per message`);
     }
 
@@ -66,9 +66,9 @@ export const sendChatMessage = mutation({
     return await ctx.db.insert('messages', {
       chatId: args.chatId,
       content: args.content?.trim() || '',
-      imageUrls: args.imageUrls,
       senderId: user.subject,
       reference: args.reference,
+      attachments: args.attachments,
     });
   },
 });
@@ -101,6 +101,7 @@ export const deleteMessage = mutation({
       .query('messages')
       .filter((q) => q.eq(q.field('_id'), messageId))
       .first();
+
     if (!message) {
       throw new Error('Message not found');
     }
@@ -117,20 +118,20 @@ export const editMessage = mutation({
   args: {
     messageId: v.string(),
     content: v.optional(v.string()),
-    imageUrls: v.optional(v.array(v.string())),
+    attachments: v.optional(v.array(v.object({ url: v.string(), type: v.string(), name: v.string(), size: v.number(), key: v.string() }))),
   },
-  handler: async (ctx, { messageId, content, imageUrls }) => {
+  handler: async (ctx, { messageId, content, attachments }) => {
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    if (!content && !imageUrls?.length) {
+    if (!content && !attachments?.length) {
       throw new Error('Message must have either content or an image URL');
     }
 
-    if (imageUrls && imageUrls.length > MAX_IMAGE_COUNT) {
+    if (attachments && attachments.length > MAX_IMAGE_COUNT) {
       throw new Error(`You can upload a maximum of ${MAX_IMAGE_COUNT} images per message`);
     }
 
@@ -151,13 +152,15 @@ export const editMessage = mutation({
       throw new Error('You can only edit your own messages');
     }
 
-    if (message.content === content && message.imageUrls === imageUrls) {
+    if (message.content === content && message.attachments === attachments) {
       throw new Error('No changes detected in the message');
     }
 
-    const updatedFields: { content?: string; imageUrls?: string[]; editedAt: number } = { editedAt: Date.now() };
+    const updatedFields: { content?: string; attachments?: { url: string; type: string; name: string; size: number; key: string }[]; editedAt: number } = {
+      editedAt: Date.now(),
+    };
     if (content !== undefined) updatedFields.content = content;
-    if (imageUrls !== undefined) updatedFields.imageUrls = imageUrls;
+    if (attachments !== undefined) updatedFields.attachments = attachments;
 
     return await ctx.db.patch(message._id, updatedFields);
   },

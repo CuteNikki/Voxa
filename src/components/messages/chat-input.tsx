@@ -1,11 +1,14 @@
 import { useMutation, useQuery } from 'convex/react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { api } from '../../../convex/_generated/api';
 
 import { SendHorizontalIcon, SmileIcon } from 'lucide-react';
 
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
+import { useShiftKey } from '@/hooks/shift';
+import { useUploadThing } from '@/lib/utils';
 
 import { ImageHeader } from '@/components/messages/image-header';
 import { ReplyHeader } from '@/components/messages/reply-header';
@@ -15,8 +18,6 @@ import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
-import { useUploadThing } from '@/lib/utils';
-import { toast } from 'sonner';
 
 export function ChatInput({
   userId,
@@ -46,6 +47,7 @@ export function ChatInput({
   const setTyping = useMutation(api.typing.setTyping);
   const typingUsers = useQuery(api.typing.getTypingUsers, { chatId })?.filter((u) => u.userId !== userId);
   // Utility variables
+  const isHoldingShift = useShiftKey();
   const someoneTyping = typingUsers && typingUsers.length > 0;
   const inputBg = replyingTo || someoneTyping || images ? 'bg-muted' : '';
 
@@ -95,9 +97,14 @@ export function ChatInput({
     if (disabled || uploading || ((!value.trim() || value.length > MAX_MESSAGE_LENGTH) && (!images || images.length === 0))) return;
     if (images) {
       const response = await startUpload(images).catch(console.error);
-      const imageUrls = response?.map((r) => r.ufsUrl);
-      if (response && response.length > 0 && imageUrls) {
-        await sendMessage({ chatId, content: value, reference: replyingTo, isGroup, imageUrls }).catch(console.error);
+      if (response && response.length > 0) {
+        await sendMessage({
+          chatId,
+          isGroup,
+          content: value,
+          reference: replyingTo,
+          attachments: response.map((r) => ({ key: r.key, name: r.name, size: r.size, type: r.type, url: r.ufsUrl })),
+        }).catch(console.error);
       }
     } else {
       await sendMessage({ chatId, content: value, reference: replyingTo, isGroup }).catch(console.error);
@@ -157,7 +164,10 @@ export function ChatInput({
                 <EmojiPicker
                   className='h-[342px]'
                   onEmojiSelect={({ emoji }) => {
-                    setEmojiPickerOpen(false);
+                    if (!isHoldingShift) {
+                      setEmojiPickerOpen(false);
+                    }
+
                     setValue((prev) => prev + (prev.length > 0 && prev[prev.length - 1] !== ' ' ? ' ' + emoji : emoji));
                   }}
                 >

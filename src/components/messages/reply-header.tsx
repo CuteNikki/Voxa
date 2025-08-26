@@ -62,7 +62,7 @@ export function ReplyHeader({
         <ReplyHeaderUser targetId={message.senderId} />
 
         <span className='text-muted-foreground truncate pr-10 text-sm italic group-hover:underline'>
-          {message.content} {(message.imageUrls?.length ?? 0) > 0 && '🖼'}
+          {message.content} {message.attachments && message.attachments.length > 0 && '🖼'}
         </span>
       </button>
       <Button

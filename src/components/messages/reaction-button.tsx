@@ -9,6 +9,7 @@ import { api } from '../../../convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useShiftKey } from '@/hooks/shift';
 
 export function ReactionButton({
   messageId,
@@ -20,6 +21,7 @@ export function ReactionButton({
   setReactionPicker: (messageId?: string) => void;
 }) {
   const addReaction = useMutation(api.messages.addReaction);
+  const isHoldingShift = useShiftKey();
 
   return (
     <Popover
@@ -41,8 +43,9 @@ export function ReactionButton({
         <EmojiPicker
           className='h-[342px]'
           onEmojiSelect={({ emoji }) => {
-            setReactionPicker(undefined);
-
+            if (!isHoldingShift) {
+              setReactionPicker(undefined);
+            }
             // Extract error message after "Uncaught Error: "
 
             addReaction({ messageId, reaction: emoji }).catch((error) => {

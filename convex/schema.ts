@@ -49,7 +49,7 @@ export default defineSchema({
     chatId: v.string(),
     senderId: v.string(),
     content: v.optional(v.string()),
-    imageUrls: v.optional(v.array(v.string())),
+    attachments: v.optional(v.array(v.object({ url: v.string(), type: v.string(), name: v.string(), size: v.number(), key: v.string() }))),
     editedAt: v.optional(v.number()),
     reactions: v.optional(v.array(v.object({ userId: v.string(), reaction: v.string(), createdAt: v.number() }))),
     reference: v.optional(v.string()), // (messageId) reference to the original message if this is a reply

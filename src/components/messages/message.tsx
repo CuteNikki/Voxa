@@ -122,7 +122,7 @@ export function Message({
                     {isOwnMessage && (
                       <>
                         <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
-                        <DeleteMessageButton messageId={message._id} />
+                        <DeleteMessageButton message={message} />
                       </>
                     )}
                   </div>
@@ -166,14 +166,15 @@ export function Message({
               ) : (
                 <div className='flex flex-col'>
                   <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
-                  {message.imageUrls && message.imageUrls.length > 0 && (
+                  {message.attachments && message.attachments.length > 0 && (
                     <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
-                      {message.imageUrls.map((url, idx) => (
+                      {message.attachments.map((att, idx) => (
                         <Image
+                          priority
                           key={idx}
                           width={255}
                           height={255}
-                          src={url}
+                          src={att.url}
                           alt={`Image ${idx + 1} for message ${message._id}`}
                           className='max-h-40 w-fit rounded-md'
                           onError={(e) => {
@@ -197,7 +198,7 @@ export function Message({
                     {isOwnMessage && (
                       <>
                         <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
-                        <DeleteMessageButton messageId={message._id} />
+                        <DeleteMessageButton message={message} />
                       </>
                     )}
                   </div>
@@ -391,7 +392,7 @@ function MessageReference({
       <div className='flex flex-row items-center gap-1'>
         <ReferenceUser targetId={message.senderId} />
         <span className='text-muted-foreground max-w-30 truncate text-sm italic group-hover/ref:underline sm:max-w-60 lg:max-w-90' title={message.content}>
-          {message.content} {(message.imageUrls?.length ?? 0) > 0 && '🖼'}
+          {message.content} {message.attachments && message.attachments.length > 0 && '🖼'}
         </span>
       </div>
     </button>

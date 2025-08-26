@@ -1,14 +1,16 @@
-import { useMutation } from 'convex/react';
+'use client';
 
-import { Trash2Icon } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { Loader2Icon, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
+import { Doc } from '../../../convex/_generated/dataModel';
 
-import { useShiftKey } from '@/hooks/shift';
+import { deleteMessageImages } from '@/lib/actions';
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -18,47 +20,73 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { useShiftKey } from '@/hooks/shift';
 
-export function DeleteMessageButton({ messageId }: { messageId: string }) {
+export function DeleteMessageButton({ message }: { message: Doc<'messages'> }) {
   const isHoldingShift = useShiftKey();
+  const [loading, setLoading] = useState(false);
   const deleteMessage = useMutation(api.messages.deleteMessage);
 
   const handleDelete = async () => {
-    await deleteMessage({ messageId }).catch(console.error);
+    setLoading(true);
+    try {
+      if (message.attachments?.length) {
+        await deleteMessageImages(message.attachments.map((att) => att.key));
+      }
+      await deleteMessage({ messageId: message._id });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Dialog submit handler
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await handleDelete();
+  };
+
+  if (isHoldingShift) {
+    return (
+      <Button
+        variant='destructive'
+        size='sm'
+        className='h-7'
+        aria-label='Delete message'
+        title='Delete message'
+        disabled={loading}
+        onClick={handleDelete}
+      >
+        {loading ? <Loader2Icon className='animate-spin' /> : <Trash2Icon />}
+      </Button>
+    );
+  }
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant='destructive'
-          size='sm'
-          aria-label={isHoldingShift ? 'Delete message immediately' : 'Delete message'}
-          className='h-7'
-          title={isHoldingShift ? 'Delete immediately' : 'Delete message'}
-          onClick={(e) => {
-            if (isHoldingShift) {
-              e.preventDefault();
-              handleDelete();
-            }
-          }}
-        >
+        <Button variant='destructive' size='sm' className='h-7' aria-label='Delete message' title='Delete message'>
           <Trash2Icon />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>This action cannot be undone. This will permanently delete the message.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button variant='secondary'>Cancel</Button>
-          </AlertDialogCancel>
-          <AlertDialogAction asChild onClick={handleDelete}>
-            <Button variant='destructive'>Continue</Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
+        <form onSubmit={handleSubmit}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone. This will permanently delete the message.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant='secondary' type='button'>
+                Cancel
+              </Button>
+            </AlertDialogCancel>
+            <Button variant='destructive' type='submit' disabled={loading}>
+              {loading ? 'Deleting...' : 'Continue'}
+            </Button>
+          </AlertDialogFooter>
+        </form>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -114,7 +114,7 @@ function GroupItem({
                 </span>
               ) : (
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
-                  {lastMessage?.imageUrls && lastMessage.imageUrls.length > 0
+                  {lastMessage?.attachments && lastMessage.attachments.length > 0
                     ? lastMessage.senderId === currentUserId
                       ? 'You: image 🖼️'
                       : 'image 🖼️'
