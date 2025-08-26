@@ -3,10 +3,14 @@
 import { useMutation, usePaginatedQuery } from 'convex/react';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { api } from '../../../convex/_generated/api';
+import { Doc } from '../../../convex/_generated/dataModel';
 
-import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmileIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
+import { ClipboardCopyIcon, CornerUpRightIcon, Loader2Icon, PencilIcon, SmileIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
+
+import { deleteMessageImages } from '@/lib/actions';
 
 import { LAST_READ_UPDATE_INTERVAL, MESSAGE_GROUPING_THRESHOLD } from '@/constants/limits';
 
@@ -24,6 +28,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   const [viewReactionsFor, setViewReactionsFor] = useState<string | undefined>(undefined);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | undefined>(undefined);
   const [disableAutoScrollUntil, setDisableAutoScrollUntil] = useState<number>(0);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
@@ -38,6 +43,22 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   const setLastRead = useMutation(api.chats.setLastRead);
 
   const messages = [...results].reverse();
+
+  const handleMessageDelete = async (message: Doc<'messages'>) => {
+    setDeleteLoading(true);
+    try {
+      await deleteMessage({ messageId: message._id });
+
+      if (message.attachments?.length) {
+        await deleteMessageImages(message.attachments.map((att) => att.key));
+      }
+    } catch (err) {
+      toast.error('Delete failed', { description: `An error occurred while deleting the message: ` + (err instanceof Error ? err.message : 'Unknown error') });
+      console.error(err);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // keep the ref up-to-date
   useEffect(() => {
@@ -258,8 +279,16 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                       <ContextMenuItem onSelect={() => setEditing(message._id)}>
                         <PencilIcon /> Edit Message
                       </ContextMenuItem>
-                      <ContextMenuItem variant='destructive' onSelect={() => deleteMessage({ messageId: message._id }).catch(console.error)}>
-                        <Trash2Icon /> Delete Message
+                      <ContextMenuItem variant='destructive' onSelect={() => handleMessageDelete(message)}>
+                        {deleteLoading ? (
+                          <>
+                            <Loader2Icon className='animate-spin' /> Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2Icon /> Delete Message
+                          </>
+                        )}
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                     </>

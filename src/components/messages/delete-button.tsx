@@ -3,10 +3,12 @@
 import { useMutation } from 'convex/react';
 import { Loader2Icon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { api } from '../../../convex/_generated/api';
 import { Doc } from '../../../convex/_generated/dataModel';
 
+import { useShiftKey } from '@/hooks/shift';
 import { deleteMessageImages } from '@/lib/actions';
 
 import {
@@ -20,7 +22,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { useShiftKey } from '@/hooks/shift';
 
 export function DeleteMessageButton({ message }: { message: Doc<'messages'> }) {
   const isHoldingShift = useShiftKey();
@@ -30,11 +31,13 @@ export function DeleteMessageButton({ message }: { message: Doc<'messages'> }) {
   const handleDelete = async () => {
     setLoading(true);
     try {
+      await deleteMessage({ messageId: message._id });
+
       if (message.attachments?.length) {
         await deleteMessageImages(message.attachments.map((att) => att.key));
       }
-      await deleteMessage({ messageId: message._id });
     } catch (err) {
+      toast.error('Delete failed', { description: `An error occurred while deleting the message: ` + (err instanceof Error ? err.message : 'Unknown error') });
       console.error(err);
     } finally {
       setLoading(false);
@@ -49,15 +52,7 @@ export function DeleteMessageButton({ message }: { message: Doc<'messages'> }) {
 
   if (isHoldingShift) {
     return (
-      <Button
-        variant='destructive'
-        size='sm'
-        className='h-7'
-        aria-label='Delete message'
-        title='Delete message'
-        disabled={loading}
-        onClick={handleDelete}
-      >
+      <Button variant='destructive' size='sm' className='h-7' aria-label='Delete message' title='Delete message' disabled={loading} onClick={handleDelete}>
         {loading ? <Loader2Icon className='animate-spin' /> : <Trash2Icon />}
       </Button>
     );
