@@ -167,11 +167,11 @@ export function Message({
                 <div className='flex flex-col'>
                   <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
                   {message.imageUrls && message.imageUrls.length > 0 && (
-                    <div className='mt-2 flex max-w-5xl w-full flex-wrap gap-2'>
+                    <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
                       {message.imageUrls.map((url, idx) => (
                         <Image
-                          key={idx}
                           unoptimized
+                          key={idx}
                           width={255}
                           height={255}
                           src={url}

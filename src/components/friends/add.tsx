@@ -12,7 +12,12 @@ export function AddFriendButton({ targetUserId, userId }: { targetUserId: string
   const addFriend = useMutation(api.friends.sendRequest);
 
   return (
-    <Button size='icon' title='Send friend request' aria-label='Send friend request' onClick={() => addFriend({ to: targetUserId, from: userId }).catch(console.error)}>
+    <Button
+      size='icon'
+      title='Send friend request'
+      aria-label='Send friend request'
+      onClick={() => addFriend({ to: targetUserId, from: userId }).catch(console.error)}
+    >
       <UserPlus2Icon />
     </Button>
   );
