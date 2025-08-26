@@ -7,6 +7,7 @@ import { SendHorizontalIcon, SmileIcon } from 'lucide-react';
 
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
 
+import { ImageHeader } from '@/components/messages/image-header';
 import { ReplyHeader } from '@/components/messages/reply-header';
 import { TypingHeader } from '@/components/messages/typing-header';
 import { UploadButton } from '@/components/messages/upload-button';
@@ -14,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from '@/components/ui/emoji-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { useUploadThing } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export function ChatInput({
   userId,
@@ -32,8 +35,9 @@ export function ChatInput({
 }) {
   // States
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [value, setValue] = useState('');
+  const [images, setImages] = useState<File[] | null>(null);
   // References
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -43,7 +47,25 @@ export function ChatInput({
   const typingUsers = useQuery(api.typing.getTypingUsers, { chatId })?.filter((u) => u.userId !== userId);
   // Utility variables
   const someoneTyping = typingUsers && typingUsers.length > 0;
-  const inputBg = replyingTo || someoneTyping ? 'bg-muted' : '';
+  const inputBg = replyingTo || someoneTyping || images ? 'bg-muted' : '';
+
+  const { startUpload } = useUploadThing('imageUploader', {
+    onClientUploadComplete: () => {
+      setUploading(false);
+      setImages(null);
+      toast.success('Upload Complete', { description: 'Your images have been uploaded successfully.' });
+    },
+    onUploadError: (error) => {
+      setUploading(false);
+      console.error(error);
+      toast.error('Upload Failed', { description: `There was an error uploading your images: ${error.message}` });
+    },
+    onUploadBegin: (fileName) => {
+      setUploading(true);
+      toast.info(`Uploading ${fileName}...`, { description: 'Your upload has started.' });
+      console.log(`Starting upload for ${fileName}`);
+    },
+  });
 
   // Effects
   useEffect(() => {
@@ -71,11 +93,20 @@ export function ChatInput({
   };
 
   const handleSend = async () => {
-    if (!value.trim || isUploading) return;
+    if (disabled || uploading || ((!value.trim() || value.length > MAX_MESSAGE_LENGTH) && (!images || images.length === 0))) return;
+    if (images) {
+      const response = await startUpload(images).catch(console.error);
+      const imageUrls = response?.map((r) => r.ufsUrl);
+      if (response && response.length > 0 && imageUrls) {
+        await sendMessage({ chatId, content: value, reference: replyingTo, isGroup, imageUrls }).catch(console.error);
+      }
+    } else {
+      await sendMessage({ chatId, content: value, reference: replyingTo, isGroup }).catch(console.error);
+    }
+    await setTyping({ chatId, typing: false }).catch(console.error);
+    setImages(null);
     setValue('');
     setReplyingTo(undefined);
-    await sendMessage({ chatId, content: value, reference: replyingTo, isGroup }).catch(console.error);;
-    await setTyping({ chatId, typing: false }).catch(console.error);;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -85,8 +116,6 @@ export function ChatInput({
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // Prevent submitting the form
-      // Check if the message is valid
-      if (!value.trim() || value.length > MAX_MESSAGE_LENGTH) return;
       return handleSend(); // Send the message
     }
   };
@@ -94,7 +123,10 @@ export function ChatInput({
   return (
     <div>
       {typingUsers && <TypingHeader typingUsers={typingUsers} />}
-      {replyingTo && <ReplyHeader messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={!someoneTyping} />}
+      {replyingTo && <ReplyHeader disabled={disabled || uploading} messageId={replyingTo} setReplyingTo={setReplyingTo} roundCorners={!someoneTyping} />}
+      {images && images.length > 0 && (
+        <ImageHeader disabled={disabled || uploading} images={images} setImages={setImages} roundCorners={!someoneTyping && !replyingTo} />
+      )}
       <div className={`${inputBg} relative flex w-full`}>
         <Textarea
           ref={areaRef}
@@ -104,7 +136,7 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           placeholder='Your Message'
           className='no-scrollbar !bg-background z-40 m-2 mt-0 max-h-18 resize-none py-3 pr-20 pl-12'
-          disabled={disabled || isUploading}
+          disabled={disabled || uploading}
         />
         {value.length >= MAX_MESSAGE_LENGTH_WARNING && (
           <span className={`absolute top-1 right-4 z-50 text-xs ${value.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
@@ -113,21 +145,12 @@ export function ChatInput({
         )}
         <div className='absolute flex h-full w-full flex-row items-center justify-between px-3 pb-2'>
           <div className='flex items-center gap-1'>
-            <UploadButton
-              chatId={chatId}
-              isGroup={isGroup}
-              value={value}
-              setValue={setValue}
-              reference={replyingTo}
-              setReference={setReplyingTo}
-              uploading={isUploading}
-              setUploading={setIsUploading}
-            />
+            <UploadButton images={images} setImages={setImages} disabled={disabled || uploading} />
           </div>
           <div className='flex items-center gap-1'>
             <Popover onOpenChange={setEmojiPickerOpen} open={emojiPickerOpen}>
               <PopoverTrigger asChild>
-                <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker' className='z-50' disabled={disabled || isUploading}>
+                <Button variant='outline' size='icon' aria-label='Emoji Picker' title='Emoji Picker' className='z-50' disabled={disabled || uploading}>
                   <SmileIcon />
                 </Button>
               </PopoverTrigger>
@@ -150,7 +173,7 @@ export function ChatInput({
               variant='default'
               size='icon'
               aria-label='Send message'
-              disabled={disabled || !value.trim() || value.length > MAX_MESSAGE_LENGTH || isUploading}
+              disabled={disabled || uploading || ((!value.trim() || value.length > MAX_MESSAGE_LENGTH) && (!images || images.length === 0))}
               title='Send message'
               className='z-50'
             >

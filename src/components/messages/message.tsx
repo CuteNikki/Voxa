@@ -43,17 +43,7 @@ export function Message({
   setHighlightedMessageId,
   setDisableAutoScrollUntil,
 }: {
-  message: {
-    imageUrl?: string;
-    content?: string;
-    chatId: string;
-    senderId: string;
-    _id: string;
-    editedAt?: number;
-    reactions?: { userId: string; reaction: string; createdAt: number }[];
-    reference?: string;
-    _creationTime: number;
-  };
+  message: Doc<'messages'>;
   showAvatar?: boolean;
   userId: string;
   replyingTo?: string;
@@ -167,7 +157,7 @@ export function Message({
 
                         setEditing(undefined);
                         setEditingValue(trimmedContent);
-                        editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);;
+                        editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);
                       }
                     }}
                     className='no-scrollbar max-h-18 w-full resize-none break-all whitespace-pre-line'
@@ -176,16 +166,20 @@ export function Message({
               ) : (
                 <div className='flex flex-col'>
                   <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
-                  {message.imageUrl && (
-                    <Image
-                      src={message.imageUrl}
-                      unoptimized
-                      alt='Message attachment'
-                      width={240}
-                      height={240}
-                      className='max-h-60 rounded-md'
-                      aria-label='image'
-                    />
+                  {message.imageUrls && message.imageUrls.length > 0 && (
+                    <div className='mt-2 flex max-w-5xl w-full flex-wrap gap-2'>
+                      {message.imageUrls.map((url, idx) => (
+                        <Image
+                          key={idx}
+                          unoptimized
+                          width={255}
+                          height={255}
+                          src={url}
+                          alt={`Image ${idx + 1} for message ${message._id}`}
+                          className='max-h-40 w-fit rounded-md'
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
               )}
@@ -393,7 +387,7 @@ function MessageReference({
       <div className='flex flex-row items-center gap-1'>
         <ReferenceUser targetId={message.senderId} />
         <span className='text-muted-foreground max-w-30 truncate text-sm italic group-hover/ref:underline sm:max-w-60 lg:max-w-90' title={message.content}>
-          {message.content}
+          {message.content} {(message.imageUrls?.length ?? 0) > 0 && '🖼'}
         </span>
       </div>
     </button>

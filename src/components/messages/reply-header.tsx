@@ -13,10 +13,12 @@ export function ReplyHeader({
   messageId,
   setReplyingTo,
   roundCorners,
+  disabled,
 }: {
   messageId: string;
   roundCorners?: boolean;
   setReplyingTo: (messageId?: string) => void;
+  disabled?: boolean;
 }) {
   const message = useQuery(api.messages.getMessageById, { messageId });
 
@@ -30,6 +32,7 @@ export function ReplyHeader({
           </span>
         </div>
         <Button
+          disabled
           variant='ghost'
           size='sm'
           onClick={() => setReplyingTo(undefined)}
@@ -45,12 +48,25 @@ export function ReplyHeader({
 
   return (
     <div className={`bg-muted relative w-full ${roundCorners ? 'rounded-tl-md rounded-tr-md' : 'rounded-none'}`}>
-      <div className='flex items-center gap-2 p-2 px-4'>
+      <button
+        type='button'
+        onClick={() => {
+          const el = document.getElementById(messageId);
+          if (el) {
+            el.focus();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }}
+        className='group flex cursor-pointer items-center gap-2 p-2 px-4'
+      >
         <ReplyHeaderUser targetId={message.senderId} />
 
-        <span className='text-muted-foreground truncate pr-10 text-sm'>{message.content}</span>
-      </div>
+        <span className='text-muted-foreground truncate pr-10 text-sm italic group-hover:underline'>
+          {message.content} {(message.imageUrls?.length ?? 0) > 0 && '🖼'}
+        </span>
+      </button>
       <Button
+        disabled={disabled}
         variant='ghost'
         size='sm'
         onClick={() => setReplyingTo(undefined)}

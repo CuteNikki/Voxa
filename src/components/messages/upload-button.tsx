@@ -1,62 +1,13 @@
 'use client';
 
-import { useMutation } from 'convex/react';
 import { PlusIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { api } from '../../../convex/_generated/api';
-
-import { useUploadThing } from '@/lib/utils';
+import { MAX_IMAGE_COUNT, MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from '@/constants/limits';
 
 import { Button } from '@/components/ui/button';
-import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from '@/constants/limits';
 
-export function UploadButton({
-  isGroup,
-  chatId,
-  value,
-  setValue,
-  reference,
-  setReference,
-  uploading,
-  setUploading,
-}: {
-  isGroup?: boolean;
-  chatId: string;
-  value: string;
-  setValue: (value: string) => void;
-  reference: string | undefined;
-  setReference: (reference?: string) => void;
-  uploading?: boolean;
-  setUploading: (uploading: boolean) => void;
-}) {
-  const sendMessage = useMutation(api.messages.sendChatMessage);
-
-  const { startUpload } = useUploadThing('imageUploader', {
-    onClientUploadComplete: (res) => {
-      sendMessage({
-        chatId,
-        isGroup,
-        reference,
-        imageUrl: res[0].ufsUrl,
-        content: value,
-      }).catch(console.error);
-      setValue('');
-      setReference(undefined);
-      setUploading(false);
-      toast.success('Uploaded!', { description: 'Image uploaded successfully' });
-    },
-    onUploadError: (e) => {
-      toast.error('Failed to upload image', { description: e.message });
-      setUploading(false);
-      console.error(e);
-    },
-    onUploadBegin: (fileName) => {
-      toast.info('Uploading...', { description: `Uploading image ${fileName}` });
-      setUploading(true);
-    },
-  });
-
+export function UploadButton({ images, setImages, disabled }: { images: File[] | null; setImages: (files: File[] | null) => void; disabled?: boolean }) {
   return (
     <div className='z-50'>
       <Button
@@ -64,29 +15,50 @@ export function UploadButton({
         size='icon'
         aria-label='Upload'
         title='Upload'
-        disabled={uploading}
+        disabled={disabled}
         onClick={() => document.getElementById('upload-input')?.click()}
       >
         <PlusIcon />
         <input
           id='upload-input'
           type='file'
-          className='absolute h-0 w-0 opacity-0'
-          style={{ pointerEvents: 'none' }}
+          className='pointer-events-none absolute h-0 w-0 opacity-0'
           accept='image/*'
-          multiple={false}
-          // No native max file size attribute, so check in JS:
+          multiple={true}
+          disabled={disabled}
+          tabIndex={-1}
+          onClick={(e) => {
+            // Prevent the input from clearing itself when pressing cancel
+            (e.target as HTMLInputElement).value = '';
+          }}
           onChange={(e) => {
-            const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
-            if (selectedFiles.length > 0 && !uploading) {
-              if (selectedFiles[0].size > MAX_IMAGE_SIZE_BYTES) {
-                toast.error('Failed to upload image', { description: `The image is too big! Max file size is ${MAX_IMAGE_SIZE_MB}MB` });
-                e.target.value = '';
-                return;
+            if (!e.target.files) return;
+            const currentFiles: File[] = images && images.length > 0 ? [...images] : [];
+
+            for (const file of e.target.files) {
+              // Verify file size
+              if (file.size > MAX_IMAGE_SIZE_BYTES) {
+                toast.error('Upload Failed!', { description: `Image "${file.name}" is too large. Maximum size is ${MAX_IMAGE_SIZE_MB}MB.` });
+                continue;
               }
-              startUpload(selectedFiles);
-              e.target.value = ''; // reset input for next upload
+              // Verify file count
+              if (currentFiles.length >= MAX_IMAGE_COUNT) {
+                toast.error('Upload Failed!', {
+                  description: `Image "${file.name}" wasn't uploaded. Cannot upload more than ${MAX_IMAGE_COUNT} images at once.`,
+                });
+                continue;
+              }
+              // Verify file type
+              if (!file.type.startsWith('image/')) {
+                toast.error('Upload Failed!', {
+                  description: `File "${file.name}" is not a supported image type.`,
+                });
+                continue;
+              }
+              currentFiles.push(file);
             }
+
+            setImages(currentFiles.length > 0 ? currentFiles : null);
           }}
         />
       </Button>
