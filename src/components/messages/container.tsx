@@ -1,25 +1,21 @@
 'use client';
 
-import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
+import { useMutation, usePaginatedQuery } from 'convex/react';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
 import { ClipboardCopyIcon, CornerUpRightIcon, PencilIcon, SmileIcon, SmilePlusIcon, Trash2Icon } from 'lucide-react';
 
 import { LAST_READ_UPDATE_INTERVAL, MESSAGE_GROUPING_THRESHOLD } from '@/constants/limits';
-import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
-
-import { formatReactionTimestamp } from '@/lib/utils';
 
 import { ChatInput } from '@/components/messages/chat-input';
 import { Message, MessageSkeleton } from '@/components/messages/message';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ReactionDialogContent } from '@/components/messages/reaction-dialog';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export function MessageContainer({ chatId, userId }: { chatId: string; userId: string }) {
   const [replyingTo, setReplyingTo] = useState<string | undefined>(undefined);
@@ -30,6 +26,10 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   const [disableAutoScrollUntil, setDisableAutoScrollUntil] = useState<number>(0);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stickToBottomRef = useRef(true);
+  const scrollAttemptRef = useRef<{ rafId: number | null; timeouts: number[] }>({ rafId: null, timeouts: [] });
+  const disableAutoScrollUntilRef = useRef(disableAutoScrollUntil);
+
   const pathname = usePathname();
   const isGroup = pathname.startsWith('/groups');
 
@@ -37,7 +37,127 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   const deleteMessage = useMutation(api.messages.deleteMessage);
   const setLastRead = useMutation(api.chats.setLastRead);
 
-  const messages = [...results].reverse(); // Reverse to show the latest messages at the bottom
+  const messages = [...results].reverse();
+
+  // keep the ref up-to-date
+  useEffect(() => {
+    disableAutoScrollUntilRef.current = disableAutoScrollUntil;
+  }, [disableAutoScrollUntil]);
+
+  const robustScrollToBottom = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    // Only scroll if there is overflow
+    if (el.scrollHeight <= el.clientHeight) return;
+
+    if (disableAutoScrollUntilRef.current && Date.now() <= disableAutoScrollUntilRef.current) return;
+    if (!stickToBottomRef.current) return;
+
+    const state = scrollAttemptRef.current;
+    if (state.rafId) cancelAnimationFrame(state.rafId);
+    state.timeouts.forEach(clearTimeout);
+    state.timeouts = [];
+
+    const deadline = Date.now() + 1200;
+    let attempts = 0;
+
+    function frame() {
+      const el2 = scrollRef.current;
+      if (!el2) return;
+      if (disableAutoScrollUntilRef.current && Date.now() <= disableAutoScrollUntilRef.current) return;
+      if (!stickToBottomRef.current) return;
+
+      el2.scrollTop = el2.scrollHeight;
+      attempts++;
+
+      const atBottom = Math.abs(el2.scrollHeight - el2.clientHeight - el2.scrollTop) < 1;
+      if (!atBottom && Date.now() < deadline && attempts < 40) {
+        state.rafId = requestAnimationFrame(frame);
+      } else {
+        state.rafId = null;
+      }
+    }
+
+    state.rafId = requestAnimationFrame(frame);
+
+    let backoff = 50;
+    for (let i = 0; i < 6; i++) {
+      const id = window.setTimeout(() => {
+        const el3 = scrollRef.current;
+        if (!el3) return;
+        if (disableAutoScrollUntilRef.current && Date.now() <= disableAutoScrollUntilRef.current) return;
+        if (!stickToBottomRef.current) return;
+        el3.scrollTop = el3.scrollHeight;
+      }, backoff);
+      state.timeouts.push(id);
+      backoff *= 2;
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
+      stickToBottomRef.current = isNearBottom;
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (stickToBottomRef.current && Date.now() > disableAutoScrollUntilRef.current) {
+      robustScrollToBottom();
+    }
+  }, [messages, robustScrollToBottom]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(() => {
+      if (Date.now() > disableAutoScrollUntilRef.current && stickToBottomRef.current) {
+        robustScrollToBottom();
+      }
+    });
+    observer.observe(el);
+
+    const imgs = Array.from(el.querySelectorAll('img'));
+    const handlers = new Map<HTMLImageElement, EventListener>();
+
+    imgs.forEach((img) => {
+      const handler = () => {
+        if (Date.now() > disableAutoScrollUntilRef.current && stickToBottomRef.current) {
+          robustScrollToBottom();
+        }
+      };
+      handlers.set(img, handler);
+      if (!img.complete || (img.naturalWidth === 0 && img.naturalHeight === 0)) {
+        img.addEventListener('load', handler);
+        img.addEventListener('error', handler);
+      } else {
+        robustScrollToBottom();
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+      handlers.forEach((h, img) => {
+        img.removeEventListener('load', h);
+        img.removeEventListener('error', h);
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const state = scrollAttemptRef.current;
+      if (state.rafId) cancelAnimationFrame(state.rafId);
+      state.timeouts.forEach(clearTimeout);
+      state.timeouts = [];
+    };
+  }, [messages, robustScrollToBottom]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -63,17 +183,11 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   }, [highlightedMessageId]);
 
   useEffect(() => {
-    const el = scrollRef.current;
-    // Only auto-scroll if not disabled
-    if (el && Date.now() > disableAutoScrollUntil) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [messages, disableAutoScrollUntil]);
-
-  useEffect(() => {
     if (!replyingTo) return;
     if (!messages.map((m) => m._id.toString()).includes(replyingTo)) setReplyingTo(undefined);
   }, [messages, replyingTo]);
+
+  // ---------- RENDER ----------
 
   if (status === 'LoadingFirstPage') {
     return (
@@ -93,6 +207,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
 
   return (
     <div className='flex min-h-0 flex-1 flex-col'>
+      {/* SCROLLABLE MESSAGES */}
       <div ref={scrollRef} className='flex-1 overflow-y-auto'>
         <div className='flex w-full flex-col pt-6 pb-2'>
           {status === 'CanLoadMore' && (
@@ -162,6 +277,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
         </div>
       </div>
 
+      {/* REACTIONS DIALOG */}
       {viewReactionsFor && (
         <Dialog open={!!viewReactionsFor} onOpenChange={(open) => !open && setViewReactionsFor(undefined)}>
           <DialogContent>
@@ -173,93 +289,8 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
         </Dialog>
       )}
 
+      {/* MESSAGE INPUT */}
       <ChatInput userId={userId} chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} isGroup={isGroup} />
-    </div>
-  );
-}
-
-export function ReactionDialogContent({
-  message,
-}: {
-  message?: {
-    reactions?: {
-      reaction: string;
-      userId: string;
-      createdAt: number;
-    }[];
-  };
-}) {
-  const reactions = message?.reactions ?? [];
-  const emojiGroups = reactions.reduce<Record<string, typeof reactions>>((acc, r) => {
-    acc[r.reaction] = acc[r.reaction] || [];
-    acc[r.reaction].push(r);
-    return acc;
-  }, {});
-  const emojis = Object.keys(emojiGroups);
-  const [activeTab, setActiveTab] = useState(emojis[0] ?? '');
-
-  useEffect(() => {
-    if (!emojis.includes(activeTab)) setActiveTab(emojis[0] ?? '');
-  }, [emojis, activeTab]);
-
-  if (!emojis.length) {
-    return <div className='text-muted-foreground text-sm'>No reactions yet.</div>;
-  }
-
-  return (
-    <div>
-      <div className='mb-4'>
-        <div className='flex border-b'>
-          {emojis.map((emoji) => (
-            <button
-              key={emoji}
-              className={`flex items-center gap-1 border-b-2 px-3 py-2 text-sm font-medium transition-colors duration-300 ${
-                activeTab === emoji ? 'border-primary text-primary' : 'text-muted-foreground hover:text-primary border-transparent'
-              }`}
-              onClick={() => setActiveTab(emoji)}
-              type='button'
-            >
-              {emoji}
-              <span className='text-muted-foreground ml-1 font-mono text-xs'>{emojiGroups[emoji].length}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className='flex flex-col gap-2'>
-        {emojiGroups[activeTab]?.map((r, i) => (
-          <div key={i} className='flex items-center justify-between gap-2'>
-            <ReactionUser userId={r.userId} />
-            <span className='text-muted-foreground text-xs'>{formatReactionTimestamp(r.createdAt)}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function ReactionUser({ userId }: { userId: string }) {
-  const target = useQuery(api.users.getUser, { clerkId: userId });
-
-  if (!target) {
-    return (
-      <div className='flex flex-row items-center gap-2'>
-        <Avatar className='size-6'>
-          <AvatarFallback>
-            <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
-          </AvatarFallback>
-        </Avatar>
-        <Skeleton className='font-medium capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
-      </div>
-    );
-  }
-
-  return (
-    <div className='flex flex-row items-center gap-2'>
-      <Avatar className='size-6'>
-        <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
-        <AvatarFallback>{target.username ? target.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
-      </Avatar>
-      <span className='font-medium capitalize'>{target.username}</span>
     </div>
   );
 }
