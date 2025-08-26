@@ -125,7 +125,7 @@ function UserItem({
                 </span>
               ) : (
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
-                  {lastMessage?.imageUrl ? (lastMessage.senderId === currentUserId ? 'You: image 🖼️' : 'image 🖼️') : 'No messages'}
+                  {lastMessage?.imageUrls && lastMessage.imageUrls.length > 0 ? (lastMessage.senderId === currentUserId ? 'You: image 🖼️' : 'image 🖼️') : 'No messages'}
                 </span>
               )}
             </div>
