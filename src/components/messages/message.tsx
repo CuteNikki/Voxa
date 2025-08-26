@@ -111,7 +111,7 @@ export function Message({
                 </Popover>
                 <div className='flex items-center gap-2'>
                   <div
-                    className={`bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${
+                    className={`bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${
                       message._id === replyingTo || message._id === editing || message._id === reactionPicker
                         ? 'opacity-100'
                         : 'group-focus-within:opacity-100 group-hover:opacity-100'
