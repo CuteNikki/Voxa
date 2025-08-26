@@ -26,16 +26,6 @@ export const getUser = query({
   },
 });
 
-export const getUsersByIds = query({
-  args: { ids: v.array(v.string()) },
-  handler: async (ctx, { ids }) => {
-    if (ids.length === 0) return [];
-    const allUsers = await ctx.db.query('users').collect();
-    const users = allUsers.filter((user) => ids.includes(user.clerkId));
-    return users;
-  },
-});
-
 export const getOrCreateUser = mutation({
   args: {},
   handler: async (ctx) => {
@@ -85,7 +75,7 @@ export const getUserNames = query({
   args: { ids: v.array(v.string()) },
   handler: async (ctx, { ids }) => {
     const allUsers = await ctx.db.query('users').collect();
-    const users = allUsers.filter((user) => ids.includes(user.clerkId)).map((user) => user.username ?? user.clerkId);
+    const users = allUsers.filter((user) => ids.includes(user.clerkId)).map((user) => ({ username: user.username, userId: user.clerkId }));
     return users;
   },
 });

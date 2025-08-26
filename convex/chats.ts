@@ -4,33 +4,6 @@ import { paginationOptsValidator } from 'convex/server';
 import { Doc, Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 
-export const createChat = mutation({
-  args: {
-    userId: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const existingChat = await ctx.db
-      .query('chats')
-      .filter((q) => q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.userId)))
-      .first();
-
-    if (existingChat) {
-      throw new Error('Chat already exists with this user');
-    }
-
-    return await ctx.db.insert('chats', {
-      userIdOne: user.subject,
-      userIdTwo: args.userId,
-    });
-  },
-});
-
 // Only called from the server side
 export const createGroupChat = mutation({
   args: {
@@ -55,32 +28,6 @@ export const createGroupChat = mutation({
   },
 });
 
-// Only called from the server side
-export const getChats = query({
-  args: { userId: v.string() },
-  handler: async (ctx, { userId }) => {
-    return await ctx.db
-      .query('chats')
-      .filter((q) => q.or(q.eq(q.field('userIdOne'), userId), q.eq(q.field('userIdTwo'), userId)))
-      .collect();
-  },
-});
-
-export const getOwnChats = query({
-  handler: async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    return await ctx.db
-      .query('chats')
-      .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
-      .collect();
-  },
-});
-
 export const getOwnChatsPaginated = query({
   args: {
     paginationOpts: paginationOptsValidator,
@@ -97,13 +44,6 @@ export const getOwnChatsPaginated = query({
       .filter((q) => q.or(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), user.subject)))
       .order('desc')
       .paginate(paginationOpts);
-  },
-});
-
-// Only called from the server side
-export const getGroups = query({
-  handler: async (ctx) => {
-    return await ctx.db.query('groups').collect();
   },
 });
 

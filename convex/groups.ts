@@ -18,17 +18,6 @@ export const getGroupsPaginated = query({
   },
 });
 
-export const getLastMessage = query({
-  args: { groupId: v.string() },
-  handler: async (ctx, { groupId }) => {
-    return await ctx.db
-      .query('messages')
-      .withIndex('by_chatId', (q) => q.eq('chatId', groupId))
-      .order('desc')
-      .first();
-  },
-});
-
 export const getGroupById = query({
   args: { chatId: v.string() },
   handler: async (ctx, { chatId }) => {

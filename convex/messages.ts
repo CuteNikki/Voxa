@@ -5,43 +5,6 @@ import { mutation, query } from './_generated/server';
 
 import { MAX_IMAGE_COUNT, MAX_MESSAGE_LENGTH, MAX_UNIQUE_REACTIONS } from '../src/constants/limits';
 
-export const sendGroupMessage = mutation({
-  args: {
-    chatId: v.string(),
-    content: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    if (!args.content && !args.imageUrl) {
-      throw new Error('Message must have either content or an image URL');
-    }
-
-    if (args.content && args.content.length > MAX_MESSAGE_LENGTH) {
-      throw new Error(`Message content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`);
-    }
-
-    const existingChat = await ctx.db
-      .query('groups')
-      .filter((q) => q.eq(q.field('_id'), args.chatId))
-      .first();
-
-    if (!existingChat) {
-      throw new Error('Group chat does not exist');
-    }
-
-    return await ctx.db.insert('messages', {
-      ...args,
-      senderId: user.subject,
-    });
-  },
-});
-
 export const sendChatMessage = mutation({
   args: {
     chatId: v.string(),
@@ -110,17 +73,6 @@ export const sendChatMessage = mutation({
   },
 });
 
-export const getMessages = query({
-  args: { chatId: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query('messages')
-      .withIndex('by_chatId', (q) => q.eq('chatId', args.chatId))
-      .order('desc')
-      .take(50);
-  },
-});
-
 export const getPaginatedMessages = query({
   args: {
     chatId: v.string(),
@@ -174,8 +126,12 @@ export const editMessage = mutation({
       throw new Error('User not authenticated');
     }
 
-    if (!content && !imageUrls) {
+    if (!content && !imageUrls?.length) {
       throw new Error('Message must have either content or an image URL');
+    }
+
+    if (imageUrls && imageUrls.length > MAX_IMAGE_COUNT) {
+      throw new Error(`You can upload a maximum of ${MAX_IMAGE_COUNT} images per message`);
     }
 
     if (content && content.length > MAX_MESSAGE_LENGTH) {
@@ -283,46 +239,6 @@ export const removeReaction = mutation({
     updatedReactions.splice(existingReactionIndex, 1);
     return await ctx.db.patch(message._id, {
       reactions: updatedReactions,
-    });
-  },
-});
-
-export const sendMessage = mutation({
-  args: {
-    chatId: v.string(),
-    content: v.optional(v.string()),
-    imageUrls: v.optional(v.array(v.string())),
-    reference: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    if (!args.content && !args.imageUrls) {
-      throw new Error('Message must have either content or an image URL');
-    }
-
-    if (args.content && args.content.length > MAX_MESSAGE_LENGTH) {
-      throw new Error(`Message content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`);
-    }
-
-    const existingChat = await ctx.db
-      .query('chats')
-      .filter((q) => q.eq(q.field('_id'), args.chatId))
-      .first();
-
-    if (!existingChat) {
-      throw new Error('Chat does not exist');
-    }
-
-    return await ctx.db.insert('messages', {
-      chatId: args.chatId,
-      content: args.content?.trim() || '',
-      imageUrls: args.imageUrls,
-      senderId: user.subject,
     });
   },
 });

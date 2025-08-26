@@ -149,23 +149,6 @@ export const respondToRequest = mutation({
   },
 });
 
-export const getFriends = query({
-  args: { userId: v.string() },
-  handler: async (ctx, { userId }) => {
-    const friendIds = await ctx.db
-      .query('friends')
-      .filter((q) => q.or(q.eq(q.field('userIdOne'), userId), q.eq(q.field('userIdTwo'), userId)))
-      .collect();
-
-    const friends = await ctx.db
-      .query('users')
-      .filter((q) => q.or(...friendIds.map((friend) => q.or(q.eq(q.field('clerkId'), friend.userIdOne), q.eq(q.field('clerkId'), friend.userIdTwo)))))
-      .collect();
-
-    return friends.filter((friend) => friend.clerkId !== userId);
-  },
-});
-
 export const getFriendIds = query({
   args: { userId: v.string() },
   handler: async (ctx, { userId }) => {

@@ -1,15 +1,6 @@
 import { v } from 'convex/values';
 
-import { ONLINE_THRESHOLD } from '../src/constants/limits';
 import { mutation, query } from './_generated/server';
-
-export const getOnlineUsers = query({
-  handler: async (ctx) => {
-    const now = Date.now();
-    const users = await ctx.db.query('presence').collect();
-    return users.filter((user) => now - user.lastSeen < ONLINE_THRESHOLD);
-  },
-});
 
 export const setOnlineStatus = mutation({
   handler: async (ctx) => {

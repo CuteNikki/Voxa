@@ -93,7 +93,7 @@ function GroupItem({
   };
   currentUserId: string;
 }) {
-  const lastMessage = useQuery(api.groups.getLastMessage, { groupId: item._id });
+  const lastMessage = useQuery(api.chats.getLastMessage, { chatId: item._id });
   const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - LAST_READ_THRESHOLD);
 
   if (lastMessage === undefined) {
@@ -114,7 +114,11 @@ function GroupItem({
                 </span>
               ) : (
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
-                  {lastMessage?.imageUrl ? (lastMessage.senderId === currentUserId ? 'You: image 🖼️' : 'image 🖼️') : 'No messages'}
+                  {lastMessage?.imageUrls && lastMessage.imageUrls.length > 0
+                    ? lastMessage.senderId === currentUserId
+                      ? 'You: image 🖼️'
+                      : 'image 🖼️'
+                    : 'No messages'}
                 </span>
               )}
             </div>
