@@ -77,7 +77,7 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
   }
 
   return (
-    <li className='bg-accent/50 hover:bg-accent/70 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors'>
+    <li className='bg-accent/50 hover:bg-accent/70 flex items-center justify-between gap-2 rounded-xl p-3 transition-colors'>
       <div className='flex flex-row items-center gap-2 xl:gap-4'>
         <Avatar className='size-10'>
           <AvatarImage src={target.imageUrl || '/default-avatar.png'} alt={`${target.username} avatar`} />
@@ -97,7 +97,7 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
 
 export function BaseSkeleton() {
   return (
-    <li className='bg-accent/50 hover:bg-accent/70 flex items-center justify-between gap-2 rounded-xl p-3 shadow-md transition-colors'>
+    <li className='bg-accent/50 hover:bg-accent/70 flex items-center justify-between gap-2 rounded-xl p-3 transition-colors'>
       <div className='flex flex-row items-center gap-2 md:gap-4'>
         <Avatar className='size-10'>
           <AvatarFallback>
