@@ -39,7 +39,7 @@ export function ReactionButton({
           <SmilePlusIcon />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-fit p-0'>
+      <PopoverContent align='end' className='w-fit p-0 mx-2'>
         <EmojiPicker
           className='h-[342px]'
           onEmojiSelect={({ emoji }) => {
