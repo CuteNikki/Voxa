@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "convex codegen",
     "dev": "concurrently \"npm run dev:next\" \"npm run dev:convex\"",
     "dev:next": "next dev --turbopack",
     "dev:convex": "convex dev",
