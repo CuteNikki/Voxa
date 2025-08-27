@@ -44,6 +44,9 @@
 - [x] Unread messages indicator
 - [x] Typing indicator
 - [x] Uploading images
+- [x] Profiles
+- [ ] Homepage
+- [ ] Active group members sidebar
 
 ---
 
