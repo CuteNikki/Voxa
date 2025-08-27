@@ -94,7 +94,7 @@ export function Message({
           <div className='flex flex-row gap-2'>
             <PopoverContentUser target={author} userId={userId} side='bottom' align='start' />
             {showAvatar ? (
-              <PopoverTrigger className='self-start cursor-pointer'>
+              <PopoverTrigger className='cursor-pointer self-start'>
                 <Avatar>
                   <AvatarImage src={author.imageUrl} alt={author.username + ' avatar'} />
                   <AvatarFallback>
@@ -108,7 +108,7 @@ export function Message({
             <div className='flex-1'>
               {showAvatar && (
                 <div className='flex justify-between'>
-                  <PopoverTrigger className='hover:underline cursor-pointer'>
+                  <PopoverTrigger className='cursor-pointer hover:underline'>
                     <div className='leading-tight font-semibold capitalize'>{author.username}</div>
                   </PopoverTrigger>
                   <div className='flex items-center gap-2'>
@@ -316,7 +316,9 @@ function ReactionName({ userId }: { userId: string }) {
 
 export function MessageSkeleton({ showAvatar = true }: { showAvatar?: boolean }) {
   return (
-    <div className={`hover:bg-muted/30 group relative flex items-start gap-2 px-4 transition-colors ${showAvatar ? 'py-2' : 'pt-1 pb-2'}`}>
+    <div
+      className={`hover:bg-muted/30 group relative flex items-start gap-2 px-4 transition-colors sm:mr-4 sm:rounded-tr-xl sm:rounded-br-xl ${showAvatar ? 'py-2' : 'pt-1 pb-2'}`}
+    >
       {showAvatar ? (
         <Avatar>
           <AvatarFallback>

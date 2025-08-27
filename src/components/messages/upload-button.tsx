@@ -24,6 +24,7 @@ export function UploadButton({ images, setImages, disabled }: { images: File[] |
           type='file'
           className='pointer-events-none absolute h-0 w-0 opacity-0'
           accept='image/*'
+          aria-label='Upload'
           multiple={true}
           disabled={disabled}
           tabIndex={-1}

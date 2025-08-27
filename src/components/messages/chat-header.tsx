@@ -10,8 +10,8 @@ import { ClipboardCopyIcon, ClipboardListIcon, EllipsisVertical, Trash2Icon, Use
 import { api } from '../../../convex/_generated/api';
 import { Doc } from '../../../convex/_generated/dataModel';
 
-import { formatPresenceTimestamp, getPresenceText, isOnline, PresenceText } from '@/lib/utils';
 import { PLACEHOLDER_GROUP, PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
+import { formatPresenceTimestamp, getPresenceText, isOnline, PresenceText } from '@/lib/utils';
 
 import {
   AlertDialog,
@@ -131,29 +131,19 @@ function UserDetails({ targetId }: { targetId: string }) {
   const online = isOnline(targetUserPresence.lastSeen);
   const formatted = online
     ? getPresenceText(PresenceText.Online)
-    : getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(targetUserPresence.lastSeen ?? PLACEHOLDER_UNKNOWN_USER.timestamp);
+    : getPresenceText(PresenceText.LastSeen) + ' ' + formatPresenceTimestamp(targetUserPresence.lastSeen);
 
   return (
     <div className='flex flex-row items-center gap-1 pl-1 sm:gap-2 sm:pl-2'>
       <Avatar>
-        <AvatarImage src={targetUser?.imageUrl} />
-        <AvatarFallback>
-          {targetUser?.username ? targetUser.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
-        </AvatarFallback>
+        <AvatarImage src={targetUser.imageUrl} alt={targetUser.username} />
+        <AvatarFallback>{targetUser.username?.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
 
       <div className='flex w-full flex-row items-center justify-between gap-2'>
         <div className='flex flex-col'>
-          {targetUser?.username ? (
-            <span className='text-sm leading-tight font-semibold capitalize'>{targetUser.username}</span>
-          ) : (
-            <Skeleton className='w-fit text-sm leading-tight font-semibold capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
-          )}
-          {targetUserPresence ? (
-            <span className={`text-muted-foreground text-xs leading-tight ${online ? 'text-green-500' : ''}`}>{formatted}</span>
-          ) : (
-            <Skeleton className='text-muted-foreground w-fit text-xs leading-tight'>{formatted}</Skeleton>
-          )}
+          <span className='text-sm leading-tight font-semibold capitalize'>{targetUser.username}</span>{' '}
+          <span className={`text-muted-foreground text-xs leading-tight ${online ? 'text-green-500' : ''}`}>{formatted}</span>
         </div>
       </div>
     </div>
