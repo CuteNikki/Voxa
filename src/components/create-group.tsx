@@ -7,7 +7,7 @@ import { api } from '../../convex/_generated/api';
 import { Button } from '@/components/ui/button';
 
 export function CreateGroupChat() {
-  const createGroupChat = useMutation(api.chats.createGroupChat);
+  const createGroupChat = useMutation(api.groups.createGroupChat);
 
   return (
     <div className='flex flex-col items-center justify-center p-4'>

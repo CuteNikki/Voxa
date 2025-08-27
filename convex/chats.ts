@@ -4,41 +4,6 @@ import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 
-function randomId(length = 8) {
-  return Math.random()
-    .toString(36)
-    .substring(2, 2 + length);
-}
-
-// Only called from the server side
-export const createGroupChat = mutation({
-  args: {
-    name: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const existingChat = await ctx.db
-      .query('groups')
-      .filter((q) => q.eq(q.field('name'), args.name))
-      .first();
-
-    if (existingChat) {
-      throw new Error('Group chat with this name already exists');
-    }
-
-    return await ctx.db.insert('groups', {
-      name: args.name ?? `${Date.now()}-${randomId(5)}`,
-      members: [],
-      createdBy: user.subject,
-    });
-  },
-});
-
 export const getOwnChatsPaginated = query({
   args: {
     paginationOpts: paginationOptsValidator,
@@ -70,16 +35,6 @@ export const getChatByUserId = query({
           q.and(q.eq(q.field('userIdOne'), args.targetUserId), q.eq(q.field('userIdTwo'), args.currentUserId)),
         ),
       )
-      .first();
-  },
-});
-
-export const getGroupById = query({
-  args: { groupId: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query('groups')
-      .filter((q) => q.eq(q.field('_id'), args.groupId))
       .first();
   },
 });
