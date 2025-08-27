@@ -1,5 +1,6 @@
-import { v } from 'convex/values';
 import { paginationOptsValidator } from 'convex/server';
+import { v } from 'convex/values';
+import { randomUUID } from 'crypto';
 
 import { Doc, Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
@@ -7,10 +8,15 @@ import { mutation, query } from './_generated/server';
 // Only called from the server side
 export const createGroupChat = mutation({
   args: {
-    name: v.string(),
-    userId: v.string(),
+    name: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
     const existingChat = await ctx.db
       .query('groups')
       .filter((q) => q.eq(q.field('name'), args.name))
@@ -21,9 +27,9 @@ export const createGroupChat = mutation({
     }
 
     return await ctx.db.insert('groups', {
-      name: args.name,
+      name: args.name ?? randomUUID(),
       members: [],
-      createdBy: args.userId,
+      createdBy: user.subject,
     });
   },
 });
