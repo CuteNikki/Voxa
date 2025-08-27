@@ -25,14 +25,24 @@ export const getOwnChatsPaginated = query({
 
 // Only called from the server side
 export const getChatByUserId = query({
-  args: { targetUserId: v.string(), currentUserId: v.string() },
+  args: { targetId: v.string() },
   handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    if (user.subject === args.targetId) {
+      throw new Error('Cannot get chat with yourself');
+    }
+
     return await ctx.db
       .query('chats')
       .filter((q) =>
         q.or(
-          q.and(q.eq(q.field('userIdOne'), args.currentUserId), q.eq(q.field('userIdTwo'), args.targetUserId)),
-          q.and(q.eq(q.field('userIdOne'), args.targetUserId), q.eq(q.field('userIdTwo'), args.currentUserId)),
+          q.and(q.eq(q.field('userIdOne'), user.subject), q.eq(q.field('userIdTwo'), args.targetId)),
+          q.and(q.eq(q.field('userIdOne'), args.targetId), q.eq(q.field('userIdTwo'), user.subject)),
         ),
       )
       .first();
