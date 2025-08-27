@@ -229,7 +229,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   return (
     <div className='flex min-h-0 flex-1 flex-col'>
       {/* SCROLLABLE MESSAGES */}
-      <div ref={scrollRef} className='flex-1 overflow-y-auto'>
+      <div ref={scrollRef} className='flex-1 overflow-y-auto no-scrollbar'>
         <div className='flex w-full flex-col pt-6 pb-2'>
           {status === 'CanLoadMore' && (
             <Button variant='default' className='self-center' onClick={() => loadMore(25)}>

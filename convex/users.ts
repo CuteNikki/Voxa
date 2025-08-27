@@ -79,3 +79,12 @@ export const getUserNames = query({
     return users;
   },
 });
+
+export const getUsersByIds = query({
+  args: { ids: v.array(v.string()) },
+  handler: async (ctx, { ids }) => {
+    const allUsers = await ctx.db.query('users').collect();
+    const users = allUsers.filter((user) => ids.includes(user.clerkId));
+    return users;
+  },
+});
