@@ -1,9 +1,14 @@
 import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
-import { randomUUID } from 'crypto';
 
 import { Doc, Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
+
+function randomId(length = 8) {
+  return Math.random()
+    .toString(36)
+    .substring(2, 2 + length);
+}
 
 // Only called from the server side
 export const createGroupChat = mutation({
@@ -27,7 +32,7 @@ export const createGroupChat = mutation({
     }
 
     return await ctx.db.insert('groups', {
-      name: args.name ?? randomUUID(),
+      name: args.name ?? `${Date.now()}-${randomId(5)}`,
       members: [],
       createdBy: user.subject,
     });
