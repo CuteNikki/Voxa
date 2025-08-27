@@ -92,10 +92,11 @@ export function Message({
         )}
         <Popover>
           <div className='flex flex-row gap-2'>
+            <PopoverContentUser target={author} userId={userId} side='bottom' align='start' />
             {showAvatar ? (
-              <PopoverTrigger asChild>
+              <PopoverTrigger className='self-start cursor-pointer'>
                 <Avatar>
-                  <AvatarImage src={author.imageUrl} />
+                  <AvatarImage src={author.imageUrl} alt={author.username + ' avatar'} />
                   <AvatarFallback>
                     {author.username ? author.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
                   </AvatarFallback>
@@ -104,11 +105,10 @@ export function Message({
             ) : (
               <div className='w-8' />
             )}
-            <PopoverContentUser target={author} userId={userId} side='bottom' align='start' />
             <div className='flex-1'>
               {showAvatar && (
                 <div className='flex justify-between'>
-                  <PopoverTrigger className='hover:underline' asChild>
+                  <PopoverTrigger className='hover:underline cursor-pointer'>
                     <div className='leading-tight font-semibold capitalize'>{author.username}</div>
                   </PopoverTrigger>
                   <div className='flex items-center gap-2'>
