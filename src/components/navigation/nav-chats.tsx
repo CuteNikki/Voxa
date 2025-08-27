@@ -112,7 +112,7 @@ function UserItem({
       <SidebarMenuButton className='items-center py-6' asChild>
         <Link href={`/chats/${item._id}`}>
           <Avatar>
-            <AvatarImage src={user?.imageUrl} />
+            <AvatarImage src={user?.imageUrl} alt={user?.username + ' avatar'} />
             <AvatarFallback>{user?.username?.charAt(0).toUpperCase() ?? <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
           </Avatar>
           <div className='flex w-full flex-row items-center justify-between gap-2'>
@@ -125,7 +125,11 @@ function UserItem({
                 </span>
               ) : (
                 <span className='text-muted-foreground max-w-30 truncate text-sm leading-tight'>
-                  {lastMessage?.attachments && lastMessage.attachments.length > 0 ? (lastMessage.senderId === currentUserId ? 'You: image 🖼️' : 'image 🖼️') : 'No messages'}
+                  {lastMessage?.attachments && lastMessage.attachments.length > 0
+                    ? lastMessage.senderId === currentUserId
+                      ? 'You: image 🖼️'
+                      : 'image 🖼️'
+                    : 'No messages'}
                 </span>
               )}
             </div>
