@@ -209,7 +209,7 @@ export function Message({
                 )}
               </div>
               {(message.reactions?.length ?? 0) > 0 && !editing && (
-                <div className='flex flex-row items-center gap-1 py-2'>
+                <div className='flex flex-wrap items-center gap-1 py-2'>
                   {Array.from(new Set(message.reactions?.map((r) => r.reaction))).map((uniqueReaction, index) => {
                     const reactions = message.reactions?.filter((r) => r.reaction === uniqueReaction);
                     const userReacted = reactions?.find((r) => r.userId === userId);
@@ -464,8 +464,11 @@ function PopoverContentUser({
             <div className='flex flex-col'>
               <TypographyLarge className='leading-tight capitalize'>{target.username}</TypographyLarge>
               <TypographyMuted>
-                Created at<span className='md:hidden'>: <br /></span>
-                {' '}{formatJoinedTimestamp(target._creationTime)}
+                Created at
+                <span className='md:hidden'>
+                  : <br />
+                </span>{' '}
+                {formatJoinedTimestamp(target._creationTime)}
               </TypographyMuted>
             </div>
           </div>
