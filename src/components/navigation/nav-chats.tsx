@@ -26,7 +26,7 @@ export function NavChats() {
       <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
         <SidebarGroupLabel>Direct Messages</SidebarGroupLabel>
         <SidebarMenu>
-          <ScrollArea className='max-h-200'>
+          <ScrollArea className='max-h-140'>
             {Array.from({ length: 6 }).map((_, index) => (
               <UserItemSkeleton key={index} />
             ))}
@@ -46,7 +46,7 @@ export function NavChats() {
     <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
       <SidebarGroupLabel>Direct Messages</SidebarGroupLabel>
       <SidebarMenu>
-        <ScrollArea className='max-h-200'>
+        <ScrollArea className='max-h-140'>
           {results.map((item) => (
             <UserItem key={item._id} item={item} currentUserId={user.id} />
           ))}

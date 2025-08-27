@@ -27,7 +27,7 @@ export function NavGroups() {
       <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
         <SidebarGroupLabel>Group Chats</SidebarGroupLabel>
         <SidebarMenu>
-          <ScrollArea className='max-h-200'>
+          <ScrollArea className='max-h-140'>
             {Array.from({ length: 6 }).map((_, index) => (
               <GroupItemSkeleton key={index} />
             ))}
@@ -47,7 +47,7 @@ export function NavGroups() {
     <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
       <SidebarGroupLabel>Group Chats</SidebarGroupLabel>
       <SidebarMenu>
-        <ScrollArea className='max-h-200'>
+        <ScrollArea className='max-h-140'>
           {results.map((item) => (
             <GroupItem key={item._id} item={item} currentUserId={user.id} />
           ))}
