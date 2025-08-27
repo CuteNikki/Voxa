@@ -32,15 +32,6 @@
 
 ---
 
-## 📁 Image Upload with UploadThing
-
-- 📎 Endpoint: `messageImage`
-- 📐 Max size: 4MB
-- 🖼️ Returns: `imageUrl` to be stored in messages
-- ✅ Works perfectly with Convex + Next.js
-
----
-
 ## ✅ Roadmap
 
 - [x] Real-time messaging with Convex
