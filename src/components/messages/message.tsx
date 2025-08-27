@@ -1,15 +1,24 @@
 'use client';
 
 import { useMutation, useQuery } from 'convex/react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
+import { Doc } from '../../../convex/_generated/dataModel';
 
-import { CornerUpRightIcon } from 'lucide-react';
+import { CornerUpRightIcon, MessagesSquareIcon } from 'lucide-react';
 
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
 import { PLACEHOLDER_MESSAGE, PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
+import { formatJoinedTimestamp } from '@/lib/utils';
 
+import { AcceptRequestButton } from '@/components/friends/accept';
+import { AddFriendButton } from '@/components/friends/add';
+import { CancelRequestButton } from '@/components/friends/cancel';
+import { DeclineRequestButton } from '@/components/friends/decline';
+import { RemoveFriendButton } from '@/components/friends/remove';
 import { DeleteMessageButton } from '@/components/messages/delete-button';
 import { EditMessageButton } from '@/components/messages/edit-button';
 import { ReactionButton } from '@/components/messages/reaction-button';
@@ -24,9 +33,6 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatJoinedTimestamp } from '@/lib/utils';
-import Image from 'next/image';
-import { Doc } from '../../../convex/_generated/dataModel';
 
 export function Message({
   message,
@@ -84,9 +90,9 @@ export function Message({
             setDisableAutoScrollUntil={setDisableAutoScrollUntil}
           />
         )}
-        <div className='flex flex-row gap-2'>
-          {showAvatar ? (
-            <Popover>
+        <Popover>
+          <div className='flex flex-row gap-2'>
+            {showAvatar ? (
               <PopoverTrigger asChild>
                 <Avatar>
                   <AvatarImage src={author.imageUrl} />
@@ -95,209 +101,206 @@ export function Message({
                   </AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
-              <PopoverContentUser user={author} />
-            </Popover>
-          ) : (
-            <div className='w-8' />
-          )}
-          <div className='flex-1'>
-            {showAvatar && (
-              <div className='flex justify-between'>
-                <Popover>
+            ) : (
+              <div className='w-8' />
+            )}
+            <PopoverContentUser target={author} userId={userId} side='bottom' align='start' />
+            <div className='flex-1'>
+              {showAvatar && (
+                <div className='flex justify-between'>
                   <PopoverTrigger className='hover:underline' asChild>
                     <div className='leading-tight font-semibold capitalize'>{author.username}</div>
                   </PopoverTrigger>
-                  <PopoverContentUser user={author} />
-                </Popover>
-                <div className='flex items-center gap-2'>
-                  <div
-                    className={`bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${
-                      message._id === replyingTo || message._id === editing || message._id === reactionPicker
-                        ? 'opacity-100'
-                        : 'group-focus-within:opacity-100 group-hover:opacity-100'
-                    }`}
-                  >
-                    <ReactionButton messageId={message._id} reactionPicker={reactionPicker} setReactionPicker={setReactionPicker} />
-                    <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
-                    {isOwnMessage && (
-                      <>
-                        <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
-                        <DeleteMessageButton message={message} />
-                      </>
-                    )}
+                  <div className='flex items-center gap-2'>
+                    <div
+                      className={`bg-muted absolute -top-6 right-4 flex items-center gap-1 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${
+                        message._id === replyingTo || message._id === editing || message._id === reactionPicker
+                          ? 'opacity-100'
+                          : 'group-focus-within:opacity-100 group-hover:opacity-100'
+                      }`}
+                    >
+                      <ReactionButton messageId={message._id} reactionPicker={reactionPicker} setReactionPicker={setReactionPicker} />
+                      <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
+                      {isOwnMessage && (
+                        <>
+                          <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
+                          <DeleteMessageButton message={message} />
+                        </>
+                      )}
+                    </div>
+                    <MessageTimestamp message={message} />
                   </div>
-                  <MessageTimestamp message={message} />
                 </div>
-              </div>
-            )}
-            <div className='flex items-start'>
-              {editing === message._id ? (
-                <div className='relative w-full py-1'>
-                  <Textarea
-                    autoFocus
-                    defaultValue={editingValue}
-                    onChange={(e) => setEditingValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') {
-                        setEditing(undefined);
-                        setEditingValue(message.content ?? '');
-                        return;
-                      }
-
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-
-                        const trimmedContent = e.currentTarget.value.trim();
-
-                        if (!trimmedContent || trimmedContent === message.content) {
+              )}
+              <div className='flex items-start'>
+                {editing === message._id ? (
+                  <div className='relative w-full py-1'>
+                    <Textarea
+                      autoFocus
+                      defaultValue={editingValue}
+                      onChange={(e) => setEditingValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
                           setEditing(undefined);
                           setEditingValue(message.content ?? '');
                           return;
                         }
 
-                        setEditing(undefined);
-                        setEditingValue(trimmedContent);
-                        editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);
-                      }
-                    }}
-                    className='no-scrollbar max-h-18 w-full resize-none break-all whitespace-pre-line'
-                  />
-                </div>
-              ) : (
-                <div className='flex flex-col'>
-                  <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
-                  {message.attachments && message.attachments.length > 0 && (
-                    <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
-                      {message.attachments.map((att, idx) => (
-                        <Image
-                          priority
-                          key={idx}
-                          width={255}
-                          height={255}
-                          src={att.url}
-                          alt={`Image ${idx + 1} for message ${message._id}`}
-                          className='max-h-40 w-fit rounded-md'
-                          onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            target.onerror = null; // Prevent infinite loop
-                            target.src = '/fallback.png';
-                          }}
-                        />
-                      ))}
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+
+                          const trimmedContent = e.currentTarget.value.trim();
+
+                          if (!trimmedContent || trimmedContent === message.content) {
+                            setEditing(undefined);
+                            setEditingValue(message.content ?? '');
+                            return;
+                          }
+
+                          setEditing(undefined);
+                          setEditingValue(trimmedContent);
+                          editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);
+                        }
+                      }}
+                      className='no-scrollbar max-h-18 w-full resize-none break-all whitespace-pre-line'
+                    />
+                  </div>
+                ) : (
+                  <div className='flex flex-col'>
+                    <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
+                    {message.attachments && message.attachments.length > 0 && (
+                      <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
+                        {message.attachments.map((att, idx) => (
+                          <Image
+                            priority
+                            key={idx}
+                            width={255}
+                            height={255}
+                            src={att.url}
+                            alt={`Image ${idx + 1} for message ${message._id}`}
+                            className='max-h-40 w-fit rounded-md'
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.onerror = null; // Prevent infinite loop
+                              target.src = '/fallback.png';
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!showAvatar && (
+                  <div
+                    className={`bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${message._id === replyingTo || message._id === editing || message._id === reactionPicker ? 'opacity-100' : 'group-focus-within:opacity-100 group-hover:opacity-100'}`}
+                  >
+                    <div className='flex flex-row gap-1'>
+                      <ReactionButton messageId={message._id} reactionPicker={reactionPicker} setReactionPicker={setReactionPicker} />
+                      <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
+                      {isOwnMessage && (
+                        <>
+                          <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
+                          <DeleteMessageButton message={message} />
+                        </>
+                      )}
                     </div>
+                    <MessageTimestamp className='text-foreground pr-2' message={message} />
+                  </div>
+                )}
+              </div>
+              {(message.reactions?.length ?? 0) > 0 && !editing && (
+                <div className='flex flex-row items-center gap-1 py-2'>
+                  {Array.from(new Set(message.reactions?.map((r) => r.reaction))).map((uniqueReaction, index) => {
+                    const reactions = message.reactions?.filter((r) => r.reaction === uniqueReaction);
+                    const userReacted = reactions?.find((r) => r.userId === userId);
+
+                    return (
+                      <Tooltip key={`message-${message._id}-reaction-${index}`}>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={userReacted ? 'default' : 'secondary'}
+                            size='sm'
+                            onClick={() =>
+                              userReacted
+                                ? removeReaction({ messageId: message._id, reaction: uniqueReaction }).catch(console.error)
+                                : addReaction({ messageId: message._id, reaction: uniqueReaction }).catch(console.error)
+                            }
+                          >
+                            {uniqueReaction} <span className='font-mono'>{reactions?.length}</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent variant='secondary' onClick={() => setViewReactionsFor(message._id)} className='group hover:cursor-pointer'>
+                          <span className='text-xs'>
+                            {uniqueReaction} reacted by{' '}
+                            {(() => {
+                              const maxNames = 3;
+                              const names = reactions?.slice(0, maxNames) ?? [];
+                              const othersCount = (reactions?.length ?? 0) - names.length;
+                              return (
+                                <span className='text-primary group-hover:underline'>
+                                  {names.map((r, i) => (
+                                    <span key={`message-${message._id}-reaction-${i}-user-${r.userId}-name`}>
+                                      <ReactionName userId={r.userId} />
+                                      {i < names.length - 1 && ', '}
+                                    </span>
+                                  ))}
+                                  {othersCount > 0 && (
+                                    <span>
+                                      {' '}
+                                      and {othersCount} other{othersCount > 1 ? 's' : ''}
+                                    </span>
+                                  )}
+                                </span>
+                              );
+                            })()}
+                          </span>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              )}
+              {editing === message._id && (
+                <div className='flex flex-row items-center gap-2'>
+                  <Button
+                    variant='secondary'
+                    onClick={() => {
+                      setEditing(undefined);
+                      setEditingValue(message.content ?? '');
+                    }}
+                    className='mt-2 ml-2'
+                    size='sm'
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const trimmedContent = editingValue.trim();
+
+                      if (!trimmedContent || trimmedContent === message.content) {
+                        setEditing(undefined);
+                        return;
+                      }
+
+                      setEditing(undefined);
+                      editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);
+                    }}
+                    disabled={editingValue.length > MAX_MESSAGE_LENGTH}
+                    className='mt-2'
+                    size='sm'
+                  >
+                    Save
+                  </Button>
+                  {editingValue.length >= MAX_MESSAGE_LENGTH_WARNING && (
+                    <span className={`text-xs ${editingValue.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
+                      {editingValue.length}/{MAX_MESSAGE_LENGTH}
+                    </span>
                   )}
                 </div>
               )}
-              {!showAvatar && (
-                <div
-                  className={`bg-muted absolute -top-6 right-4 flex items-center gap-2 rounded-lg p-1 opacity-0 shadow-md transition-opacity ${message._id === replyingTo || message._id === editing || message._id === reactionPicker ? 'opacity-100' : 'group-focus-within:opacity-100 group-hover:opacity-100'}`}
-                >
-                  <div className='flex flex-row gap-1'>
-                    <ReactionButton messageId={message._id} reactionPicker={reactionPicker} setReactionPicker={setReactionPicker} />
-                    <ReplyButton messageId={message._id} replyingTo={replyingTo} setReplyingTo={setReplyingTo} />
-                    {isOwnMessage && (
-                      <>
-                        <EditMessageButton message={message} editing={editing} setEditing={setEditing} />
-                        <DeleteMessageButton message={message} />
-                      </>
-                    )}
-                  </div>
-                  <MessageTimestamp className='text-foreground pr-2' message={message} />
-                </div>
-              )}
             </div>
-            {(message.reactions?.length ?? 0) > 0 && !editing && (
-              <div className='flex flex-row items-center gap-1 py-2'>
-                {Array.from(new Set(message.reactions?.map((r) => r.reaction))).map((uniqueReaction, index) => {
-                  const reactions = message.reactions?.filter((r) => r.reaction === uniqueReaction);
-                  const userReacted = reactions?.find((r) => r.userId === userId);
-
-                  return (
-                    <Tooltip key={`message-${message._id}-reaction-${index}`}>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant={userReacted ? 'default' : 'secondary'}
-                          size='sm'
-                          onClick={() =>
-                            userReacted
-                              ? removeReaction({ messageId: message._id, reaction: uniqueReaction }).catch(console.error)
-                              : addReaction({ messageId: message._id, reaction: uniqueReaction }).catch(console.error)
-                          }
-                        >
-                          {uniqueReaction} <span className='font-mono'>{reactions?.length}</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent variant='secondary' onClick={() => setViewReactionsFor(message._id)} className='group hover:cursor-pointer'>
-                        <span className='text-xs'>
-                          {uniqueReaction} reacted by{' '}
-                          {(() => {
-                            const maxNames = 3;
-                            const names = reactions?.slice(0, maxNames) ?? [];
-                            const othersCount = (reactions?.length ?? 0) - names.length;
-                            return (
-                              <span className='text-primary group-hover:underline'>
-                                {names.map((r, i) => (
-                                  <span key={`message-${message._id}-reaction-${i}-user-${r.userId}-name`}>
-                                    <ReactionName userId={r.userId} />
-                                    {i < names.length - 1 && ', '}
-                                  </span>
-                                ))}
-                                {othersCount > 0 && (
-                                  <span>
-                                    {' '}
-                                    and {othersCount} other{othersCount > 1 ? 's' : ''}
-                                  </span>
-                                )}
-                              </span>
-                            );
-                          })()}
-                        </span>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })}
-              </div>
-            )}
-            {editing === message._id && (
-              <div className='flex flex-row items-center gap-2'>
-                <Button
-                  variant='secondary'
-                  onClick={() => {
-                    setEditing(undefined);
-                    setEditingValue(message.content ?? '');
-                  }}
-                  className='mt-2 ml-2'
-                  size='sm'
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    const trimmedContent = editingValue.trim();
-
-                    if (!trimmedContent || trimmedContent === message.content) {
-                      setEditing(undefined);
-                      return;
-                    }
-
-                    setEditing(undefined);
-                    editMessage({ messageId: message._id, content: trimmedContent }).catch(console.error);
-                  }}
-                  disabled={editingValue.length > MAX_MESSAGE_LENGTH}
-                  className='mt-2'
-                  size='sm'
-                >
-                  Save
-                </Button>
-                {editingValue.length >= MAX_MESSAGE_LENGTH_WARNING && (
-                  <span className={`text-xs ${editingValue.length > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-muted-foreground'}`}>
-                    {editingValue.length}/{MAX_MESSAGE_LENGTH}
-                  </span>
-                )}
-              </div>
-            )}
           </div>
-        </div>
+        </Popover>
       </div>
     </div>
   );
@@ -428,25 +431,86 @@ function ReferenceUser({ targetId }: { targetId: string }) {
   );
 }
 
-function PopoverContentUser({ user }: { user: Doc<'users'> }) {
+function PopoverContentUser({
+  target,
+  userId,
+  side,
+  align,
+}: {
+  target: Doc<'users'>;
+  userId: string;
+  side: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+}) {
+  const isFriend = useQuery(api.friends.isFriend, { userId: userId, targetId: target.clerkId });
+  const isPending = useQuery(api.friends.isPendingRequest, { userId: userId, targetId: target.clerkId });
+  const chatWithFriend = useQuery(api.chats.getChatByUserId, target.clerkId === userId ? 'skip' : { targetId: target.clerkId });
+
   return (
-    <PopoverContent>
+    <PopoverContent side={side} align={align} className='mx-2 md:w-sm'>
       <div className='flex flex-col gap-4'>
-        <div className='flex gap-2'>
-          <Avatar className='size-10'>
-            <AvatarImage src={user.imageUrl} />
-            <AvatarFallback>{user.username ? user.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}</AvatarFallback>
-          </Avatar>
-          <div className='flex flex-col'>
-            <TypographyLarge className='leading-tight capitalize'>{user.username}</TypographyLarge>
-            <TypographyMuted>Joined {formatJoinedTimestamp(user._creationTime)}</TypographyMuted>
+        {/* TOP PART */}
+        <div className='flex flex-row items-center justify-between gap-2'>
+          {/* PROFILE */}
+          <div className='flex flex-row gap-2'>
+            {/* LEFT SIDE - AVATAR */}
+            <Avatar className='size-10'>
+              <AvatarImage src={target.imageUrl} />
+              <AvatarFallback>
+                {target.username ? target.username.charAt(0).toUpperCase() : <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>}
+              </AvatarFallback>
+            </Avatar>
+            {/* RIGHT SIDE - NAME & DATE */}
+            <div className='flex flex-col'>
+              <TypographyLarge className='leading-tight capitalize'>{target.username}</TypographyLarge>
+              <TypographyMuted>
+                Created at<span className='md:hidden'>: <br /></span>
+                {' '}{formatJoinedTimestamp(target._creationTime)}
+              </TypographyMuted>
+            </div>
           </div>
+          {/* FRIEND STATUS */}
+          {target.clerkId !== userId && (
+            <div className='flex flex-row items-center gap-1'>
+              {isPending ? (
+                <PendingUserButton target={target.clerkId} userId={userId} />
+              ) : isFriend ? (
+                <>
+                  <Button asChild title='Open chat'>
+                    <Link href={`/chats/${chatWithFriend?._id}`}>
+                      <MessagesSquareIcon />
+                    </Link>
+                  </Button>
+                  <RemoveFriendButton targetUserId={target.clerkId} userId={userId} />
+                </>
+              ) : (
+                <AddFriendButton targetUserId={target.clerkId} userId={userId} />
+              )}
+            </div>
+          )}
         </div>
         <Separator />
+        {/* BOTTOM PART */}
         <div>
-          <span>{"I don't know what to put here yet"}</span>
+          <TypographyMuted>Profile customization features coming soon.</TypographyMuted>
         </div>
       </div>
     </PopoverContent>
   );
+}
+
+function PendingUserButton({ target, userId }: { target: string; userId: string }) {
+  const receivedRequests = useQuery(api.friends.getFriendRequests, { userId });
+  const isReceived = receivedRequests?.some((req) => req.from === target);
+
+  if (isReceived) {
+    return (
+      <>
+        <AcceptRequestButton userId={userId} targetId={target} />
+        <DeclineRequestButton userId={userId} targetId={target} />
+      </>
+    );
+  } else {
+    return <CancelRequestButton userId={userId} targetId={target} />;
+  }
 }
