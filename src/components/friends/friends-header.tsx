@@ -33,7 +33,7 @@ export function FriendsHeader({
               type='button'
             >
               {group}
-              {group === 'Requests' && requestCount > 0 && <Badge className='mx-1 px-1'>{requestCount}</Badge>}
+              {group === 'Requests' && requestCount > 0 && <Badge className='mx-1 px-1.5 rounded-full'>{requestCount}</Badge>}
             </button>
           ))}
         </div>

@@ -126,7 +126,7 @@ function GroupItem({
               <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage._creationTime)}</span>
             )}
           </div>
-          {activeMembers?.length > 0 && <Badge className='rounded-full'>{activeMembers.length}</Badge>}
+          {activeMembers?.length > 0 && <Badge className='rounded-full px-1.5'>{activeMembers.length}</Badge>}
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

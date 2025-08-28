@@ -139,7 +139,7 @@ function UserItem({
           </div>
           {/* Stop flickering by only showing the badge when you're not in the channel already */}
           {unreadMessages && unreadMessages.length > 0 && lastMessage?.senderId !== currentUserId && item._id !== window.location.pathname.split('/').pop() && (
-            <Badge className='absolute top-0 left-0 rounded-full'>{unreadMessages.length}</Badge>
+            <Badge className='absolute top-0 left-0 px-1.5 rounded-full'>{unreadMessages.length}</Badge>
           )}
         </Link>
       </SidebarMenuButton>
