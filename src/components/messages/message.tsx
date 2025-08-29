@@ -12,7 +12,7 @@ import { CornerUpRightIcon, MessagesSquareIcon } from 'lucide-react';
 
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH_WARNING } from '@/constants/limits';
 import { PLACEHOLDER_MESSAGE, PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
-import { formatJoinedTimestamp } from '@/lib/utils';
+import { formatFileSize, formatJoinedTimestamp } from '@/lib/utils';
 
 import { AcceptRequestButton } from '@/components/friends/accept';
 import { AddFriendButton } from '@/components/friends/add';
@@ -28,6 +28,7 @@ import { TypographyLarge } from '@/components/typography/large';
 import { TypographyMuted } from '@/components/typography/muted';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -171,20 +172,40 @@ export function Message({
                     {message.attachments && message.attachments.length > 0 && (
                       <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
                         {message.attachments.map((att, idx) => (
-                          <Image
-                            priority
-                            key={idx}
-                            width={255}
-                            height={255}
-                            src={att.url}
-                            alt={`Image ${idx + 1} for message ${message._id}`}
-                            className='max-h-40 w-fit rounded-md'
-                            onError={(e) => {
-                              const target = e.currentTarget as HTMLImageElement;
-                              target.onerror = null; // Prevent infinite loop
-                              target.src = '/fallback.png';
-                            }}
-                          />
+                          <Dialog key={idx}>
+                            <DialogTrigger asChild>
+                              <Image
+                                priority
+                                width={255}
+                                height={255}
+                                src={att.url}
+                                alt={`Image ${idx + 1} for message ${message._id}`}
+                                className='max-h-40 w-fit rounded-md'
+                                onError={(e) => {
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.onerror = null; // Prevent infinite loop
+                                  target.src = '/fallback.png';
+                                }}
+                              />
+                            </DialogTrigger>
+                            <DialogContent className='h-full !max-h-screen w-full !max-w-screen'>
+                              <DialogTitle className='flex items-center gap-2 text-sm'>
+                                {att.name} <span className='font-normal'>({formatFileSize({ size: att.size })})</span>
+                              </DialogTitle>
+                              <Image
+                                src={att.url}
+                                width={1920}
+                                height={1080}
+                                alt={`Image ${idx + 1} for message ${message._id}`}
+                                className='h-full w-full object-contain'
+                                onError={(e) => {
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.onerror = null; // Prevent infinite loop
+                                  target.src = '/fallback.png';
+                                }}
+                              />
+                            </DialogContent>
+                          </Dialog>
                         ))}
                       </div>
                     )}

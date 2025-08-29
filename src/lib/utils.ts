@@ -30,7 +30,7 @@ export const { useUploadThing, uploadFiles } = generateReactHelpers<OurFileRoute
  * formatFileSize(file) // "2.5MB"
  * @returns A string representing the file size.
  */
-export function formatFileSize(file: File) {
+export function formatFileSize(file: File | { size: number }): string {
   if (file.size >= 1024 * 1024) return `${(file.size / 1024 / 1024).toFixed(1)}MB`;
   if (file.size >= 1024) return `${(file.size / 1024).toFixed(1)}KB`;
   return `${file.size}B`;
