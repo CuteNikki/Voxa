@@ -188,22 +188,15 @@ export function Message({
                                 }}
                               />
                             </DialogTrigger>
-                            <DialogContent className='h-full !max-h-screen w-full !max-w-screen'>
-                              <DialogTitle className='flex items-center gap-2 text-sm'>
-                                {att.name} <span className='font-normal'>({formatFileSize({ size: att.size })})</span>
+                            <DialogContent
+                              className='h-screen w-screen !max-w-screen bg-contain bg-center bg-no-repeat'
+                              style={{ backgroundImage: `url(${att.url})` }}
+                            >
+                              <DialogTitle className='absolute h-10 w-full bg-gradient-to-b from-black/70 to-transparent px-4 pt-2'>
+                                <span className='flex items-center gap-2 text-sm drop-shadow-md'>
+                                  {att.name} <span className='font-normal'>({formatFileSize({ size: att.size })})</span>
+                                </span>
                               </DialogTitle>
-                              <Image
-                                src={att.url}
-                                width={1920}
-                                height={1080}
-                                alt={`Image ${idx + 1} for message ${message._id}`}
-                                className='h-full w-full object-contain'
-                                onError={(e) => {
-                                  const target = e.currentTarget as HTMLImageElement;
-                                  target.onerror = null; // Prevent infinite loop
-                                  target.src = '/fallback.png';
-                                }}
-                              />
                             </DialogContent>
                           </Dialog>
                         ))}
