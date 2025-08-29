@@ -22,7 +22,7 @@ export default function GroupPage() {
         <ChatHeader chatId={groupId} />
         <MessageContainer chatId={groupId} userId={user.id} />
       </div>
-      <ActiveMembers groupId={groupId} />
+      <ActiveMembers groupId={groupId} userId={user.id} />
     </div>
   );
 }

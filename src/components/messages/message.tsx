@@ -433,7 +433,7 @@ function ReferenceUser({ targetId }: { targetId: string }) {
   );
 }
 
-function PopoverContentUser({
+export function PopoverContentUser({
   target,
   userId,
   side,
@@ -465,13 +465,15 @@ function PopoverContentUser({
             {/* RIGHT SIDE - NAME & DATE */}
             <div className='flex flex-col'>
               <TypographyLarge className='leading-tight capitalize'>{target.username}</TypographyLarge>
-              <TypographyMuted>
-                Created at
-                <span className='md:hidden'>
-                  : <br />
-                </span>{' '}
-                {formatJoinedTimestamp(target._creationTime)}
-              </TypographyMuted>
+              {'_creationTime' in target && (
+                <TypographyMuted>
+                  Created at
+                  <span className='md:hidden'>
+                    : <br />
+                  </span>{' '}
+                  {formatJoinedTimestamp(target._creationTime)}
+                </TypographyMuted>
+              )}
             </div>
           </div>
           {/* FRIEND STATUS */}
