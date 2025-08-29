@@ -46,7 +46,7 @@
 - [x] Uploading images
 - [x] Profiles
 - [ ] Homepage
-- [ ] Active group members sidebar
+- [x] Active group members sidebar
 
 ---
 
