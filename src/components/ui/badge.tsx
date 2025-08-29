@@ -30,7 +30,7 @@ function Badge({ className, variant, asChild = false, ...props }: React.Componen
 
 function NumberBadge({ children, ...props }: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   return (
-    <Badge {...props} className={cn('rounded-full px-1.5 font-mono tabular-nums', props.className)}>
+    <Badge {...props} className={cn('h-5 min-w-5 rounded-full px-1.5 font-mono tabular-nums', props.className)}>
       {children}
     </Badge>
   );
