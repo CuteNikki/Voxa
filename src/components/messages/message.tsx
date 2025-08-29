@@ -180,7 +180,7 @@ export function Message({
                                 height={255}
                                 src={att.url}
                                 alt={`Image ${idx + 1} for message ${message._id}`}
-                                className='max-h-40 w-auto rounded-md object-contain'
+                                className='max-h-40 w-fit rounded-md object-contain'
                                 onError={(e) => {
                                   const target = e.currentTarget as HTMLImageElement;
                                   target.onerror = null; // Prevent infinite loop
