@@ -170,17 +170,17 @@ export function Message({
                   <div className='flex flex-col'>
                     <div className='text-sm break-all whitespace-pre-line'>{message.content}</div>
                     {message.attachments && message.attachments.length > 0 && (
-                      <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
+                      <div className='mt-2 flex w-full max-w-5xl flex-wrap items-start gap-2'>
                         {message.attachments.map((att, idx) => (
                           <Dialog key={idx}>
-                            <DialogTrigger>
+                            <DialogTrigger asChild>
                               <Image
                                 priority
                                 width={255}
                                 height={255}
                                 src={att.url}
                                 alt={`Image ${idx + 1} for message ${message._id}`}
-                                className='max-h-40 w-fit rounded-md object-contain'
+                                className='max-h-40 w-fit self-start rounded-md object-contain'
                                 onError={(e) => {
                                   const target = e.currentTarget as HTMLImageElement;
                                   target.onerror = null; // Prevent infinite loop
