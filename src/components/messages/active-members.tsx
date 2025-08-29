@@ -7,7 +7,7 @@ import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 import { PopoverContentUser } from '@/components/messages/message';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { NumberBadge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,7 +21,7 @@ export function ActiveMembers({ groupId, userId }: { groupId: string; userId: st
     <div className='hidden w-45 flex-col items-center justify-center border-l lg:flex'>
       <div className='flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center border-b p-4'>
         <span className='text-center text-sm'>
-          <Badge className='rounded-full px-1.5'>{groupMembers?.length ?? 0}</Badge> Active Members
+          <NumberBadge className='mr-1'>{groupMembers?.length ?? 0}</NumberBadge> Active Members
         </span>
       </div>
       <ScrollArea className='h-full w-full overflow-auto'>

@@ -12,7 +12,7 @@ import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 import { formatSidebarTimestamp } from '@/lib/utils';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { NumberBadge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -139,7 +139,7 @@ function UserItem({
           </div>
           {/* Stop flickering by only showing the badge when you're not in the channel already */}
           {unreadMessages && unreadMessages.length > 0 && lastMessage?.senderId !== currentUserId && item._id !== window.location.pathname.split('/').pop() && (
-            <Badge className='absolute top-0 left-0 px-1.5 rounded-full'>{unreadMessages.length}</Badge>
+            <NumberBadge className='absolute top-0 left-0'>{unreadMessages.length}</NumberBadge>
           )}
         </Link>
       </SidebarMenuButton>

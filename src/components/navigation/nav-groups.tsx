@@ -13,7 +13,7 @@ import { formatSidebarTimestamp } from '@/lib/utils';
 import { LAST_READ_THRESHOLD } from '@/constants/limits';
 import { PLACEHOLDER_GROUP } from '@/constants/placeholders';
 
-import { Badge } from '@/components/ui/badge';
+import { NumberBadge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -126,7 +126,7 @@ function GroupItem({
               <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage._creationTime)}</span>
             )}
           </div>
-          {activeMembers?.length > 0 && <Badge className='rounded-full px-1.5'>{activeMembers.length}</Badge>}
+          {activeMembers?.length > 0 && <NumberBadge>{activeMembers.length}</NumberBadge>}
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

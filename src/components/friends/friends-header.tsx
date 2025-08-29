@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
+import { NumberBadge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
@@ -33,7 +33,7 @@ export function FriendsHeader({
               type='button'
             >
               {group}
-              {group === 'Requests' && requestCount > 0 && <Badge className='mx-1 px-1.5 rounded-full'>{requestCount}</Badge>}
+              {group === 'Requests' && requestCount > 0 && <NumberBadge className='mx-1'>{requestCount}</NumberBadge>}
             </button>
           ))}
         </div>
