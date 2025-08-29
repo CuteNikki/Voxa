@@ -25,7 +25,7 @@ export function ImageHeader({
             height={255}
             src={URL.createObjectURL(image)}
             alt={image.name}
-            className='max-h-30 w-fit'
+            className='max-h-30 w-auto object-contain'
             onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
           />
           <div className='absolute top-2 right-2 left-2 flex items-center justify-between gap-2'>
