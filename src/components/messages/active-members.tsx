@@ -9,6 +9,7 @@ import { PopoverContentUser } from '@/components/messages/message';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function ActiveMembers({ groupId, userId }: { groupId: string; userId: string }) {
@@ -23,39 +24,43 @@ export function ActiveMembers({ groupId, userId }: { groupId: string; userId: st
           <Badge className='rounded-full px-1.5'>{groupMembers?.length ?? 0}</Badge> Active Members
         </span>
       </div>
-      <div className='flex h-full flex-col gap-2 p-4'>
-        {groupMembers !== undefined ? (
-          groupMembers.length > 0 ? (
-            groupMembers.map((member, id) => (
-              <Popover key={id}>
-                <PopoverContentUser target={member} userId={userId} side='left' align='start' />
-                <PopoverTrigger className='cursor-pointer self-start'>
-                  <div className='flex items-center gap-2'>
-                    <Avatar className='size-6'>
-                      <AvatarImage src={member.imageUrl} alt={member.username + ' avatar'} />
-                      <AvatarFallback>{member.username?.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <span className='capitalize'>{member.username}</span>
-                  </div>
-                </PopoverTrigger>
-              </Popover>
-            ))
+      <ScrollArea className='h-full w-full overflow-auto'>
+        <div className='flex w-full flex-col p-2'>
+          {groupMembers !== undefined ? (
+            groupMembers.length > 0 ? (
+              groupMembers.map((member, id) => (
+                <Popover key={id}>
+                  <PopoverContentUser target={member} userId={userId} side='left' align='start' />
+                  <PopoverTrigger className='hover:bg-muted/60 w-full cursor-pointer self-start rounded-md p-2 transition-colors'>
+                    <div className='flex items-center gap-2'>
+                      <Avatar className='size-6'>
+                        <AvatarImage src={member.imageUrl} alt={member.username + ' avatar'} />
+                        <AvatarFallback>{member.username?.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <span className='capitalize'>{member.username}</span>
+                    </div>
+                  </PopoverTrigger>
+                </Popover>
+              ))
+            ) : (
+              <span className='text-muted-foreground text-sm'>No active members</span>
+            )
           ) : (
-            <span className='text-muted-foreground text-sm'>No active members</span>
-          )
-        ) : (
-          Array.from({ length: 3 }).map((member, id) => (
-            <div key={id} className='flex items-center gap-2'>
-              <Avatar className='size-6'>
-                <AvatarFallback>
-                  <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
-                </AvatarFallback>
-              </Avatar>
-              <Skeleton>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
-            </div>
-          ))
-        )}
-      </div>
+            Array.from({ length: 3 }).map((member, id) => (
+              <div key={id} className='hover:bg-muted/60 w-full cursor-pointer self-start rounded-md p-2 transition-colors'>
+                <div className='flex items-center gap-2'>
+                  <Avatar className='size-6'>
+                    <AvatarFallback>
+                      <Skeleton>{PLACEHOLDER_UNKNOWN_USER.initials}</Skeleton>
+                    </AvatarFallback>
+                  </Avatar>
+                  <Skeleton className='capitalize'>{PLACEHOLDER_UNKNOWN_USER.username}</Skeleton>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 }
