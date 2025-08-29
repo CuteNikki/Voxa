@@ -43,10 +43,12 @@
 - [x] User presence view (online/offline)
 - [x] Unread messages indicator
 - [x] Typing indicator
-- [x] Uploading images
 - [x] Profiles
-- [ ] Homepage
 - [x] Active group members sidebar
+- [x] Uploading images
+  - [ ] Fix image dimensions on mobile
+- [ ] Fix extra spacing on safari
+- [ ] Homepage
 
 ---
 
