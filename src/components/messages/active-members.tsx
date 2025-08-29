@@ -19,7 +19,7 @@ export function ActiveMembers({ groupId, userId }: { groupId: string; userId: st
 
   return (
     <div className='hidden w-45 flex-col items-center justify-center border-l lg:flex'>
-      <div className='flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center border-b p-4'>
+      <div className='flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center border-b px-2'>
         <span className='text-center text-sm'>
           <NumberBadge className='mr-1'>{groupMembers?.length ?? 0}</NumberBadge> Active Members
         </span>
