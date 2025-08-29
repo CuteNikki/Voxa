@@ -173,7 +173,7 @@ export function Message({
                       <div className='mt-2 flex w-full max-w-5xl flex-wrap gap-2'>
                         {message.attachments.map((att, idx) => (
                           <Dialog key={idx}>
-                            <DialogTrigger asChild>
+                            <DialogTrigger>
                               <Image
                                 priority
                                 width={255}
