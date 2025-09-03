@@ -17,19 +17,19 @@ export function ImageHeader({
   disabled?: boolean;
 }) {
   return (
-    <div className={`bg-muted flex flex-wrap gap-2 p-4 ${roundCorners ? 'rounded-tl-md rounded-tr-md' : 'rounded-none pt-2'}`}>
+    <div className={`bg-muted flex max-h-60 flex-wrap gap-2 overflow-y-auto p-4 ${roundCorners ? 'rounded-tl-md rounded-tr-md' : 'rounded-none pt-2'}`}>
       {Array.from(images).map((image, idx) => (
-        <div key={idx} className='group relative inline-block overflow-hidden rounded-md border'>
+        <div key={idx} className='group relative overflow-hidden rounded-md border'>
           <Image
             width={255}
             height={255}
             src={URL.createObjectURL(image)}
             alt={image.name}
-            className='max-h-30 w-fit object-contain'
+            className='max-h-48 w-auto object-contain'
             onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
           />
           <div className='absolute top-2 right-2 left-2 flex items-center justify-between gap-2'>
-            <span className='bg-accent/60 truncate rounded-md px-2 py-1 text-xs backdrop-blur-xl' title={formatFileSize(image)}>
+            <span className='bg-accent/60 truncate rounded-md px-2 py-1 text-xs text-clip backdrop-blur-xl' title={formatFileSize(image)}>
               {formatFileSize(image)}
             </span>
             <Button

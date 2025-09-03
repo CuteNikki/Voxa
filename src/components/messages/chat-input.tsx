@@ -141,7 +141,7 @@ export function ChatInput({
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder='Your Message'
-          className='no-scrollbar !bg-background z-40 m-2 mt-0 max-h-18 resize-none py-3 pr-20 pl-12'
+          className='no-scrollbar !bg-background z-40 m-2 mt-0 h-12 resize-none py-3 pr-20 pl-12'
           disabled={disabled || uploading}
         />
         {value.length >= MAX_MESSAGE_LENGTH_WARNING && (
@@ -149,7 +149,7 @@ export function ChatInput({
             {value.length}/{MAX_MESSAGE_LENGTH}
           </span>
         )}
-        <div className='absolute flex h-full w-full flex-row items-center justify-between px-3 pb-2'>
+        <div className='absolute flex h-full w-full flex-row items-center justify-between px-3.5 pb-2'>
           <div className='flex items-center gap-1'>
             <UploadButton images={images} setImages={setImages} disabled={disabled || uploading} />
           </div>

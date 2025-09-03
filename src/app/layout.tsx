@@ -49,7 +49,7 @@ export default function RootLayout({
             <ConvexProviderWithClerk>
               <PresenceSyncClient />
               <UserSyncer />
-              <div className='flex h-screen flex-col'>
+              <div className='flex h-svh flex-col'>
                 <SidebarProvider
                   style={
                     {

@@ -173,14 +173,14 @@ export function Message({
                       <div className='mt-2 flex w-full max-w-5xl flex-wrap items-start gap-2'>
                         {message.attachments.map((att, idx) => (
                           <Dialog key={idx}>
-                            <DialogTrigger asChild>
+                            <DialogTrigger>
                               <Image
                                 priority
                                 width={255}
                                 height={255}
                                 src={att.url}
                                 alt={`Image ${idx + 1} for message ${message._id}`}
-                                className='max-h-40 w-fit self-start rounded-md object-contain'
+                                className='max-h-52 w-auto rounded-md object-contain'
                                 onError={(e) => {
                                   const target = e.currentTarget as HTMLImageElement;
                                   target.onerror = null; // Prevent infinite loop
@@ -189,12 +189,13 @@ export function Message({
                               />
                             </DialogTrigger>
                             <DialogContent
-                              className='h-screen w-screen !max-w-screen bg-contain bg-center bg-no-repeat'
+                              className='h-[calc(100svh-24px)] w-[calc(100svw-24px)] !max-w-svw bg-contain bg-center bg-no-repeat sm:h-[calc(100svh-48px)] sm:w-[calc(100svw-48px)]'
                               style={{ backgroundImage: `url(${att.url})` }}
                             >
-                              <DialogTitle className='absolute h-10 w-full bg-gradient-to-b from-black/70 to-transparent px-4 pt-2'>
-                                <span className='flex items-center gap-2 text-sm drop-shadow-md'>
-                                  {att.name} <span className='font-normal'>({formatFileSize({ size: att.size })})</span>
+                              <DialogTitle className='absolute h-12 w-full bg-gradient-to-b from-black/80 to-transparent px-4 pt-2'>
+                                <span className='flex items-center gap-2 text-sm text-shadow-md'>
+                                  <span className='truncate'>{att.name}</span>
+                                  <span className='pr-8 font-normal'>({formatFileSize({ size: att.size })})</span>
                                 </span>
                               </DialogTitle>
                             </DialogContent>
