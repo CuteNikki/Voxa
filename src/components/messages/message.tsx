@@ -188,16 +188,14 @@ export function Message({
                                 }}
                               />
                             </DialogTrigger>
-                            <DialogContent
-                              className='h-[calc(100svh-24px)] w-[calc(100svw-24px)] !max-w-svw bg-contain bg-center bg-no-repeat sm:h-[calc(100svh-48px)] sm:w-[calc(100svw-48px)]'
-                              style={{ backgroundImage: `url(${att.url})` }}
-                            >
-                              <DialogTitle className='absolute h-12 w-full bg-gradient-to-b from-black/80 to-transparent px-4 pt-2'>
-                                <span className='flex items-center gap-2 text-sm text-shadow-md'>
+                            <DialogContent className='h-full !max-h-[calc(100svh-48px)] !max-w-[calc(100svw-48px)] overflow-hidden p-0'>
+                              <DialogTitle className='absolute top-0 left-0 h-12 w-full bg-gradient-to-b from-white/80 to-transparent px-4 pt-2 dark:from-black/80'>
+                                <span className='flex items-center gap-2 text-sm'>
                                   <span className='truncate'>{att.name}</span>
                                   <span className='pr-8 font-normal'>({formatFileSize({ size: att.size })})</span>
                                 </span>
                               </DialogTitle>
+                              <Image fill src={att.url} alt={att.name} className='object-contain -z-10' />
                             </DialogContent>
                           </Dialog>
                         ))}
