@@ -66,22 +66,22 @@ export function DeleteMessageButton({ message }: { message: Doc<'messages'> }) {
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form onSubmit={handleSubmit}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone. This will permanently delete the message.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button variant='secondary' type='button'>
-                Cancel
-              </Button>
-            </AlertDialogCancel>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>This action cannot be undone. This will permanently delete the message.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
+            <Button variant='secondary' type='button'>
+              Cancel
+            </Button>
+          </AlertDialogCancel>
+          <form onSubmit={handleSubmit}>
             <Button variant='destructive' type='submit' disabled={loading}>
               {loading ? 'Deleting...' : 'Continue'}
             </Button>
-          </AlertDialogFooter>
-        </form>
+          </form>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
