@@ -13,39 +13,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function ActiveMembers({ groupId, userId }: { groupId: string; userId: string }) {
-  const group = useQuery(api.groups.getGroupById, { chatId: groupId });
-  const groupMemberIds = group?.members.filter((m) => Date.now() - (m.lastReadAt ?? 0) < LAST_READ_THRESHOLD).map((m) => m.userId);
-  const groupMembers = useQuery(api.users.getUsersByIds, groupMemberIds && groupMemberIds.length > 0 ? { ids: groupMemberIds } : 'skip');
+  const groupMembers = useQuery(api.groups.getGroupMembers, { groupId });
+  const groupMemberIds = groupMembers?.filter((m) => Date.now() - (m.lastReadAt ?? 0) < LAST_READ_THRESHOLD).map((m) => m.userId);
+  const groupMemberDetails = useQuery(api.users.getUsersByIds, groupMemberIds && groupMemberIds.length > 0 ? { ids: groupMemberIds } : 'skip');
 
   return (
     <div className='hidden w-45 flex-col items-center justify-center border-l lg:flex'>
       <div className='flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center border-b px-2'>
         <span className='text-center text-sm'>
-          <NumberBadge className='mr-1'>{groupMembers?.length ?? 0}</NumberBadge> Active Members
+          <NumberBadge className='mr-1'>{groupMemberIds?.length ?? 0}</NumberBadge> Active Members
         </span>
       </div>
       <ScrollArea className='h-full w-full overflow-auto'>
         <div className='flex w-full flex-col p-2'>
-          {groupMembers !== undefined ? (
-            groupMembers.length > 0 ? (
-              groupMembers.map((member, id) => (
-                <Popover key={id}>
-                  <PopoverContentUser target={member} userId={userId} side='left' align='start' />
-                  <PopoverTrigger className='hover:bg-muted/60 w-full cursor-pointer self-start rounded-md p-2 transition-colors'>
-                    <div className='flex items-center gap-2'>
-                      <Avatar className='size-6'>
-                        <AvatarImage src={member.imageUrl} alt={member.username + ' avatar'} />
-                        <AvatarFallback>{member.username?.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <span className='capitalize'>{member.username}</span>
-                    </div>
-                  </PopoverTrigger>
-                </Popover>
-              ))
-            ) : (
-              <span className='text-muted-foreground text-sm'>No active members</span>
-            )
-          ) : (
+          {groupMemberDetails === undefined ? (
             Array.from({ length: 3 }).map((member, id) => (
               <div key={id} className='hover:bg-muted/60 w-full cursor-pointer self-start rounded-md p-2 transition-colors'>
                 <div className='flex items-center gap-2'>
@@ -58,6 +39,23 @@ export function ActiveMembers({ groupId, userId }: { groupId: string; userId: st
                 </div>
               </div>
             ))
+          ) : groupMemberDetails.length > 0 ? (
+            groupMemberDetails.map((member, id) => (
+              <Popover key={id}>
+                <PopoverContentUser target={member} userId={userId} side='left' align='start' />
+                <PopoverTrigger className='hover:bg-muted/60 w-full cursor-pointer self-start rounded-md p-2 transition-colors'>
+                  <div className='flex items-center gap-2'>
+                    <Avatar className='size-6'>
+                      <AvatarImage src={member.imageUrl} alt={member.username + ' avatar'} />
+                      <AvatarFallback>{member.username?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <span className='capitalize'>{member.username}</span>
+                  </div>
+                </PopoverTrigger>
+              </Popover>
+            ))
+          ) : (
+            <span className='text-muted-foreground text-center text-sm'>No active members</span>
           )}
         </div>
       </ScrollArea>

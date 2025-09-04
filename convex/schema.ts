@@ -36,13 +36,13 @@ export default defineSchema({
 
   groups: defineTable({
     name: v.string(),
-    members: v.array(
-      v.object({
-        userId: v.string(),
-        lastReadAt: v.optional(v.number()),
-      }),
-    ),
     createdBy: v.string(),
+  }),
+
+  groupMembers: defineTable({
+    groupId: v.string(),
+    userId: v.string(),
+    lastReadAt: v.optional(v.number()),
   }),
 
   messages: defineTable({

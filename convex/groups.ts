@@ -56,8 +56,45 @@ export const createGroupChat = mutation({
 
     return await ctx.db.insert('groups', {
       name: args.name ?? `${Date.now()}-${randomId(5)}`,
-      members: [],
       createdBy: user.subject,
     });
+  },
+});
+
+export const getGroupMembers = query({
+  args: { groupId: v.string() },
+  handler: async (ctx, { groupId }) => {
+    return await ctx.db
+      .query('groupMembers')
+      .filter((q) => q.eq(q.field('groupId'), groupId))
+      .collect();
+  },
+});
+
+export const updateMembers = mutation({
+  args: { groupId: v.string() },
+  handler: async (ctx, { groupId }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const existingMember = await ctx.db
+      .query('groupMembers')
+      .filter((q) => q.and(q.eq(q.field('groupId'), groupId), q.eq(q.field('userId'), user.subject)))
+      .first();
+
+    const lastReadAt = Date.now();
+
+    if (existingMember) {
+      await ctx.db.patch(existingMember._id, { lastReadAt });
+    } else {
+      await ctx.db.insert('groupMembers', {
+        userId: user.subject,
+        groupId,
+        lastReadAt,
+      });
+    }
   },
 });

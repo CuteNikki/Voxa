@@ -4,19 +4,21 @@ import { useUser } from '@clerk/nextjs';
 import { usePaginatedQuery, useQuery } from 'convex/react';
 import Link from 'next/link';
 
-import { api } from '../../../convex/_generated/api';
-
 import { EllipsisIcon } from 'lucide-react';
+
+import { api } from '../../../convex/_generated/api';
+import { Doc } from '../../../convex/_generated/dataModel';
 
 import { formatSidebarTimestamp } from '@/lib/utils';
 
-import { LAST_READ_THRESHOLD } from '@/constants/limits';
+import { LAST_READ_THRESHOLD, LAST_READ_UPDATE_INTERVAL } from '@/constants/limits';
 import { PLACEHOLDER_GROUP } from '@/constants/placeholders';
 
 import { NumberBadge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect, useState } from 'react';
 
 export function NavGroups() {
   const { user } = useUser();
@@ -81,20 +83,17 @@ function GroupItemSkeleton() {
   );
 }
 
-function GroupItem({
-  item,
-  currentUserId,
-}: {
-  item: {
-    _id: string;
-    _creationTime: number;
-    members: { userId: string; lastReadAt?: number }[];
-    name: string;
-  };
-  currentUserId: string;
-}) {
+function GroupItem({ item, currentUserId }: { item: Doc<'groups'>; currentUserId: string }) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), LAST_READ_UPDATE_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
+
   const lastMessage = useQuery(api.chats.getLastMessage, { chatId: item._id });
-  const activeMembers = item.members.filter((member) => (member?.lastReadAt ?? 0) > Date.now() - LAST_READ_THRESHOLD);
+  const groupMembers = useQuery(api.groups.getGroupMembers, { groupId: item._id });
+  const activeMembers = groupMembers?.filter((m) => now - (m.lastReadAt ?? 0) < LAST_READ_THRESHOLD).map((m) => m.userId);
 
   if (lastMessage === undefined) {
     return <GroupItemSkeleton />;
@@ -126,7 +125,7 @@ function GroupItem({
               <span className='text-muted-foreground text-xs leading-tight'>{formatSidebarTimestamp(lastMessage._creationTime)}</span>
             )}
           </div>
-          {activeMembers?.length > 0 && <NumberBadge>{activeMembers.length}</NumberBadge>}
+          {activeMembers && activeMembers.length > 0 && <NumberBadge>{activeMembers.length}</NumberBadge>}
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

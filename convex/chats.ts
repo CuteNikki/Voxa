@@ -135,19 +135,6 @@ export const setLastRead = mutation({
       await ctx.db.patch(channel._id, {
         [field]: lastReadAt,
       });
-    } else {
-      const existingMember = channel.members.find((m) => m.userId === user.subject);
-
-      let updatedMembers;
-      if (existingMember) {
-        updatedMembers = channel.members.map((m) => (m.userId === user.subject ? { ...m, lastReadAt } : m));
-      } else {
-        updatedMembers = [...channel.members, { userId: user.subject, lastReadAt }];
-      }
-
-      await ctx.db.patch(channel._id, {
-        members: updatedMembers,
-      });
     }
   },
 });
