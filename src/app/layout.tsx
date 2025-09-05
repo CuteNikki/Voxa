@@ -42,10 +42,10 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Toaster richColors position='top-center' />
-        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        <ClerkProvider appearance={{ baseTheme: shadcn }}>
-          <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+          <Toaster richColors position='top-center' />
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          <ClerkProvider appearance={{ baseTheme: shadcn }}>
             <ConvexProviderWithClerk>
               <PresenceSyncClient />
               <UserSyncer />
@@ -63,8 +63,8 @@ export default function RootLayout({
                 </SidebarProvider>
               </div>
             </ConvexProviderWithClerk>
-          </ThemeProvider>
-        </ClerkProvider>
+          </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
