@@ -45,7 +45,7 @@ export default function RootLayout({
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
           <Toaster richColors position='top-center' />
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-          <ClerkProvider appearance={{ baseTheme: shadcn }}>
+          <ClerkProvider appearance={{ theme: shadcn }}>
             <ConvexProviderWithClerk>
               <PresenceSyncClient />
               <UserSyncer />
