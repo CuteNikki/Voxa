@@ -47,7 +47,7 @@ function EmojiPickerEmoji({ emoji, className, ...props }: EmojiPickerListEmojiPr
   return (
     <button
       {...props}
-      className={cn('data-[active]:bg-accent flex size-7 items-center justify-center rounded-sm text-base', className)}
+      className={cn('data-active:bg-accent flex size-7 items-center justify-center rounded-sm text-base', className)}
       data-slot='emoji-picker-emoji'
     >
       {emoji.emoji}

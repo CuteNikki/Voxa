@@ -162,7 +162,7 @@ export function ChatInput({
               </PopoverTrigger>
               <PopoverContent align='end' className='w-fit p-0'>
                 <EmojiPicker
-                  className='h-[342px]'
+                  className='h-85.5'
                   onEmojiSelect={({ emoji }) => {
                     if (!isHoldingShift) {
                       setEmojiPickerOpen(false);

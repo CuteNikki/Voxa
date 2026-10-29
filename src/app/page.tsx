@@ -19,7 +19,7 @@ export default function Home() {
     <>
       <SiteHeader />
       <div className='flex flex-col items-center justify-items-center gap-16 overflow-y-auto p-8 pb-20 font-sans sm:p-20'>
-        <main className='row-start-2 flex flex-col items-center gap-[32px] sm:items-start'>
+        <main className='row-start-2 flex flex-col items-center gap-8 sm:items-start'>
           <div className='flex flex-col gap-2'>
             <TypographyH1>Taxing Laughter: The Joke Tax Chronicles</TypographyH1>
             <TypographyH2>The People of the Kingdom</TypographyH2>

@@ -39,9 +39,9 @@ export function ReactionButton({
           <SmilePlusIcon />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align='end' className='w-fit p-0 mx-2'>
+      <PopoverContent align='end' className='mx-2 w-fit p-0'>
         <EmojiPicker
-          className='h-[342px]'
+          className='h-85.5'
           onEmojiSelect={({ emoji }) => {
             if (!isHoldingShift) {
               setReactionPicker(undefined);
