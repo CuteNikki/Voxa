@@ -11,13 +11,8 @@ export const description = 'An interactive area chart';
 
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile();
-  const [timeRange, setTimeRange] = React.useState('90d');
-
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange('7d');
-    }
-  }, [isMobile]);
+  const [pickedRange, setTimeRange] = React.useState<string>();
+  const timeRange = pickedRange ?? (isMobile ? '7d' : '90d');
 
   return (
     <Card className='@container/card'>

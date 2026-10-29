@@ -195,7 +195,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
 
   useEffect(() => {
     if (highlightedMessageId) {
-      setDisableAutoScrollUntil(Date.now() + 1600);
+      disableAutoScrollUntilRef.current = Date.now() + 1600;
       const timeout = setTimeout(() => {
         setHighlightedMessageId(undefined);
       }, 1500);
@@ -203,10 +203,8 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
     }
   }, [highlightedMessageId]);
 
-  useEffect(() => {
-    if (!replyingTo) return;
-    if (!messages.map((m) => m._id.toString()).includes(replyingTo)) setReplyingTo(undefined);
-  }, [messages, replyingTo]);
+  // A reply to a message that's gone (deleted, or no longer loaded) is dropped
+  const replyTarget = replyingTo && messages.some((m) => m._id.toString() === replyingTo) ? replyingTo : undefined;
 
   // ---------- RENDER ----------
 
@@ -221,7 +219,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
           </div>
         </div>
 
-        <ChatInput userId={userId} chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} disabled />
+        <ChatInput userId={userId} chatId={chatId} replyingTo={replyTarget} setReplyingTo={setReplyingTo} disabled />
       </div>
     );
   }
@@ -229,7 +227,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
   return (
     <div className='flex min-h-0 flex-1 flex-col'>
       {/* SCROLLABLE MESSAGES */}
-      <div ref={scrollRef} className='flex-1 overflow-y-auto no-scrollbar'>
+      <div ref={scrollRef} className='no-scrollbar flex-1 overflow-y-auto'>
         <div className='flex w-full flex-col pt-6 pb-2'>
           {status === 'CanLoadMore' && (
             <Button variant='default' className='self-center' onClick={() => loadMore(25)}>
@@ -247,7 +245,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
                       message._creationTime - messages[index - 1]?._creationTime > MESSAGE_GROUPING_THRESHOLD
                     }
                     userId={userId}
-                    replyingTo={replyingTo}
+                    replyingTo={replyTarget}
                     setReplyingTo={setReplyingTo}
                     editing={editing}
                     setEditing={setEditing}
@@ -319,7 +317,7 @@ export function MessageContainer({ chatId, userId }: { chatId: string; userId: s
       )}
 
       {/* MESSAGE INPUT */}
-      <ChatInput userId={userId} chatId={chatId} replyingTo={replyingTo} setReplyingTo={setReplyingTo} isGroup={isGroup} />
+      <ChatInput userId={userId} chatId={chatId} replyingTo={replyTarget} setReplyingTo={setReplyingTo} isGroup={isGroup} />
     </div>
   );
 }

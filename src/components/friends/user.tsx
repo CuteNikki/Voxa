@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery } from 'convex/react';
-import { useEffect, useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -19,6 +18,7 @@ import { TypographyMuted } from '@/components/typography/muted';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
+import { useNow } from '@/hooks/use-now';
 
 export function FriendElement({ targetId, userId }: { targetId: string; userId: string }) {
   const isFriend = useQuery(api.friends.isFriend, { userId: userId, targetId: targetId });
@@ -62,11 +62,7 @@ export function BaseUser({ targetId, children }: { targetId: string; children?: 
   const presence = useQuery(api.presence.getUserPresence, { userId: targetId });
 
   // Re-render update presence status
-  const [, setNow] = useState(Date.now());
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), ONLINE_UPDATE_INTERVAL);
-    return () => clearInterval(interval);
-  }, []);
+  useNow(ONLINE_UPDATE_INTERVAL);
 
   const lastSeen = presence?.lastSeen ?? 0;
   const online = isOnline(lastSeen);

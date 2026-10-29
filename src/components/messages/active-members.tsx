@@ -2,7 +2,7 @@ import { useQuery } from 'convex/react';
 
 import { api } from '../../../convex/_generated/api';
 
-import { LAST_READ_THRESHOLD } from '@/constants/limits';
+import { LAST_READ_THRESHOLD, LAST_READ_UPDATE_INTERVAL } from '@/constants/limits';
 import { PLACEHOLDER_UNKNOWN_USER } from '@/constants/placeholders';
 
 import { PopoverContentUser } from '@/components/messages/message';
@@ -11,10 +11,12 @@ import { NumberBadge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useNow } from '@/hooks/use-now';
 
 export function ActiveMembers({ groupId, userId }: { groupId: string; userId: string }) {
   const groupMembers = useQuery(api.groups.getGroupMembers, { groupId });
-  const groupMemberIds = groupMembers?.filter((m) => Date.now() - (m.lastReadAt ?? 0) < LAST_READ_THRESHOLD).map((m) => m.userId);
+  const now = useNow(LAST_READ_UPDATE_INTERVAL);
+  const groupMemberIds = groupMembers?.filter((m) => now - (m.lastReadAt ?? 0) < LAST_READ_THRESHOLD).map((m) => m.userId);
   const groupMemberDetails = useQuery(api.users.getUsersByIds, groupMemberIds && groupMemberIds.length > 0 ? { ids: groupMemberIds } : 'skip');
 
   return (

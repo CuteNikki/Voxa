@@ -18,7 +18,7 @@ import { NumberBadge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useEffect, useState } from 'react';
+import { useNow } from '@/hooks/use-now';
 
 export function NavGroups() {
   const { user } = useUser();
@@ -84,12 +84,7 @@ function GroupItemSkeleton() {
 }
 
 function GroupItem({ item, currentUserId }: { item: Doc<'groups'>; currentUserId: string }) {
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), LAST_READ_UPDATE_INTERVAL);
-    return () => clearInterval(interval);
-  }, []);
+  const now = useNow(LAST_READ_UPDATE_INTERVAL);
 
   const lastMessage = useQuery(api.chats.getLastMessage, { chatId: item._id });
   const groupMembers = useQuery(api.groups.getGroupMembers, { groupId: item._id });

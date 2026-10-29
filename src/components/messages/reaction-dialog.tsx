@@ -1,5 +1,5 @@
 import { useQuery } from 'convex/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { api } from '../../../convex/_generated/api';
 
@@ -28,11 +28,9 @@ export function ReactionDialogContent({
     return acc;
   }, {});
   const emojis = Object.keys(emojiGroups);
-  const [activeTab, setActiveTab] = useState(emojis[0] ?? '');
-
-  useEffect(() => {
-    if (!emojis.includes(activeTab)) setActiveTab(emojis[0] ?? '');
-  }, [emojis, activeTab]);
+  const [selectedTab, setActiveTab] = useState(emojis[0] ?? '');
+  // Falls back to the first emoji once the selected one's reactions are all removed
+  const activeTab = emojis.includes(selectedTab) ? selectedTab : (emojis[0] ?? '');
 
   if (!emojis.length) {
     return <div className='text-muted-foreground text-sm'>No reactions yet.</div>;
